@@ -50,7 +50,7 @@ namespace core {
 
 				auto userEnd = user->second.end();
 				for (auto it = user->second.begin(); it != userEnd; ++it)
-					userProducts[it->ProductId] = it->Rating;
+					userProducts[it->ProductId] = it->Rate;
 
 				size_t counter1 = 0;
 				vector<pair<PRODUCT_TYPE, IndexItem*>> items;

@@ -26,16 +26,16 @@ namespace core {
 		return converter.to_bytes(data);
 	}
 
-	typedef struct tIdItem { size_t Id; } IdItem;
-
 	typedef struct tIndexItem {
-		size_t ProductId, UserId;
+		PRODUCT_TYPE ProductId;
+		USER_TYPE UserId;
 		RATE_TYPE Rating;
 	} IndexItem;
 
 
-	typedef struct tUserInfo : IdItem {
+	typedef struct tUserInfo {
 		tUserInfo() : TotalProduct(0), TotalRating(0.0), AvgRating(0.0), Products(vector<IndexItem*>()) {  }
+		PRODUCT_TYPE Id;
 		int TotalProduct;
 		float TotalRating;
 		float AvgRating;

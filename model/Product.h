@@ -5,12 +5,12 @@
 
 using namespace std;
 namespace model {
-	typedef struct sProduct {
+	class Product {
 	public:
-		sProduct(size_t productId, string name) :ProductId(productId), Name(name) {}
-		sProduct() :ProductId(0), Name("") {}
+		Product(PRODUCT_TYPE productId, string name) :ProductId(productId), Name(name) {}
+		Product() :ProductId(0), Name("") {}
 
 		PRODUCT_TYPE ProductId;
 		string Name;
-	} Product;
+	};
 }

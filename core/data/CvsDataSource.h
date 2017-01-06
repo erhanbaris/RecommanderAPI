@@ -85,7 +85,7 @@ namespace core
 						getline(in, title, ',');
 						getline(in, genres, '\n');
 
-						this->Data()->AddProduct((size_t) stoi(movieIdStr), getString(title));
+						this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), getString(title));
 					}
 					catch (const std::exception& e)
 					{

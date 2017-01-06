@@ -32,7 +32,7 @@ namespace core {
 
 			algoritm::SlopeOne slopeOne;
 
-			CUSTOM_MAP<size_t, vector<model::Rating>> userRatings;
+			CUSTOM_MAP<USER_TYPE, vector<model::Rating>> userRatings;
 
 			CUSTOM_MAP<PRODUCT_TYPE, std::vector<IndexItem*> > productMap;
 			CUSTOM_MAP<USER_TYPE, UserInfo> userMap;

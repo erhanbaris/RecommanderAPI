@@ -5,12 +5,12 @@
 
 using namespace std;
 namespace model {
-	typedef struct sRating {
+	class Rating {
 	public:
-		sRating(PRODUCT_TYPE productId, RATE_TYPE rating) :Rating(rating), ProductId(productId) {}
-		sRating() :Rating(0), ProductId(0) {}
+		Rating(PRODUCT_TYPE productId, RATE_TYPE rate) :Rate(rate), ProductId(productId) {}
+		Rating() :Rate(0), ProductId(0) {}
 
-		RATE_TYPE Rating;
+		RATE_TYPE Rate;
 		PRODUCT_TYPE ProductId;
-	} Rating;
+	} ;
 }

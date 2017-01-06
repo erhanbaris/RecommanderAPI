@@ -3,12 +3,21 @@
 #define USE_GOOGLE_DENSE_HASH_MAP
 #define RESERVED_SIZE 32768
 #define KNEAR_SIZE 5
-
-#define RATE_TYPE unsigned char
-#define PRODUCT_TYPE unsigned long
-#define USER_TYPE unsigned long
 #define HTTP_SERVER_PORT 8080
-#define ENABLE_CACHE1
+#define ENABLE_CACHE
+
+#undef ENABLE_CACHE
+
+
+#if defined(_WIN32) || defined(WIN32)
+    #define RATE_TYPE uint8_t
+    #define PRODUCT_TYPE size_t
+    #define USER_TYPE size_t
+#else
+    #define RATE_TYPE unsigned char
+    #define PRODUCT_TYPE unsigned long
+    #define USER_TYPE unsigned long
+#endif
 
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     #include <sparsehash/dense_hash_map>

@@ -125,9 +125,9 @@ vector<pair<PRODUCT_TYPE, wstring>> recommend(size_t userId)
                 {
                     auto recommendItem = recommendedProductIds.find(artistItem.ProductId);
                     if (recommendItem == recommendedProductIds.end())
-                        recommendedProductIds[artistItem.ProductId] = static_cast<float>(artistItem.Rating) * weight;
+                        recommendedProductIds[artistItem.ProductId] = static_cast<float>(artistItem.Rate) * weight;
                     else
-                        recommendItem->second = recommendItem->second + (static_cast<float>(artistItem.Rating) * weight);
+                        recommendItem->second = recommendItem->second + (static_cast<float>(artistItem.Rate) * weight);
                 }
             }
 
@@ -136,17 +136,17 @@ vector<pair<PRODUCT_TYPE, wstring>> recommend(size_t userId)
     }
 
 
-    vector<pair<size_t, float>> sortIds;
+    vector<pair<PRODUCT_TYPE, float>> sortIds;
     auto recommendedProductIdsEnd = recommendedProductIds.end();
     for (auto it = recommendedProductIds.begin(); it != recommendedProductIdsEnd; ++it)
-        sortIds.push_back(pair<size_t, float>(it->first, it->second));
+        sortIds.push_back(pair<PRODUCT_TYPE, float>(it->first, it->second));
 
-    std::sort(sortIds.begin(), sortIds.end(), [](pair<size_t, float> const & left, pair<size_t, float> const & right) {
+    std::sort(sortIds.begin(), sortIds.end(), [](pair<PRODUCT_TYPE, float> const & left, pair<PRODUCT_TYPE, float> const & right) {
         return left.second < right.second;
     });
 
     for (auto id = sortIds.begin(); id != sortIds.end(); ++id)
-        recommendedProducts.push_back(pair<size_t, wstring>(id->first, dataSource->Data()->productInfos[id->first]));
+        recommendedProducts.push_back(pair<PRODUCT_TYPE, wstring>(id->first, dataSource->Data()->productInfos[id->first]));
 
     return recommendedProducts;
 }
