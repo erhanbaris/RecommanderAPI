@@ -18,6 +18,7 @@
 #include <string>
 #include <functional>
 #include <locale>
+#include <sstream>
 
 #include "crow.h"
 
@@ -39,35 +40,31 @@ using namespace model;
 using namespace core::algoritm;
 
 
+
 core::data::BaseDataSource<core::data::DataInfo>* dataSource;
 PearsonCorrelationCoefficien mDistance;
 
-string unescape(const string& s)
-{
-    string res;
-    string::const_iterator it = s.begin();
-    while (it != s.end())
-    {
-        char c = *it++;
-        if (c == '\\' && it != s.end())
-        {
-            switch (*it++) {
-                case '\\': c = '\\'; break;
-                case 'n': c = '\n'; break;
-                case 't': c = '\t'; break;
-                    // all other escapes
-                default:
-                    // invalid escape sequence - skip it. alternatively you can copy it as is, throw an exception...
-                    continue;
-            }
+std::string escapeJsonString(const std::string& input) {
+    std::ostringstream ss;
+    for (auto iter = input.cbegin(); iter != input.cend(); iter++) {
+        //C++98/03:
+        //for (std::string::const_iterator iter = input.begin(); iter != input.end(); iter++) {
+        switch (*iter) {
+            case '\\': ss << "\\\\"; break;
+            case '"': ss << "\\\""; break;
+            case '/': ss << "\\/"; break;
+            case '\b': ss << "\\b"; break;
+            case '\f': ss << "\\f"; break;
+            case '\n': ss << "\\n"; break;
+            case '\r': ss << "\\r"; break;
+            case '\t': ss << "\\t"; break;
+            default: ss << *iter; break;
         }
-        res += c;
     }
-
-    return res;
+    return ss.str();
 }
 
-vector<pair<PRODUCT_TYPE, wstring>> recommend(size_t userId)
+vector<pair<PRODUCT_TYPE, wstring>> recommend(USER_TYPE userId)
 {
     vector<pair<PRODUCT_TYPE, wstring>> recommendedProducts;
     CUSTOM_MAP<PRODUCT_TYPE, float> recommendedProductIds;
@@ -184,7 +181,7 @@ int main()
                 });
 
         CROW_ROUTE(app, "/api/recommend/<int>")
-                ([](int userId) {
+                ([](USER_TYPE userId) {
                     vector<pair<PRODUCT_TYPE, wstring>> results;
 
 #ifdef ENABLE_CACHE
@@ -199,26 +196,28 @@ int main()
                     }
 #endif
 
-                    size_t idx = 0;
-                    crow::json::rvalue body;
+                    std::stringstream stream;
+                    stream << "[";
 
-
-                    crow::json::wvalue bodyArray;
                     auto end = results.cend();
                     for (auto it = results.cbegin(); it != end; ++it)
                     {
                         string tmpName;
                         tmpName.assign(it->second.begin(), it->second.end());
 
-                        crow::json::wvalue item ;
-                        item["Id"] = it->first;
-                        item["Name"] = tmpName;
-                        bodyArray[idx] = unescape(crow::json::dump(item));
-
-                        ++idx;
+                        stream << "{\"Id\":" << it->first << ",\"Name\":\"" << escapeJsonString(tmpName) << "\"},";
                     }
 
-                    return crow::response(bodyArray);
+                    stream.seekg(0, ios::end);
+                    int size = stream.tellg();
+
+                    if (size > 1)
+                        stream.seekp(-1, stream.cur);
+
+                    stream << "]";
+                    crow::response res(stream.str());
+                    res.set_header("Content-Type", "application/json");
+                    return res;
                 });
 
         app.port(HTTP_SERVER_PORT).multithreaded().run();

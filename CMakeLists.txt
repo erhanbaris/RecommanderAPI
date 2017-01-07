@@ -5,9 +5,9 @@ find_package( Boost 1.55 COMPONENTS system REQUIRED )
 
 if(Boost_FOUND)
 	
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
+	set(Boost_USE_STATIC_LIBS        ON) # only find static libs
+	set(Boost_USE_MULTITHREADED      ON)
+	set(Boost_USE_STATIC_RUNTIME    OFF)
 
 	find_path(sparsehash_INCLUDE_DIR
 		PATH_SUFFIXES sparsehash )
