@@ -1,11 +1,18 @@
 cmake_minimum_required(VERSION 3.2)
 project(RecommanderAPI)
 
-message(STATUS "Merhaba dünya")
-
-find_package( Boost 1.55 COMPONENTS system REQUIRED )
+find_package( Boost 1.55 COMPONENTS system chrono thread REQUIRED )
+find_package( OpenSSL COMPONENTS crypto REQUIRED )
 find_path(CPPRESTSDK_INCLUDE_DIR NAMES cpprest/http_listener.h)
 find_library(CPPRESTSDK_LIB NAMES libcpprest cpprest)
+
+if(APPLE)
+	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
+	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+	set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
+	set(CMAKE_MACOSX_RPATH 1)
+endif()
+
 
 if(Boost_FOUND)
 	
@@ -20,11 +27,12 @@ if(Boost_FOUND)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-	
+
 	add_definitions(-DBOOST_ALL_NO_LIB)
 	include_directories(${PROJECT_SOURCE_DIR}/include)
 	include_directories(sparsehash_INCLUDE_DIR)
 	include_directories(CPPRESTSDK_INCLUDE_DIR)
+	include_directories(OPENSSL_INCLUDE_DIR)
 
 	set(SOURCE_FILES
 			main.cpp
@@ -41,6 +49,6 @@ if(Boost_FOUND)
 
 			)
 	add_executable(RecommanderAPI ${SOURCE_FILES})
-	target_link_libraries(RecommanderAPI ${Boost_LIBRARIES} ${CPPRESTSDK_LIB})
+	target_link_libraries(RecommanderAPI ${Boost_LIBRARIES} ${CPPRESTSDK_LIB} ${OPENSSL_LIBRARIES})
 
 endif()

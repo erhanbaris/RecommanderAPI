@@ -13,7 +13,7 @@
 #include <locale>
 
 #include "../../config.h"
-#include "../model/Rating.h"
+#include "../../model/Rating.h"
 #include "../types.h"
 
 #define CALCULATE_METHOD() if (currentUser != 0) \
