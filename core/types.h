@@ -15,16 +15,8 @@ namespace core {
 	static size_t TotalProductCount = 0;
 	static size_t TotalUserCount = 0;
 
-	wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-	wstring getString(const string & data)
-	{
-		return converter.from_bytes(data);
-	}
-
-	string getString(const wstring & data)
-	{
-		return converter.to_bytes(data);
-	}
+	wstring getString(const string & data);
+	string getString(const wstring & data);
 
 	typedef struct tIndexItem {
 		PRODUCT_TYPE ProductId;

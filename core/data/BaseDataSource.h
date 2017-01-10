@@ -3,6 +3,7 @@
 #include "../../config.h"
 #include "../../model/Rating.h"
 #include "BaseDataInfo.h"
+#include "GeneralDataInfo.h"
 
 using namespace model;
 using namespace core;
@@ -10,7 +11,7 @@ using namespace core;
 namespace core {
 	namespace data {
 		
-		template<class DataInfo = DataInfo>
+		template<class DataInfo = GeneralDataInfo>
 		class BaseDataSource {
 		public:
 			static_assert(std::is_base_of<BaseDataInfo, DataInfo>::value, "'BaseDataInfo' Required");
@@ -19,7 +20,7 @@ namespace core {
 			{
 				data = new DataInfo();
 			}
-	
+
 			BaseDataInfo * Data() const
 			{
 				return data;

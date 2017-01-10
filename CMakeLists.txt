@@ -39,15 +39,24 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/model/Product.h
 			${PROJECT_SOURCE_DIR}/model/Rating.h
 			${PROJECT_SOURCE_DIR}/core/algoritm/SlopeOne.h
+			${PROJECT_SOURCE_DIR}/core/algoritm/SlopeOne.cpp
 			${PROJECT_SOURCE_DIR}/core/algoritm/PearsonCorrelationCoefficien.h
+			${PROJECT_SOURCE_DIR}/core/algoritm/PearsonCorrelationCoefficien.cpp
 			${PROJECT_SOURCE_DIR}/core/data/MongoDbDataSource.h
 			${PROJECT_SOURCE_DIR}/core/data/BaseDataInfo.h
+			${PROJECT_SOURCE_DIR}/core/data/BaseDataInfo.cpp
+			${PROJECT_SOURCE_DIR}/core/data/GeneralDataInfo.h
+			${PROJECT_SOURCE_DIR}/core/data/GeneralDataInfo.cpp
 			${PROJECT_SOURCE_DIR}/core/data/BaseDataSource.h
 			${PROJECT_SOURCE_DIR}/core/data/CvsDataSource.h
+			${PROJECT_SOURCE_DIR}/core/data/CvsDataSource.cpp
+			${PROJECT_SOURCE_DIR}/core/MimeType.h
+			${PROJECT_SOURCE_DIR}/core/MimeType.cpp
 			${PROJECT_SOURCE_DIR}/core/types.h
+			${PROJECT_SOURCE_DIR}/core/types.cpp
 			${PROJECT_SOURCE_DIR}/config.h
 
-			)
+			core/MimeType.h)
 	add_executable(RecommanderAPI ${SOURCE_FILES})
 	target_link_libraries(RecommanderAPI ${Boost_LIBRARIES} ${CPPRESTSDK_LIB} ${OPENSSL_LIBRARIES})
 
