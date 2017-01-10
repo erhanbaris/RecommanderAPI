@@ -1,7 +1,11 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.2)
 project(RecommanderAPI)
 
+message(STATUS "Merhaba dünya")
+
 find_package( Boost 1.55 COMPONENTS system REQUIRED )
+find_path(CPPRESTSDK_INCLUDE_DIR NAMES cpprest/http_listener.h)
+find_library(CPPRESTSDK_LIB NAMES libcpprest cpprest)
 
 if(Boost_FOUND)
 	
@@ -9,8 +13,7 @@ if(Boost_FOUND)
 	set(Boost_USE_MULTITHREADED      ON)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
 
-	find_path(sparsehash_INCLUDE_DIR
-		PATH_SUFFIXES sparsehash )
+	find_path(sparsehash_INCLUDE_DIR PATH_SUFFIXES sparsehash )
 	include_directories(${Boost_INCLUDE_DIR})
 	link_directories(${Boost_LIBRARY_DIR})
 	
@@ -21,6 +24,7 @@ if(Boost_FOUND)
 	add_definitions(-DBOOST_ALL_NO_LIB)
 	include_directories(${PROJECT_SOURCE_DIR}/include)
 	include_directories(sparsehash_INCLUDE_DIR)
+	include_directories(CPPRESTSDK_INCLUDE_DIR)
 
 	set(SOURCE_FILES
 			main.cpp
@@ -37,6 +41,6 @@ if(Boost_FOUND)
 
 			)
 	add_executable(RecommanderAPI ${SOURCE_FILES})
-	target_link_libraries(RecommanderAPI ${Boost_LIBRARIES})
+	target_link_libraries(RecommanderAPI ${Boost_LIBRARIES} ${CPPRESTSDK_LIB})
 
 endif()
