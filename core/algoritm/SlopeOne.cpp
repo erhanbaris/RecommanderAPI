@@ -45,10 +45,10 @@ core::algoritm::SlopeOne::SlopeOne() {
 
     Items.set_deleted_key(-1);
     Items.set_empty_key(0);
-#endif
 
     DifffMatrix.resize(RESERVED_SIZE);
     Items.resize(RESERVED_SIZE);
+#endif
 }
 
 void core::algoritm::SlopeOne::AddUsers(CUSTOM_MAP<USER_TYPE, core::UserInfo> &users) {

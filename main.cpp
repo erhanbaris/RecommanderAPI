@@ -24,12 +24,22 @@
 
 #include <cpprest/http_listener.h>
 #include <cpprest/uri.h>
+#include <cpprest/http_client.h>
+#include <cpprest/filestream.h>
+#include <cpprest/producerconsumerstream.h>
+#include <cpprest/json.h>
+#include <cpprest/interopstream.h>
 
 #include "core/algoritm/PearsonCorrelationCoefficien.h"
 #include "model/Rating.h"
 #include "core/types.h"
 #include "core/data/BaseDataInfo.h"
 #include "core/data/GeneralDataInfo.h"
+#include "core/server/ServerConfig.h"
+#include "core/server/handler/BaseHandler.h"
+#include "core/server/handler/StaticFileHandler.h"
+#include "core/server/handler/HtmlHandler.h"
+#include "core/server/handler/ActionHandler.h"
 
 #pragma execution_character_set("utf-8")
 
@@ -37,32 +47,20 @@ using namespace std;
 using namespace std::chrono;
 using namespace model;
 using namespace core::algoritm;
+using namespace core::server;
+using namespace core::server::handler;
 
-using namespace ::pplx;
 using namespace utility;
 using namespace concurrency::streams;
 using namespace web::http;
 
+using namespace web;
+using namespace web::http;
+using namespace web::http::client;
+
 
 core::data::BaseDataSource<core::data::GeneralDataInfo> *dataSource;
 PearsonCorrelationCoefficien mDistance;
-core::MimeType mimeType;
-
-typedef struct sRequestInfo {
-    sRequestInfo(http_request &pRequest, std::map<utility::string_t, utility::string_t> pQueries, string &pUrl)
-            : Request(pRequest),
-              Queries(pQueries), Url(pUrl) { }
-
-    string MethodType;
-    http_request Request;
-    std::map<utility::string_t, utility::string_t> Queries;
-    string Url;
-} RequestInfo;
-
-typedef std::function<http_response(RequestInfo)> FuncDelegate;
-typedef CUSTOM_MAP<string, FuncDelegate> HttpMethodRoute;
-CUSTOM_MAP<string, HttpMethodRoute> routeTable;
-string StaticFolder, HtmlFolder;
 
 
 std::string escapeJsonString(const std::string &input) {
@@ -181,24 +179,24 @@ vector<pair<PRODUCT_TYPE, wstring>> recommend(USER_TYPE userId) {
     return recommendedProducts;
 }
 
-http_response mainPage(RequestInfo info) {
-    http_response returnValue;
-    returnValue.set_status_code(status_codes::OK);
-    returnValue.set_body("<b>/api/recommend</b><br /><b>/system/refresh</b>");
-    returnValue.headers().set_content_type("text/html");
+ResponseInfo mainPage(RequestInfo *info) {
+    ResponseInfo returnValue;
+    returnValue.Status = status_codes::OK;
+    returnValue.Data = "<b>/api/recommend</b><br /><b>/system/refresh</b>";
+    returnValue.ContentType = "text/html";
     return returnValue;
 }
 
-http_response apiRecommend(RequestInfo info) {
-    if (info.Queries.find("userid") == info.Queries.end()) {
+ResponseInfo apiRecommend(RequestInfo *info) {
+    if (info->Queries.find("userid") == info->Queries.end()) {
         web::json::value item = web::json::value::object();
         item[U("Status")] = web::json::value::boolean(false);
         item[U("ErrorMessage")] = web::json::value::string("Please set 'userid' parameter");
 
-        http_response returnValue;
-        returnValue.set_status_code(status_codes::BadRequest);
-        returnValue.set_body(item);
-        returnValue.headers().set_content_type("application/json");
+        ResponseInfo returnValue;
+        returnValue.Status = status_codes::BadRequest;
+        returnValue.Data = "";
+        returnValue.ContentType = "application/json";
 
         return returnValue;
     }
@@ -212,8 +210,8 @@ http_response apiRecommend(RequestInfo info) {
         results = cacheCheck->second;
     else {
 #endif
-    results = recommend(stoi(info.Queries["userid"]));
-    dataSource->Data()->recommendCacheForUser[stoi(info.Queries["userid"])] = results;
+    results = recommend(stoi(info->Queries["userid"]));
+    dataSource->Data()->recommendCacheForUser[stoi(info->Queries["userid"])] = results;
 #ifdef ENABLE_CACHE
     }
 #endif
@@ -237,301 +235,96 @@ http_response apiRecommend(RequestInfo info) {
 
     stream << "]";
 
-    http_response returnValue;
-    returnValue.set_status_code(status_codes::OK);
-    returnValue.set_body(stream.str());
-    returnValue.headers().set_content_type("application/json");
+    ResponseInfo returnValue;
+    returnValue.Status = status_codes::OK;
+    returnValue.Data = stream.str();
+    returnValue.ContentType = "application/json";
 
     return returnValue;
 }
 
-http_response refreshDataSource(RequestInfo info) {
+ResponseInfo refreshDataSource(RequestInfo *info) {
     dataSource->LoadData();
 
-    http_response returnValue;
-    returnValue.set_status_code(status_codes::OK);
-    returnValue.set_body("Loaded All Data");
+    ResponseInfo returnValue;
+    returnValue.Status = status_codes::OK;
+    returnValue.Data = "Loaded All Data";
 
     return returnValue;
 }
 
-void addHttpMethod(string method) {
-    HttpMethodRoute route;
-    INIT_MAP(route, "-1", "-2");
-    routeTable[method] = route;
-}
+std::vector<core::server::handler::BaseHandler *> handlers;
 
+void executeRequest(http_request *request, string const &methodType) {
 
-long getFileSize(FILE *file) {
-    long lCurPos, lEndPos;
-    lCurPos = ftell(file);
-    fseek(file, 0, 2);
-    lEndPos = ftell(file);
-    fseek(file, lCurPos, 0);
-    return lEndPos;
+    auto relativeUri = request->relative_uri();
+    auto relativePath = relativeUri.path();
+    auto queries = relativeUri.split_query(relativeUri.query());
+    string decode = web::http::uri::decode(relativePath);
+    std::transform(decode.begin(), decode.end(), decode.begin(), ::tolower);
+    RequestInfo info(decode);
+    info.MethodType = methodType;
 
-}
-
-bool fileExists(string const &filename) {
-    if (FILE *file = fopen(filename.c_str(), "r")) {
-        fclose(file);
-        return true;
+    for (auto it = handlers.begin(); it != handlers.end(); ++it) {
+        bool result = (*it)->TryExecute(&info);
+        if (result) {
+            request->reply(info.Response.Status, info.Response.Data, info.Response.ContentType);
+            break;
+        }
     }
-
-    return false;
+    string _404 = "Not Found";
+    request->reply(404, _404);
 }
 
-size_t indexOf(char *text, char searchChar) {
-    size_t totalLength = strlen(text);
-    char *e = text + totalLength;
-    size_t idx = 0;
-    while (*e-- != searchChar && totalLength != idx)
-        idx++;
-
-    return totalLength - idx;
-}
-
-bool staticFile(RequestInfo &request) {
-    return true;
-}
-
-void wwwInit(RequestInfo &request) {
-    try {
-
-        size_t filenameLength = request.Url.size();
-        char *filePath = new char[filenameLength];
-        strcpy(filePath, request.Url.c_str());
-
-        char *fullFilePath = new char[strlen(filePath) + StaticFolder.size()];
-
-        strcat(fullFilePath, StaticFolder.c_str());
-        strcat(fullFilePath, "/");
-        strcat(fullFilePath, filePath);
-
-        if (fileExists(fullFilePath)) {
-
-            try {
-                std::ifstream ifs(fullFilePath);
-                string str(static_cast<std::stringstream const &>(std::stringstream() << ifs.rdbuf()).str());
-                ifs.close();
-
-                auto dotLocation = indexOf(filePath, '.') + 1;
-                char *fileType = new char[filenameLength - dotLocation];
-                strcpy(fileType, filePath + dotLocation);
-
-                request.Request.headers().set_content_type(mimeType.GetMimeType(fileType));
-                request.Request.reply(web::http::status_codes::OK, str);
-            } catch (std::exception &e) {
-                //res.clear();
-                //res.code = 500;
-                request.Request.reply(web::http::status_codes::InternalError, "Internal Server Error");
-            }
-        }
-        else
-            request.Request.reply(web::http::status_codes::NotFound, "Not Found");
-
-    }
-    catch (std::exception &e) {
-        cout << e.what() << endl;
-    }
-}
-
-
-class BaseMiddleware {
-public:
-    virtual bool TryExecute(RequestInfo &request) = 0;
-};
-
-class StaticFileMiddleware : public BaseMiddleware {
-public:
-    bool TryExecute(RequestInfo &request) {
-        bool returnValue = false;
-
-        try {
-
-            /*
-             *
-             * auto file_name = std::get<0>(content_data->second);
-        auto content_type = std::get<1>(content_data->second);
-        concurrency::streams::fstream::open_istream(file_name, std::ios::in).then([=](concurrency::streams::istream is)
-        {
-            message.reply(status_codes::OK, is, content_type).then([](pplx::task<void> t) { handle_error(t); });
-        }).then([=](pplx::task<void>& t)
-        {
-            try
-            {
-                t.get();
-            }
-            catch(...)
-            {
-                // opening the file (open_istream) failed.
-                // Reply with an error.
-                message.reply(status_codes::InternalError).then([](pplx::task<void> t) { handle_error(t); });
-            }
-        });*/
-
-
-
-            const char *staticName = "/static/";
-            auto isStaticFile = strncmp(request.Url.c_str(), staticName, strlen(staticName)) == 0;
-            if (isStaticFile) {
-                returnValue = true;
-
-                size_t filenameLength = request.Url.size() - strlen(staticName);
-                char *filePath = new char[filenameLength];
-                strcpy(filePath, request.Url.c_str() + strlen(staticName));
-
-                char *fullFilePath = new char[strlen(filePath) + StaticFolder.size()];
-
-                strcat(fullFilePath, StaticFolder.c_str());
-                strcat(fullFilePath, "/");
-                strcat(fullFilePath, filePath);
-
-                if (fileExists(fullFilePath)) {
-
-                    try {
-                        //res.code = 200;
-
-                        std::ifstream ifs(fullFilePath);
-                        string str(static_cast<std::stringstream const &>(std::stringstream() << ifs.rdbuf()).str());
-                        ifs.close();
-
-                        auto dotLocation = indexOf(filePath, '.') + 1;
-                        char *fileType = new char[filenameLength - dotLocation];
-                        strcpy(fileType, filePath + dotLocation);
-
-                        request.Request.headers().set_content_type(mimeType.GetMimeType(fileType));
-                        request.Request.reply(web::http::status_codes::OK, str);
-                    } catch (std::exception &e) {
-                        //res.clear();
-                        //res.code = 500;
-                        request.Request.reply(web::http::status_codes::InternalError, "Internal Server Error");
-                    }
-                }
-                else
-                    request.Request.reply(web::http::status_codes::NotFound, "Not Found");
-            }
-        }
-        catch (std::exception &e) {
-            cout << e.what() << endl;
-        }
-
-        return returnValue;
-    }
-};
-
-class ActionMiddleware : public BaseMiddleware {
-public:
-    bool TryExecute(RequestInfo &request) {
-        if (routeTable[request.MethodType].find(request.MethodType) != routeTable[request.MethodType].end()) {
-            http_response response = routeTable[request.MethodType][request.MethodType](request);
-            request.Request.reply(response);
-        }
-        else
-            request.Request.reply(web::http::status_codes::NotFound, ("API NOT FOUND"));
-
-        return true;
-    };
-};
-
-class HtmlMiddleware : public BaseMiddleware {
-public:
-    bool TryExecute(RequestInfo &request) {
-
-        bool returnValue = false;
-
-        size_t filenameLength = request.Url.size();
-        char *filePath = new char[filenameLength];
-        strcpy(filePath, request.Url.c_str());
-
-        char *fullFilePath = new char[strlen(filePath) + HtmlFolder.size()];
-
-        strcat(fullFilePath, HtmlFolder.c_str());
-        strcat(fullFilePath, "/");
-        strcat(fullFilePath, filePath);
-
-        if (fileExists(fullFilePath)) {
-
-            try {
-                //res.code = 200;
-
-                std::ifstream ifs(fullFilePath);
-                string str(static_cast<std::stringstream const &>(std::stringstream() << ifs.rdbuf()).str());
-                ifs.close();
-
-                auto dotLocation = indexOf(filePath, '.') + 1;
-                char *fileType = new char[filenameLength - dotLocation];
-                strcpy(fileType, filePath + dotLocation);
-
-                auto contentType = mimeType.GetMimeType(fileType);
-                request.Request.headers().set_content_type(mimeType.GetMimeType(fileType));
-                request.Request.reply(web::http::status_codes::OK, str);
-
-                returnValue = true;
-            } catch (std::exception &e) {
-                //res.clear();
-                //res.code = 500;
-                request.Request.reply(web::http::status_codes::InternalError, "Internal Server Error");
-            }
-        }
-
-        return false;
-    };
-};
-
-std::vector<BaseMiddleware *> middlewares;
-
-void executeRequest(web::http::http_request request, string methodType) {
+void handle_get(http_request request) {
     auto relativeUri = request.relative_uri();
     auto relativePath = relativeUri.path();
     auto queries = relativeUri.split_query(relativeUri.query());
     string decode = web::http::uri::decode(relativePath);
     std::transform(decode.begin(), decode.end(), decode.begin(), ::tolower);
-    RequestInfo info(request, queries, decode);
-    info.MethodType = methodType;
+    RequestInfo info(decode);
+    info.MethodType = web::http::methods::GET;
 
-    for (auto it = middlewares.begin(); it != middlewares.end(); ++it) {
-        bool result = (*it)->TryExecute(info);
-        if (result)
+    for (auto it = handlers.begin(); it != handlers.end(); ++it) {
+
+        bool result = (*it)->TryExecute(&info);
+        if (result) {
+            request.reply(info.Response.Status, info.Response.Data, info.Response.ContentType).wait();
             break;
+        }
     }
+
+    request.reply(404, "Not Found").wait();
+
 }
 
 int main(int argc, char **args) {
 
     cout << args[0] << endl;
-    HtmlFolder = "/Users/erhanbaris/ClionProjects/RecommanderAPI/www/";
+    HtmlFolder = "/Users/erhanbaris/ClionProjects/RecommanderAPI/www";
     StaticFolder = "/Users/erhanbaris/ClionProjects/RecommanderAPI/www/static";
     cout << " --- MACHINE LEARNING SERVER ---" << endl << endl;
-    INIT_MAP(routeTable, "", "0");
 
     try {
-        //dataSource = new core::data::CvsDataSource("C:\\Users\\ErhanBARIS\\Downloads\\ml-latest-small\\movies.csv", "C:\\Users\\ErhanBARIS\\Downloads\\ml-latest-small\\ratings.csv");
         dataSource = new core::data::CvsDataSource<core::data::GeneralDataInfo>(
                 "/Users/erhanbaris/Downloads/ml-20m/movies.csv", "/Users/erhanbaris/Downloads/ml-20m/ratings.csv");
-        //dataSource = new core::data::MongoDbDataSource("mongodb://localhost:27017");
         dataSource->LoadData();
 
-        middlewares.push_back(new StaticFileMiddleware());
-        middlewares.push_back(new HtmlMiddleware());
-        middlewares.push_back(new ActionMiddleware());
+        ActionHandler *actionHandler = new ActionHandler();
+
+        actionHandler->SetPostAction("/api/user_recommend", apiRecommend);
+        actionHandler->SetGetAction("/api/user_recommend", apiRecommend);
+        actionHandler->SetGetAction("/api/user_recommend", apiRecommend);
+        actionHandler->SetGetAction("/system/refresh", refreshDataSource);
+
+        //handlers.push_back(new StaticFileHandler());
+        handlers.push_back(new HtmlHandler());
+        //handlers.push_back(actionHandler);
 
         cout << "Data Load Success" << endl;
 
         mDistance.SetProductIndex(&dataSource->Data()->productMap);
         mDistance.SetUserIndex(&dataSource->Data()->userMap);
-
-        addHttpMethod(web::http::methods::GET);
-        addHttpMethod(web::http::methods::PUT);
-        addHttpMethod(web::http::methods::DEL);
-        addHttpMethod(web::http::methods::HEAD);
-        addHttpMethod(web::http::methods::POST);
-
-        routeTable[methods::POST].insert(make_pair("/api/user_recommend", &apiRecommend));
-        routeTable[methods::GET].insert(make_pair("/api/user_recommend", &apiRecommend));
-        routeTable[methods::PUT].insert(make_pair("/api/user_recommend", &apiRecommend));
-        routeTable[methods::GET].insert(make_pair("/system/refresh", &refreshDataSource));
-        routeTable[methods::GET].insert(make_pair("/", &mainPage));
 
 
         auto address = "http://127.0.0.1:5050";
@@ -539,16 +332,20 @@ int main(int argc, char **args) {
         std::string addr = uri.to_uri().to_string();
         web::http::experimental::listener::http_listener listener(addr);
 
-        listener.support(web::http::methods::POST,
-                         [](web::http::http_request request) { executeRequest(request, web::http::methods::POST); });
-        listener.support(web::http::methods::GET,
-                         [](web::http::http_request request) { executeRequest(request, web::http::methods::GET); });
-        listener.support(web::http::methods::PUT,
-                         [](web::http::http_request request) { executeRequest(request, web::http::methods::PUT); });
-        listener.support(web::http::methods::DEL,
-                         [](web::http::http_request request) { executeRequest(request, web::http::methods::DEL); });
-        listener.support(web::http::methods::HEAD,
-                         [](web::http::http_request request) { executeRequest(request, web::http::methods::HEAD); });
+        listener.support(web::http::methods::POST, [](web::http::http_request request) {
+            return executeRequest(&request, web::http::methods::POST);
+        });
+        //listener.support(web::http::methods::GET, [](web::http::http_request request) { return executeRequest(&request, web::http::methods::GET); });
+        listener.support(web::http::methods::GET, handle_get);
+        listener.support(web::http::methods::PUT, [](web::http::http_request request) {
+            return executeRequest(&request, web::http::methods::PUT);
+        });
+        listener.support(web::http::methods::DEL, [](web::http::http_request request) {
+            return executeRequest(&request, web::http::methods::DEL);
+        });
+        listener.support(web::http::methods::HEAD, [](web::http::http_request request) {
+            return executeRequest(&request, web::http::methods::HEAD);
+        });
 
         listener
                 .open()

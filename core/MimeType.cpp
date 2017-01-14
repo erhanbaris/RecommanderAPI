@@ -114,7 +114,6 @@ void core::MimeType::initMimeTypes() {
     mimeTypes["crt"] = "application/x-x509-user-cert";
     mimeTypes["csh"] = "application/x-csh";
     mimeTypes["csh"] = "text/x-script.csh";
-    mimeTypes["css"] = "application/x-pointplus";
     mimeTypes["css"] = "text/css";
     mimeTypes["cxx"] = "text/plain";
     mimeTypes["dcr"] = "application/x-director";

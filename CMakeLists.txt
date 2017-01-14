@@ -6,13 +6,6 @@ find_package( OpenSSL COMPONENTS crypto REQUIRED )
 find_path(CPPRESTSDK_INCLUDE_DIR NAMES cpprest/http_listener.h)
 find_library(CPPRESTSDK_LIB NAMES libcpprest cpprest)
 
-if(APPLE)
-	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
-	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-	set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
-	set(CMAKE_MACOSX_RPATH 1)
-endif()
-
 
 if(Boost_FOUND)
 	
@@ -35,7 +28,7 @@ if(Boost_FOUND)
 	include_directories(OPENSSL_INCLUDE_DIR)
 
 	set(SOURCE_FILES
-			main.cpp
+			${PROJECT_SOURCE_DIR}/main.cpp
 			${PROJECT_SOURCE_DIR}/model/Product.h
 			${PROJECT_SOURCE_DIR}/model/Rating.h
 			${PROJECT_SOURCE_DIR}/core/algoritm/SlopeOne.h
@@ -54,10 +47,20 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/core/MimeType.cpp
 			${PROJECT_SOURCE_DIR}/core/types.h
 			${PROJECT_SOURCE_DIR}/core/types.cpp
+			${PROJECT_SOURCE_DIR}/core/server/handler/BaseHandler.h
+			${PROJECT_SOURCE_DIR}/core/server/ServerConfig.h
+			${PROJECT_SOURCE_DIR}/core/server/handler/StaticFileHandler.cpp
+			${PROJECT_SOURCE_DIR}/core/server/handler/StaticFileHandler.h
 			${PROJECT_SOURCE_DIR}/config.h
-
-			core/MimeType.h)
+			${PROJECT_SOURCE_DIR}/core/server/handler/HtmlHandler.cpp
+			${PROJECT_SOURCE_DIR}/core/server/handler/HtmlHandler.h
+			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.cpp
+			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.h core/server/ServerConfig.cpp)
 	add_executable(RecommanderAPI ${SOURCE_FILES})
-	target_link_libraries(RecommanderAPI ${Boost_LIBRARIES} ${CPPRESTSDK_LIB} ${OPENSSL_LIBRARIES})
+
+	target_link_libraries(RecommanderAPI
+			${Boost_LIBRARIES}
+			${CPPRESTSDK_LIB}
+			${OPENSSL_LIBRARIES})
 
 endif()

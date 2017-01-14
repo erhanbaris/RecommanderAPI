@@ -4,7 +4,7 @@
     <title>{{title}}</title>
     <link rel="stylesheet" href="/static/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="/static/stylesheets/bootstrap-theme.min.css">
-    <link rel='stylesheet' href='/static/stylesheets/style.css' />
+    <link rel='stylesheet' href='/static/stylesheets/style.css'/>
     <script src="/static/javascripts/jquery-3.1.1.min.js"></script>
     <script src="/static/javascripts/underscore-min.js"></script>
     <script src="/static/javascripts/bootstrap.min.js"></script>
@@ -12,6 +12,42 @@
     <script src="/static/javascripts/server.js"></script>
 </head>
 <body>
-{{{body}}}
+
+<div id="main"></div>
+
+<!-- Todo creator template -->
+<script id="TodoCreate" type="text/template">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Todo for...">
+                <span class="input-group-btn">
+            <button class="btn btn-default" id="AddButton" type="button">Add!</button>
+          </span>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Todo item template -->
+<script id="TodoItem" type="text/template">
+    <div class="row">
+        <div class="col-md-9 text-center">
+            <span class="show todo"><strong><%= Todo %></strong></span>
+            <input type="text" class="form-control hidden" value="<%= Todo %>">
+        </div>
+        <div class="col-md-3 center-block text-center">
+            <div class="btn-group" role="group" aria-label="...">
+                <button type="button" class=" btn btn-info edit">Edit</button>
+                <button type="button" class="btn btn-danger delete">Delete</button>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+<!-- Todo list template -->
+<script id="TodoList" type="text/template">
+</script>
 </body>
 </html>
