@@ -72,8 +72,23 @@ void AppServer::Start() {
 
         ActionHandler *actionHandler = new ActionHandler();
 
-        for (auto it = actions.begin(); it != actions.end() ; ++it)
-            actionHandler->SetGetAction((*it)->Url(), *it);
+        for (auto it = actions.begin(); it != actions.end(); ++it) {
+            short methods = (*it)->MethodInfo();
+            if (methods & TYPE_GET)
+                actionHandler->SetGetAction((*it)->Url(), *it);
+
+            if (methods & TYPE_POST)
+                actionHandler->SetPostAction((*it)->Url(), *it);
+
+            if (methods & TYPE_PUT)
+                actionHandler->SetPutAction((*it)->Url(), *it);
+
+            if (methods & TYPE_DEL)
+                actionHandler->SetDeleteAction((*it)->Url(), *it);
+
+            if (methods & TYPE_HEAD)
+                actionHandler->SetHeadAction((*it)->Url(), *it);
+        }
 
         handlers.push_back(new StaticFileHandler());
         handlers.push_back(new HtmlHandler());
@@ -128,6 +143,6 @@ std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>> AppServe
     return dataSource;
 }
 
-void AppServer::AddAction(core::server::action::BaseAction * action) {
+void AppServer::AddAction(core::server::action::BaseAction *action) {
     actions.push_back(action);
 }

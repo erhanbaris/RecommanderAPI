@@ -1,6 +1,6 @@
 #include "BaseAction.h"
 
-std::string core::server::action::BaseAction::escapeJsonString(const std::string &input) {
+std::string core::server::action::BaseAction::EscapeJsonString(const std::string &input) {
     std::ostringstream ss;
     for (auto iter = input.cbegin(); iter != input.cend(); iter++) {
         //C++98/03:

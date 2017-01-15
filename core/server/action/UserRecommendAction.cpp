@@ -122,7 +122,7 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
         string tmpName;
         tmpName.assign(it->second.begin(), it->second.end());
 
-        stream << "{\"Id\":" << it->first << ",\"Name\":\"" << this->escapeJsonString(tmpName) << "\"},";
+        stream << "{\"Id\":" << it->first << ",\"Name\":\"" << this->EscapeJsonString(tmpName) << "\"},";
     }
 
     stream.seekg(0, ios::end);
@@ -139,4 +139,8 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
     returnValue.ContentType = "application/json";
 
     return returnValue;
+}
+
+short UserRecommendAction::MethodInfo() {
+    return TYPE_GET | TYPE_POST;
 }

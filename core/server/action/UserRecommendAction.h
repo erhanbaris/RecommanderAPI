@@ -9,6 +9,7 @@ namespace core {
             public:
                 string Url() override;
                 ResponseInfo Execute(RequestInfo *info) override;
+                short MethodInfo() override;
                 vector<pair<PRODUCT_TYPE, wstring>> recommend(USER_TYPE userId);
             };
         }
