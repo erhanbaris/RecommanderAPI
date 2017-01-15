@@ -55,7 +55,14 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/core/server/handler/HtmlHandler.cpp
 			${PROJECT_SOURCE_DIR}/core/server/handler/HtmlHandler.h
 			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.cpp
-			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.h core/server/ServerConfig.cpp)
+			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.h
+			${PROJECT_SOURCE_DIR}/core/server/ServerConfig.cpp
+			${PROJECT_SOURCE_DIR}/core/server/AppServer.cpp
+			${PROJECT_SOURCE_DIR}/core/server/AppServer.h
+			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.h
+			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.cpp
+			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.h
+			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.cpp)
 	add_executable(RecommanderAPI ${SOURCE_FILES})
 
 	target_link_libraries(RecommanderAPI

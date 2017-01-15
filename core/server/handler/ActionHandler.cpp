@@ -16,7 +16,7 @@ ActionHandler::ActionHandler()
 
 bool ActionHandler::TryExecute(RequestInfo * request) {
     if (routeTable[request->MethodType].find(request->Url) != routeTable[request->MethodType].end()) {
-        auto response = routeTable[request->MethodType][request->Url](request);
+        auto response = routeTable[request->MethodType][request->Url]->Execute(request);
 
         request->Response.Data = response.Data;
         request->Response.Status = response.Status;
@@ -38,27 +38,27 @@ void ActionHandler::addHttpMethod(string method) {
     routeTable[method] = route;
 }
 
-void ActionHandler::SetGetAction(string url, FuncDelegate delegate)
+void ActionHandler::SetGetAction(string url, BaseAction* action)
 {
-    routeTable[methods::GET].insert(std::make_pair(url, delegate));
+    routeTable[methods::GET].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetPostAction(string url, FuncDelegate delegate)
+void ActionHandler::SetPostAction(string url, BaseAction* action)
 {
-    routeTable[methods::POST].insert(std::make_pair(url, delegate));
+    routeTable[methods::POST].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetDeleteAction(string url, FuncDelegate delegate)
+void ActionHandler::SetDeleteAction(string url, BaseAction* action)
 {
-    routeTable[methods::DEL].insert(std::make_pair(url, delegate));
+    routeTable[methods::DEL].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetPutAction(string url, FuncDelegate delegate)
+void ActionHandler::SetPutAction(string url, BaseAction* action)
 {
-    routeTable[methods::PUT].insert(std::make_pair(url, delegate));
+    routeTable[methods::PUT].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetHeadAction(string url, FuncDelegate delegate)
+void ActionHandler::SetHeadAction(string url, BaseAction* action)
 {
-    routeTable[methods::HEAD].insert(std::make_pair(url, delegate));
+    routeTable[methods::HEAD].insert(std::make_pair(url, action));
 }
