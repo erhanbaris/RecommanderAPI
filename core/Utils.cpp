@@ -1,14 +1,14 @@
 #include <core/Utils.h>
 
 using namespace std;
+using boost::locale::conv::utf_to_utf;
 
-wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
 wstring core::getString(const string &data) {
-    return converter.from_bytes(data);
+    return utf_to_utf<wchar_t>(data.c_str(), data.c_str() + data.size());
 }
 
 string core::getString(const wstring &data) {
-    return converter.to_bytes(data);
+    return utf_to_utf<char>(data.c_str(), data.c_str() + data.size());
 }
 
 

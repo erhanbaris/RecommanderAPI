@@ -2,8 +2,8 @@
 
 #include <config.h>
 #include <locale>
-#include <codecvt>
 #include <vector>
+#include <boost/locale/encoding_utf.hpp>
 
 using namespace std;
 
