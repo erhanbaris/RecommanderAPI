@@ -20,13 +20,3 @@ bool core::fileExists(string const &filename) {
 
     return false;
 }
-
-size_t core::indexOf(char *text, char searchChar) {
-    size_t totalLength = strlen(text);
-    char *e = text + totalLength;
-    size_t idx = 0;
-    while (*e-- != searchChar && totalLength != idx)
-        idx++;
-
-    return totalLength - idx;
-}
