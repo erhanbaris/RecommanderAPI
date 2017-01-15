@@ -98,7 +98,7 @@ void AppServer::Start() {
         mDistance.SetUserIndex(&dataSource->Data()->userMap);
 
 
-        auto address = "http://127.0.0.1:" + std::to_string(HTTP_SERVER_PORT);
+        auto address = "http://0.0.0.0:" + std::to_string(HTTP_SERVER_PORT);
         web::uri_builder uri(address);
         std::string addr = uri.to_uri().to_string();
         listener = std::shared_ptr<web::http::experimental::listener::http_listener>(
@@ -123,7 +123,7 @@ void AppServer::Start() {
         listener->open()
                 .then([]() {
                     LOG_WRITE("API Init Finished");
-                    LOG_WRITE("Api Server Listening on http://localhost:" << HTTP_SERVER_PORT);
+                    LOG_WRITE("Api Server Listening on http://0.0.0.0:" << HTTP_SERVER_PORT);
                 })
                 .wait();
     }
