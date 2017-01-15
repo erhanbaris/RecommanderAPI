@@ -32,7 +32,7 @@
 
 #include "core/algoritm/PearsonCorrelationCoefficien.h"
 #include "model/Rating.h"
-#include "core/types.h"
+#include "core/Utils.h"
 #include "core/data/BaseDataInfo.h"
 #include "core/data/GeneralDataInfo.h"
 #include "core/server/ServerConfig.h"
@@ -205,13 +205,13 @@ ResponseInfo apiRecommend(RequestInfo *info) {
     vector<pair<PRODUCT_TYPE, wstring>> results;
 
 #ifdef ENABLE_CACHE
-    auto cacheCheck = dataSource->Data()->recommendCacheForUser.find(userId);
+    auto cacheCheck = dataSource->Data()->recommendCacheForUser.find(stoi(info->Queries["userid"]));
     if (cacheCheck != dataSource->Data()->recommendCacheForUser.end())
         results = cacheCheck->second;
     else {
 #endif
-    results = recommend(stoi(info->Queries["userid"]));
-    dataSource->Data()->recommendCacheForUser[stoi(info->Queries["userid"])] = results;
+        results = recommend(stoi(info->Queries["userid"]));
+        dataSource->Data()->recommendCacheForUser[stoi(info->Queries["userid"])] = results;
 #ifdef ENABLE_CACHE
     }
 #endif
@@ -262,40 +262,18 @@ void executeRequest(http_request *request, string const &methodType) {
     auto queries = relativeUri.split_query(relativeUri.query());
     string decode = web::http::uri::decode(relativePath);
     std::transform(decode.begin(), decode.end(), decode.begin(), ::tolower);
-    RequestInfo info(decode);
+    RequestInfo info(queries, decode);
     info.MethodType = methodType;
 
     for (auto it = handlers.begin(); it != handlers.end(); ++it) {
         bool result = (*it)->TryExecute(&info);
         if (result) {
             request->reply(info.Response.Status, info.Response.Data, info.Response.ContentType);
-            break;
-        }
-    }
-    string _404 = "Not Found";
-    request->reply(404, _404);
-}
-
-void handle_get(http_request request) {
-    auto relativeUri = request.relative_uri();
-    auto relativePath = relativeUri.path();
-    auto queries = relativeUri.split_query(relativeUri.query());
-    string decode = web::http::uri::decode(relativePath);
-    std::transform(decode.begin(), decode.end(), decode.begin(), ::tolower);
-    RequestInfo info(decode);
-    info.MethodType = web::http::methods::GET;
-
-    for (auto it = handlers.begin(); it != handlers.end(); ++it) {
-
-        bool result = (*it)->TryExecute(&info);
-        if (result) {
-            request.reply(info.Response.Status, info.Response.Data, info.Response.ContentType).wait();
-            break;
+            return;
         }
     }
 
-    request.reply(404, "Not Found").wait();
-
+    request->reply(404, "Not Found");
 }
 
 int main(int argc, char **args) {
@@ -317,9 +295,9 @@ int main(int argc, char **args) {
         actionHandler->SetGetAction("/api/user_recommend", apiRecommend);
         actionHandler->SetGetAction("/system/refresh", refreshDataSource);
 
-        //handlers.push_back(new StaticFileHandler());
+        handlers.push_back(new StaticFileHandler());
         handlers.push_back(new HtmlHandler());
-        //handlers.push_back(actionHandler);
+        handlers.push_back(actionHandler);
 
         cout << "Data Load Success" << endl;
 
@@ -327,7 +305,7 @@ int main(int argc, char **args) {
         mDistance.SetUserIndex(&dataSource->Data()->userMap);
 
 
-        auto address = "http://127.0.0.1:5050";
+        auto address = "http://127.0.0.1:" + std::to_string(HTTP_SERVER_PORT);
         web::uri_builder uri(address);
         std::string addr = uri.to_uri().to_string();
         web::http::experimental::listener::http_listener listener(addr);
@@ -335,8 +313,9 @@ int main(int argc, char **args) {
         listener.support(web::http::methods::POST, [](web::http::http_request request) {
             return executeRequest(&request, web::http::methods::POST);
         });
-        //listener.support(web::http::methods::GET, [](web::http::http_request request) { return executeRequest(&request, web::http::methods::GET); });
-        listener.support(web::http::methods::GET, handle_get);
+        listener.support(web::http::methods::GET, [](web::http::http_request request) {
+            return executeRequest(&request, web::http::methods::GET);
+        });
         listener.support(web::http::methods::PUT, [](web::http::http_request request) {
             return executeRequest(&request, web::http::methods::PUT);
         });
@@ -350,8 +329,8 @@ int main(int argc, char **args) {
         listener
                 .open()
                 .then([]() {
-                    std::cout << "#API Init Finished" << endl << "Api Server Listening on http://localhost:5050" <<
-                    "/\n";
+                    std::cout << "#API Init Finished" << endl << "Api Server Listening on http://localhost:" <<
+                    HTTP_SERVER_PORT << "/\n";
                 })
                 .wait();
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../config.h"
-#include "../types.h"
+#include "../Utils.h"
 #include "../algoritm/SlopeOne.h"
 #include "../../model/Rating.h"
 #include "BaseDataInfo.h"

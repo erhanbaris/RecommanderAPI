@@ -3,11 +3,10 @@
 #define USE_GOOGLE_DENSE_HASH_MAP
 #define RESERVED_SIZE 32768
 #define KNEAR_SIZE 5
-#define HTTP_SERVER_PORT 8080
+#define HTTP_SERVER_PORT 5050
 #define ENABLE_CACHE
 
 #undef ENABLE_CACHE
-
 
 #if defined(_WIN32) || defined(WIN32)
     #define RATE_TYPE uint8_t

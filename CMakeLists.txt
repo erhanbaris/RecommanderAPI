@@ -45,8 +45,8 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/core/data/CvsDataSource.cpp
 			${PROJECT_SOURCE_DIR}/core/MimeType.h
 			${PROJECT_SOURCE_DIR}/core/MimeType.cpp
-			${PROJECT_SOURCE_DIR}/core/types.h
-			${PROJECT_SOURCE_DIR}/core/types.cpp
+			${PROJECT_SOURCE_DIR}/core/Utils.h
+			${PROJECT_SOURCE_DIR}/core/Utils.cpp
 			${PROJECT_SOURCE_DIR}/core/server/handler/BaseHandler.h
 			${PROJECT_SOURCE_DIR}/core/server/ServerConfig.h
 			${PROJECT_SOURCE_DIR}/core/server/handler/StaticFileHandler.cpp

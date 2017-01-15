@@ -1,38 +1,11 @@
 #include "StaticFileHandler.h"
+#include "../../Utils.h"
 
+using namespace core;
 using namespace core::server::handler;
 
 namespace {
     core::MimeType mimeType;
-
-    long getFileSize(FILE *file) {
-        long lCurPos, lEndPos;
-        lCurPos = ftell(file);
-        fseek(file, 0, 2);
-        lEndPos = ftell(file);
-        fseek(file, lCurPos, 0);
-        return lEndPos;
-
-    }
-
-    bool fileExists(string const &filename) {
-        if (FILE *file = fopen(filename.c_str(), "r")) {
-            fclose(file);
-            return true;
-        }
-
-        return false;
-    }
-
-    size_t indexOf(char *text, char searchChar) {
-        size_t totalLength = strlen(text);
-        char *e = text + totalLength;
-        size_t idx = 0;
-        while (*e-- != searchChar && totalLength != idx)
-            idx++;
-
-        return totalLength - idx;
-    }
 }
 
 StaticFileHandler::StaticFileHandler() {
@@ -47,24 +20,17 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
         auto isStaticFile = strncmp(request->Url.c_str(), staticName, strlen(staticName)) == 0;
         if (isStaticFile) {
             returnValue = true;
-
-            size_t filenameLength = request->Url.size() - strlen(staticName);
-            char *filePath = new char[filenameLength];
-            strcpy(filePath, request->Url.c_str() + strlen(staticName));
-
-            char *fullFilePath = new char[strlen(filePath) + StaticFolder.size()];
-
-            strcat(fullFilePath, StaticFolder.c_str());
-            strcat(fullFilePath, "/");
-            strcat(fullFilePath, filePath);
+            
+            string url = request->Url;
+            url.replace(url.begin(), url.end(), staticName);
+            string fullFilePath = StaticFolder + "/" + url;
 
             if (fileExists(fullFilePath)) {
 
                 try {
-                    auto dotLocation = indexOf(filePath, '.') + 1;
-                    char *fileType = new char[filenameLength - dotLocation];
-                    strcpy(fileType, filePath + dotLocation);
-
+                    
+                    auto dotLocation = url.find(".") + 1;
+                    string fileType = url.substr(dotLocation);
 
                     std::ifstream ifs(fullFilePath);
                     string str(static_cast<std::stringstream const &>(std::stringstream() << ifs.rdbuf()).str());

@@ -17,6 +17,8 @@ namespace core {
 
 	wstring getString(const string & data);
 	string getString(const wstring & data);
+	bool fileExists(string const &filename);
+	size_t indexOf(char *text, char searchChar);
 
 	typedef struct tIndexItem {
 		PRODUCT_TYPE ProductId;

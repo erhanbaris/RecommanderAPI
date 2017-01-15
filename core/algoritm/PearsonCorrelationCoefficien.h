@@ -14,7 +14,7 @@
 
 #include "../../config.h"
 #include "../../model/Rating.h"
-#include "../types.h"
+#include "../Utils.h"
 
 using namespace std;
 using namespace model;

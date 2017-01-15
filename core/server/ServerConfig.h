@@ -37,8 +37,8 @@ namespace core
         } ResponseInfo;
 
         typedef struct tRequestInfo {
-            tRequestInfo(string &pUrl)
-                    : Url(pUrl) { }
+            tRequestInfo(std::map<utility::string_t, utility::string_t> pQueries, string &pUrl)
+                    : Queries(pQueries), Url(pUrl) { }
 
             string MethodType;
             std::map<utility::string_t, utility::string_t> Queries;
