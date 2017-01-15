@@ -48,3 +48,12 @@
     #define ADD_TO_MAP(map, key, value)  map[key] = value;
 #endif
 
+
+#if defined(_DEBUG) || defined(DEBUG)
+    #define DEBUG_WRITE(message) cout << "[ DEBUG ] : " << message << endl;
+#else
+    #define DEBUG_WRITE(message)
+#endif
+
+#define LOG_WRITE(message) cout << "[ LOG ] : " << message << endl;
+#define ERROR_WRITE(message) cout << "[ ERROR ] : " << message << endl;

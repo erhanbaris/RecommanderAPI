@@ -1,5 +1,6 @@
 #include "HtmlHandler.h"
 #include "../../Utils.h"
+#include "../AppServer.h"
 
 using namespace core;
 using namespace core::server::handler;
@@ -30,7 +31,9 @@ bool HtmlHandler::TryExecute(RequestInfo * request) {
     if (fileAliases.find(request->Url) != fileAliases.end())
         searchUrl = fileAliases.find(request->Url)->second;
 
-    string fullFilePath = HtmlFolder + "/" + searchUrl;
+    string fullFilePath = AppServer::instance().GetHtmlPath() + searchUrl;
+    DEBUG_WRITE(fullFilePath);
+
     if (fileExists(fullFilePath)) {
         try {
             std::ifstream ifs(fullFilePath);

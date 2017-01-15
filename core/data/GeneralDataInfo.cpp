@@ -45,7 +45,7 @@ void core::data::GeneralDataInfo::AddUserRating(USER_TYPE customerId, PRODUCT_TY
         userRatings[customerId].push_back(model::Rating(productId, rating));
     }
     catch (const std::exception &e) {
-        cout << "Rating : " << e.what() << endl;
+        ERROR_WRITE(e.what());
     }
 }
 
@@ -57,9 +57,9 @@ void core::data::GeneralDataInfo::Prepare() {
     core::AvgProductCount = (core::TotalProductCount / core::TotalUserCount);
     core::AvgRating = core::TotalRating / core::TotalProductCount;
 
-    cout << "Slope One Started >>" << endl;
+    LOG_WRITE("Slope One Init Started");
     slopeOne.AddUsers(userMap);
-    cout << "<< Slope One Finished" << endl;
+    LOG_WRITE("Slope One Init Finished");
 };
 
 /*

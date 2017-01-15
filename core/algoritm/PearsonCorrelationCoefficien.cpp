@@ -52,11 +52,7 @@ vector<pair<PRODUCT_TYPE, float>> core::algoritm::PearsonCorrelationCoefficien::
     }
 
     std::sort(items.begin(), items.end());
-
-    std::cout << "For Counter : " << counter1 << std::endl;
     returnValue = CompareUser(userProducts, items);
-    std::cout << "Total Item Finded : " << returnValue.size() << std::endl;
-
     std::sort(returnValue.begin(), returnValue.end(),
               [](pair<PRODUCT_TYPE, float> const &left, pair<PRODUCT_TYPE, float> const &right) {
                   return left.second > right.second;

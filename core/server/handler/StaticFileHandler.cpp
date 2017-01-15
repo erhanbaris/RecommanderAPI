@@ -1,7 +1,9 @@
 #include "StaticFileHandler.h"
 #include "../../Utils.h"
+#include "../AppServer.h"
 
 using namespace core;
+using namespace core::server;
 using namespace core::server::handler;
 
 namespace {
@@ -23,7 +25,7 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
             
             string url = request->Url;
             url.replace(url.begin(), url.end(), staticName);
-            string fullFilePath = StaticFolder + "/" + url;
+            string fullFilePath = AppServer::instance().GetStaticPath() + "/" + url;
 
             if (fileExists(fullFilePath)) {
 
@@ -53,7 +55,7 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
         }
     }
     catch (std::exception &e) {
-        cout << e.what() << endl;
+        ERROR_WRITE(e.what());
     }
 
     return returnValue;

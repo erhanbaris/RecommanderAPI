@@ -6,6 +6,14 @@
 
 #pragma warning(disable:4503)
 
+#ifdef WINDOWS
+    #include <direct.h>
+    #define GetCurrentDir _getcwd
+#else
+    #include <unistd.h>
+    #define GetCurrentDir getcwd
+#endif
+
 #include "config.h"
 #include <sstream>
 #include <map>
@@ -34,7 +42,6 @@ using namespace web;
 using namespace web::http;
 using namespace web::http::client;
 
-
 ResponseInfo refreshDataSource(RequestInfo *info) {
     //dataSource->LoadData();
 
@@ -47,23 +54,34 @@ ResponseInfo refreshDataSource(RequestInfo *info) {
 
 
 int main(int argc, char **args) {
+    char currentPathChars[FILENAME_MAX];
+    if (!GetCurrentDir(currentPathChars, sizeof(currentPathChars)))
+        return errno;
 
-    cout << args[0] << endl;
-    HtmlFolder = "/Users/erhanbaris/ClionProjects/RecommanderAPI/www";
-    StaticFolder = "/Users/erhanbaris/ClionProjects/RecommanderAPI/www/static";
-    cout << " --- MACHINE LEARNING SERVER ---" << endl << endl;
+    currentPathChars[sizeof(currentPathChars) - 1] = '\0';
+    string currentPath(currentPathChars);
+    string dataPath;
+
+    if (argc > 1)
+        dataPath = args[1];
+    else
+        dataPath = currentPath;
 
     try {
-        AppServer::instance().AddAction(new UserRecommendAction());
+        AppServer::instance()
+                .AddAction(new UserRecommendAction())
+                .SetExecutionPath(currentPath)
+                .SetDataPath(dataPath)
+                .SetHtmlPath("www")
+                .SetStaticPath("www/static");
         AppServer::instance().Start();
-
     }
     catch (std::exception &e) {
-        cout << "[ FATAL ERROR ] : " << e.what() << endl;
+        ERROR_WRITE(e.what());
     }
 
     getchar();
-    cout << "get chaa" << endl;
+    LOG_WRITE("RECOMMANDER EXIT");
     return 0;
 }
 

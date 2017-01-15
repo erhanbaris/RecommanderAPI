@@ -65,9 +65,7 @@ AppServer::AppServer() { }
 void AppServer::Start() {
     try {
         dataSource = std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>>(
-                new core::data::CvsDataSource<core::data::GeneralDataInfo>(
-                        "/Users/erhanbaris/Downloads/ml-20m/movies.csv",
-                        "/Users/erhanbaris/Downloads/ml-20m/ratings.csv"));
+                new core::data::CvsDataSource<core::data::GeneralDataInfo>(GetDataPath() + "/cvs/products.csv", GetDataPath() + "/cvs/ratings.csv"));
         dataSource->LoadData();
 
         ActionHandler *actionHandler = new ActionHandler();
@@ -94,7 +92,7 @@ void AppServer::Start() {
         handlers.push_back(new HtmlHandler());
         handlers.push_back(actionHandler);
 
-        cout << "Data Load Success" << endl;
+        LOG_WRITE("Data Load Success");
 
         mDistance.SetProductIndex(&dataSource->Data()->productMap);
         mDistance.SetUserIndex(&dataSource->Data()->userMap);
@@ -124,13 +122,13 @@ void AppServer::Start() {
 
         listener->open()
                 .then([]() {
-                    std::cout << "#API Init Finished" << endl << "Api Server Listening on http://localhost:" <<
-                    HTTP_SERVER_PORT << "/\n";
+                    LOG_WRITE("API Init Finished");
+                    LOG_WRITE("Api Server Listening on http://localhost:" << HTTP_SERVER_PORT);
                 })
                 .wait();
     }
     catch (std::exception &e) {
-        cout << "[ FATAL ERROR ] : " << e.what() << endl;
+        ERROR_WRITE(e.what());
     }
 
     std::string lineread;
@@ -143,6 +141,51 @@ std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>> AppServe
     return dataSource;
 }
 
-void AppServer::AddAction(core::server::action::BaseAction *action) {
+AppServer& AppServer::AddAction(core::server::action::BaseAction *action) {
     actions.push_back(action);
+    return *this;
+}
+
+AppServer& AppServer::SetHtmlPath(string path)
+{
+    htmlPath = path;
+    return *this;
+}
+
+AppServer& AppServer::SetStaticPath(string path)
+{
+    staticPath = path;
+    return *this;
+}
+
+AppServer& AppServer::SetExecutionPath(string path)
+{
+    executionPath = path;
+    return *this;
+}
+
+AppServer& AppServer::SetDataPath(string path)
+{
+    dataPath = path;
+    return *this;
+}
+
+string AppServer::GetHtmlPath()
+{
+    return dataPath + "/" + htmlPath;
+}
+
+string AppServer::GetStaticPath()
+{
+    return dataPath + "/" + staticPath;
+}
+
+string AppServer::GetExecutionPath()
+{
+    return executionPath;
+}
+
+string AppServer::GetDataPath()
+{
+    return dataPath;
 }

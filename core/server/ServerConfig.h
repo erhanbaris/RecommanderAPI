@@ -26,10 +26,6 @@ using namespace web::http::client;
 namespace core
 {
     namespace server {
-        extern string StaticFolder;
-        extern string HtmlFolder;
-
-
         typedef struct tResponseInfo {
             int Status;
             string Data;

@@ -56,7 +56,6 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/core/server/handler/HtmlHandler.h
 			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.cpp
 			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.h
-			${PROJECT_SOURCE_DIR}/core/server/ServerConfig.cpp
 			${PROJECT_SOURCE_DIR}/core/server/AppServer.cpp
 			${PROJECT_SOURCE_DIR}/core/server/AppServer.h
 			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.h
