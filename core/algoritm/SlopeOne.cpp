@@ -84,7 +84,7 @@ void core::algoritm::SlopeOne::AddUserRatings(core::UserInfo &userRatings) {
     }
 }
 
-vector<pair<PRODUCT_TYPE, float>> core::algoritm::SlopeOne::Predict(CUSTOM_MAP<PRODUCT_TYPE, RATE_TYPE> userRatings) {
+vector<pair<PRODUCT_TYPE, float>> core::algoritm::SlopeOne::Predict(CUSTOM_MAP<PRODUCT_TYPE, RATE_TYPE> &userRatings) {
     vector<pair<PRODUCT_TYPE, float>> returnValue;
     auto DifffMatrixEnd = DifffMatrix.end();
     auto ItemsEnd = Items.end();

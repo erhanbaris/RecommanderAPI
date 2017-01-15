@@ -17,8 +17,6 @@ void core::data::CvsDataSource<T>::LoadData() {
         return;
     }
 
-
-    size_t counter = 0;
     while (in->good()) {
         try {
             string ratingStr, productIdStr, customerIdStr, timeStr;

@@ -1,6 +1,7 @@
 #include <core/server/handler/StaticFileHandler.h>
 #include <core/Utils.h>
 #include <core/server/AppServer.h>
+#include <boost/algorithm/string/replace.hpp>
 
 using namespace core;
 using namespace core::server;
@@ -19,6 +20,7 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
 
     try {
         const char *staticName = "/static/";
+        
         auto isStaticFile = strncmp(request->Url.c_str(), staticName, strlen(staticName)) == 0;
         DEBUG_WRITE(request->Url);
         
@@ -26,7 +28,7 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
             returnValue = true;
             
             string url = request->Url;
-            url.replace(url.begin(), url.end(), staticName);
+            boost::replace_all(url, staticName, "");
             string fullFilePath = AppServer::instance().GetStaticPath() + "/" + url;
 
             if (fileExists(fullFilePath)) {

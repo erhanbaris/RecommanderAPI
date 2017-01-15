@@ -1,39 +1,5 @@
 #include <core/server/AppServer.h>
 
-#include <vector>
-#include <math.h>
-#include <stdio.h>
-#include <iostream>
-#include <string>
-#include <functional>
-#include <locale>
-#include <sstream>
-#include <map>
-
-#include <cpprest/http_listener.h>
-#include <cpprest/uri.h>
-#include <cpprest/http_client.h>
-#include <cpprest/filestream.h>
-#include <cpprest/producerconsumerstream.h>
-#include <cpprest/json.h>
-#include <cpprest/interopstream.h>
-
-#include <config.h>
-#include <model/Rating.h>
-#include <core/data/BaseDataSource.h>
-#include <core/data/CvsDataSource.h>
-#include <core/algoritm/SlopeOne.h>
-#include <core/MimeType.h>
-#include <core/algoritm/PearsonCorrelationCoefficien.h>
-#include <core/Utils.h>
-#include <core/data/BaseDataInfo.h>
-#include <core/data/GeneralDataInfo.h>
-#include <core/server/ServerConfig.h>
-#include <core/server/handler/BaseHandler.h>
-#include <core/server/handler/StaticFileHandler.h>
-#include <core/server/handler/HtmlHandler.h>
-#include <core/server/handler/ActionHandler.h>
-
 using namespace core;
 using namespace core::server;
 using namespace core::server::handler;
@@ -41,6 +7,7 @@ using namespace core::data;
 
 void AppServer::ExecuteRequest(http_request *request, string const &methodType) {
 
+    auto handlersEnd = handlers.end();
     auto relativeUri = request->relative_uri();
     auto relativePath = relativeUri.path();
     auto queries = relativeUri.split_query(relativeUri.query());
@@ -49,10 +16,10 @@ void AppServer::ExecuteRequest(http_request *request, string const &methodType) 
     RequestInfo info(queries, decode);
     info.MethodType = methodType;
 
-    for (auto it = handlers.begin(); it != handlers.end(); ++it) {
+    for (auto it = handlers.begin(); it != handlersEnd; ++it) {
         bool result = (*it)->TryExecute(&info);
         if (result) {
-            request->reply(info.Response.Status, info.Response.Data, info.Response.ContentType);
+            request->reply((status_code) info.Response.Status, info.Response.Data, info.Response.ContentType);
             return;
         }
     }
@@ -64,13 +31,13 @@ AppServer::AppServer() { }
 
 void AppServer::Start() {
     try {
-        dataSource = std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>>(
-                new core::data::CvsDataSource<core::data::GeneralDataInfo>(GetDataPath() + "/cvs/products.csv", GetDataPath() + "/cvs/ratings.csv"));
+        dataSource = std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>>(new core::data::CvsDataSource<core::data::GeneralDataInfo>(GetDataPath() + "/cvs/products.csv", GetDataPath() + "/cvs/ratings.csv"));
         dataSource->LoadData();
 
         ActionHandler *actionHandler = new ActionHandler();
 
-        for (auto it = actions.begin(); it != actions.end(); ++it) {
+        auto actionsEnd = actions.end();
+        for (auto it = actions.begin(); it != actionsEnd; ++it) {
             short methods = (*it)->MethodInfo();
             if (methods & TYPE_GET)
                 actionHandler->SetGetAction((*it)->Url(), *it);
