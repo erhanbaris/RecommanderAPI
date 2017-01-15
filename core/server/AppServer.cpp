@@ -1,4 +1,4 @@
-#include "AppServer.h"
+#include <core/server/AppServer.h>
 
 #include <vector>
 #include <math.h>
@@ -18,21 +18,21 @@
 #include <cpprest/json.h>
 #include <cpprest/interopstream.h>
 
-#include "../../config.h"
-#include "../../model/Rating.h"
-#include "../data/BaseDataSource.h"
-#include "../data/CvsDataSource.h"
-#include "../algoritm/SlopeOne.h"
-#include "../MimeType.h"
-#include "../algoritm/PearsonCorrelationCoefficien.h"
-#include "../Utils.h"
-#include "../data/BaseDataInfo.h"
-#include "../data/GeneralDataInfo.h"
-#include "../server/ServerConfig.h"
-#include "../server/handler/BaseHandler.h"
-#include "../server/handler/StaticFileHandler.h"
-#include "../server/handler/HtmlHandler.h"
-#include "../server/handler/ActionHandler.h"
+#include <config.h>
+#include <model/Rating.h>
+#include <core/data/BaseDataSource.h>
+#include <core/data/CvsDataSource.h>
+#include <core/algoritm/SlopeOne.h>
+#include <core/MimeType.h>
+#include <core/algoritm/PearsonCorrelationCoefficien.h>
+#include <core/Utils.h>
+#include <core/data/BaseDataInfo.h>
+#include <core/data/GeneralDataInfo.h>
+#include <core/server/ServerConfig.h>
+#include <core/server/handler/BaseHandler.h>
+#include <core/server/handler/StaticFileHandler.h>
+#include <core/server/handler/HtmlHandler.h>
+#include <core/server/handler/ActionHandler.h>
 
 using namespace core;
 using namespace core::server;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../../config.h"
+#include <config.h>
 
-#include "../ServerConfig.h"
-#include "BaseHandler.h"
+#include <core/server/ServerConfig.h>
+#include <core/server/handler/BaseHandler.h>
 
 namespace core {
     namespace server {

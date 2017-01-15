@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseAction.h"
+#include <core/server/action/BaseAction.h>
 
 namespace core {
     namespace server {

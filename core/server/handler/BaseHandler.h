@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ServerConfig.h"
+#include <core/server/ServerConfig.h>
 
 namespace core {
     namespace server {

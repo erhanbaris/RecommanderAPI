@@ -14,15 +14,15 @@
     #define GetCurrentDir getcwd
 #endif
 
-#include "config.h"
+#include <config.h>
 #include <sstream>
 #include <map>
 #include <memory>
 
-#include "core/algoritm/PearsonCorrelationCoefficien.h"
-#include "core/server/AppServer.h"
-#include "core/server/action/BaseAction.h"
-#include "core/server/action/UserRecommendAction.h"
+#include <core/server/AppServer.h>
+#include <core/algoritm/PearsonCorrelationCoefficien.h>
+#include <core/server/action/BaseAction.h>
+#include <core/server/action/UserRecommendAction.h>
 
 #pragma execution_character_set("utf-8")
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../config.h"
-#include "../../model/Rating.h"
-#include "BaseDataInfo.h"
-#include "GeneralDataInfo.h"
+#include <config.h>
+#include <model/Rating.h>
+#include <core/data/BaseDataInfo.h>
+#include <core/data/GeneralDataInfo.h>
 
 using namespace model;
 using namespace core;

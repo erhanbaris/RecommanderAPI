@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../config.h"
-#include "../Model/Product.h"
+#include <config.h>
+#include <model/Product.h>
 
 using namespace std;
 namespace model {

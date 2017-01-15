@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "../../config.h"
-#include "../Utils.h"
+#include <config.h>
+#include <core/Utils.h>
 
 using namespace std;
 

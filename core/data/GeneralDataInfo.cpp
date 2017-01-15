@@ -1,4 +1,4 @@
-#include "GeneralDataInfo.h"
+#include <core/data/GeneralDataInfo.h>
 
 using namespace std;
 using namespace core;

@@ -1,5 +1,5 @@
-#include "UserRecommendAction.h"
-#include "../AppServer.h"
+#include <core/server/action/UserRecommendAction.h>
+#include <core/server/AppServer.h>
 
 using namespace core::server::action;
 

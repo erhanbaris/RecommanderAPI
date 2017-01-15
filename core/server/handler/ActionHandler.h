@@ -2,11 +2,11 @@
 
 #include <functional>
 
-#include "../../../config.h"
+#include <config.h>
 
-#include "../ServerConfig.h"
-#include "StaticFileHandler.h"
-#include "../action/BaseAction.h"
+#include <core/server/ServerConfig.h>
+#include <core/server/handler/StaticFileHandler.h>
+#include <core/server/action/BaseAction.h>
 
 using namespace core::server::action;
 
@@ -21,7 +21,7 @@ namespace core {
                 ActionHandler();
 
                 bool TryExecute(RequestInfo * request) override;
-                void addHttpMethod(string method);
+                void AddHttpMethod(string method);
 
                 void SetGetAction(string url, BaseAction* action);
                 void SetPostAction(string url, BaseAction* action);

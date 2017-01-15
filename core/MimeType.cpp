@@ -5,8 +5,8 @@
 #include <chrono>
 #include <string>
 #include <iostream>
-#include "../config.h"
-#include "MimeType.h"
+#include <config.h>
+#include <core/MimeType.h>
 
 using namespace std;
 
@@ -67,11 +67,7 @@ void core::MimeType::initMimeTypes() {
     mimeTypes["avi"] = "video/x-msvideo";
     mimeTypes["avs"] = "video/avs-video";
     mimeTypes["bcpio"] = "application/x-bcpio";
-    mimeTypes["bin"] = "application/mac-binary";
-    mimeTypes["bin"] = "application/macbinary";
     mimeTypes["bin"] = "application/octet-stream";
-    mimeTypes["bin"] = "application/x-binary";
-    mimeTypes["bin"] = "application/x-macbinary";
     mimeTypes["bm"] = "image/bmp";
     mimeTypes["bmp"] = "image/bmp";
     mimeTypes["bmp"] = "image/x-windows-bmp";
@@ -82,16 +78,12 @@ void core::MimeType::initMimeTypes() {
     mimeTypes["bz"] = "application/x-bzip";
     mimeTypes["bz2"] = "application/x-bzip2";
     mimeTypes["c"] = "text/plain";
-    mimeTypes["c"] = "text/x-c";
     mimeTypes["c++"] = "text/plain";
     mimeTypes["cat"] = "application/vnd.ms-pki.seccat";
     mimeTypes["cc"] = "text/plain";
-    mimeTypes["cc"] = "text/x-c";
     mimeTypes["ccad"] = "application/clariscad";
     mimeTypes["cco"] = "application/x-cocoa";
     mimeTypes["cdf"] = "application/cdf";
-    mimeTypes["cdf"] = "application/x-cdf";
-    mimeTypes["cdf"] = "application/x-netcdf";
     mimeTypes["cer"] = "application/pkix-cert";
     mimeTypes["cer"] = "application/x-x509-ca-cert";
     mimeTypes["cha"] = "application/x-chat";
@@ -232,7 +224,6 @@ void core::MimeType::initMimeTypes() {
     mimeTypes["jav"] = "text/plain";
     mimeTypes["jav"] = "text/x-java-source";
     mimeTypes["java"] = "text/plain";
-    mimeTypes["java"] = "text/x-java-source";
     mimeTypes["jcm"] = "application/x-java-commerce";
     mimeTypes["jfif"] = "image/jpeg";
     mimeTypes["jfif"] = "image/pjpeg";
@@ -240,7 +231,6 @@ void core::MimeType::initMimeTypes() {
     mimeTypes["jpe"] = "image/jpeg";
     mimeTypes["jpe"] = "image/pjpeg";
     mimeTypes["jpeg"] = "image/jpeg";
-    mimeTypes["jpeg"] = "image/pjpeg";
     mimeTypes["jpg"] = "image/jpeg";
     mimeTypes["jpg"] = "image/pjpeg";
     mimeTypes["jps"] = "image/x-jps";
@@ -639,20 +629,11 @@ void core::MimeType::initMimeTypes() {
     mimeTypes["xlm"] = "application/vnd.ms-excel";
     mimeTypes["xlm"] = "application/x-excel";
     mimeTypes["xls"] = "application/excel";
-    mimeTypes["xls"] = "application/vnd.ms-excel";
-    mimeTypes["xls"] = "application/x-excel";
-    mimeTypes["xls"] = "application/x-msexcel";
     mimeTypes["xlt"] = "application/excel";
-    mimeTypes["xlt"] = "application/x-excel";
+    mimeTypes["xlt"] = "application/excel";
     mimeTypes["xlv"] = "application/excel";
-    mimeTypes["xlv"] = "application/x-excel";
-    mimeTypes["xlw"] = "application/excel";
-    mimeTypes["xlw"] = "application/vnd.ms-excel";
-    mimeTypes["xlw"] = "application/x-excel";
-    mimeTypes["xlw"] = "application/x-msexcel";
     mimeTypes["xm"] = "audio/xm";
     mimeTypes["xml"] = "application/xml";
-    mimeTypes["xml"] = "text/xml";
     mimeTypes["xmz"] = "xgl/movie";
     mimeTypes["xpix"] = "application/x-vnd.ls-xpix";
     mimeTypes["xpm"] = "image/x-xpixmap";
@@ -660,14 +641,10 @@ void core::MimeType::initMimeTypes() {
     mimeTypes["x-png"] = "image/png";
     mimeTypes["xsr"] = "video/x-amt-showrun";
     mimeTypes["xwd"] = "image/x-xwd";
-    mimeTypes["xwd"] = "image/x-xwindowdump";
     mimeTypes["xyz"] = "chemical/x-pdb";
     mimeTypes["z"] = "application/x-compress";
     mimeTypes["z"] = "application/x-compressed";
     mimeTypes["zip"] = "application/x-compressed";
-    mimeTypes["zip"] = "application/x-zip-compressed";
-    mimeTypes["zip"] = "application/zip";
-    mimeTypes["zip"] = "multipart/x-zip";
     mimeTypes["zoo"] = "application/octet-stream";
     mimeTypes["zsh"] = "text/x-script.zsh";
 

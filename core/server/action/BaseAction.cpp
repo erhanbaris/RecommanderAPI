@@ -1,4 +1,4 @@
-#include "BaseAction.h"
+#include <core/server/action/BaseAction.h>
 
 std::string core::server::action::BaseAction::EscapeJsonString(const std::string &input) {
     std::ostringstream ss;

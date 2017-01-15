@@ -1,5 +1,4 @@
-#include "SlopeOne.h"
-
+#include <core/algoritm/SlopeOne.h>
 
 namespace {
 #define getHashCode(item1Id, item2Id)\

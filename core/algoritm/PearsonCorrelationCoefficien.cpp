@@ -1,4 +1,4 @@
-#include "PearsonCorrelationCoefficien.h"
+#include <core/algoritm/PearsonCorrelationCoefficien.h>
 
 using namespace std;
 using namespace model;

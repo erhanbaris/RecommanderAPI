@@ -22,7 +22,7 @@ if(Boost_FOUND)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 
 	add_definitions(-DBOOST_ALL_NO_LIB)
-	include_directories(${PROJECT_SOURCE_DIR}/include)
+	include_directories(${PROJECT_SOURCE_DIR})
 	include_directories(sparsehash_INCLUDE_DIR)
 	include_directories(CPPRESTSDK_INCLUDE_DIR)
 	include_directories(OPENSSL_INCLUDE_DIR)

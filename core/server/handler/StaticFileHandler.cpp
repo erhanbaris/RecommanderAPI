@@ -1,6 +1,6 @@
-#include "StaticFileHandler.h"
-#include "../../Utils.h"
-#include "../AppServer.h"
+#include <core/server/handler/StaticFileHandler.h>
+#include <core/Utils.h>
+#include <core/server/AppServer.h>
 
 using namespace core;
 using namespace core::server;
@@ -20,6 +20,8 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
     try {
         const char *staticName = "/static/";
         auto isStaticFile = strncmp(request->Url.c_str(), staticName, strlen(staticName)) == 0;
+        DEBUG_WRITE(request->Url);
+        
         if (isStaticFile) {
             returnValue = true;
             

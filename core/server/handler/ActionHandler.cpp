@@ -1,4 +1,4 @@
-#include "ActionHandler.h"
+#include <core/server/handler/ActionHandler.h>
 
 using namespace core::server::handler;
 
@@ -7,11 +7,11 @@ ActionHandler::ActionHandler()
 {
     INIT_MAP(routeTable, "", "0");
 
-    addHttpMethod(web::http::methods::GET);
-    addHttpMethod(web::http::methods::PUT);
-    addHttpMethod(web::http::methods::DEL);
-    addHttpMethod(web::http::methods::HEAD);
-    addHttpMethod(web::http::methods::POST);
+    AddHttpMethod(web::http::methods::GET);
+    AddHttpMethod(web::http::methods::PUT);
+    AddHttpMethod(web::http::methods::DEL);
+    AddHttpMethod(web::http::methods::HEAD);
+    AddHttpMethod(web::http::methods::POST);
 }
 
 bool ActionHandler::TryExecute(RequestInfo * request) {
@@ -32,7 +32,7 @@ bool ActionHandler::TryExecute(RequestInfo * request) {
     return true;
 };
 
-void ActionHandler::addHttpMethod(string method) {
+void ActionHandler::AddHttpMethod(string method) {
     HttpMethodRoute route;
     INIT_MAP(route, "-1", "-2");
     routeTable[method] = route;

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../ServerConfig.h"
-
-#include "../../../config.h"
-#include "../../Utils.h"
+#include <config.h>
+#include <core/server/ServerConfig.h>
+#include <core/Utils.h>
 
 #define TYPE_GET 1u << 0
 #define TYPE_POST 1u << 1

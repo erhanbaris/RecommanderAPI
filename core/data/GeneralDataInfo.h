@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../config.h"
-#include "../Utils.h"
-#include "../algoritm/SlopeOne.h"
-#include "../../model/Rating.h"
-#include "BaseDataInfo.h"
+#include <config.h>
+#include <core/Utils.h>
+#include <core/algoritm/SlopeOne.h>
+#include <model/Rating.h>
+#include <core/data/BaseDataInfo.h>
 
 #include <iostream>
 #include <vector>

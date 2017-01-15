@@ -12,9 +12,9 @@
 #include <functional>
 #include <locale>
 
-#include "../../config.h"
-#include "../../model/Rating.h"
-#include "../Utils.h"
+#include <config.h>
+#include <model/Rating.h>
+#include <core/Utils.h>
 
 using namespace std;
 using namespace model;

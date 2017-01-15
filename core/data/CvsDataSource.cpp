@@ -1,4 +1,4 @@
-#include "CvsDataSource.h"
+#include <core/data/CvsDataSource.h>
 
 
 using namespace std;
@@ -32,11 +32,6 @@ void core::data::CvsDataSource<T>::LoadData() {
             char ratingChar = rating /** 10*/;
 
             this->Data()->AddUserRating(customerId, productId, ratingChar);
-#if _DEBUG
-            if (counter >= 250000)
-                break;
-            ++counter;
-#endif
         }
         catch (const std::exception &e) {
             ERROR_WRITE(e.what());
@@ -51,14 +46,6 @@ void core::data::CvsDataSource<T>::LoadData() {
         LOG_WRITE("!!!! PRODUCT FILE NOT FOUND !!!!");
         LOG_WRITE("DATABASE LOADING ENDED");
         return;
-    }
-
-
-    if (in.good()) {
-        string tmp;
-        getline(in, tmp, ',');
-        getline(in, tmp, ',');
-        getline(in, tmp, '\n');
     }
 
     while (in.good()) {

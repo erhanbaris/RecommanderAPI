@@ -1,6 +1,6 @@
-#include "HtmlHandler.h"
-#include "../../Utils.h"
-#include "../AppServer.h"
+#include <core/server/handler/HtmlHandler.h>
+#include <core/Utils.h>
+#include <core/server/AppServer.h>
 
 using namespace core;
 using namespace core::server::handler;

@@ -4,8 +4,8 @@
 #include <string>
 #include <fstream>
 
-#include "../Utils.h"
-#include "BaseDataSource.h"
+#include <core/Utils.h>
+#include <core/data/BaseDataSource.h>
 
 using namespace std;
 using namespace core;
