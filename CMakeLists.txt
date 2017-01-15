@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 project(RecommanderAPI)
 
-find_package( Boost 1.55 COMPONENTS system chrono thread REQUIRED )
+find_package( Boost 1.50 COMPONENTS system chrono thread REQUIRED )
 find_package( OpenSSL COMPONENTS crypto REQUIRED )
 find_path(CPPRESTSDK_INCLUDE_DIR NAMES cpprest/http_listener.h)
 find_library(CPPRESTSDK_LIB NAMES libcpprest cpprest)
