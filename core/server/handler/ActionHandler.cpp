@@ -16,7 +16,9 @@ ActionHandler::ActionHandler()
 
 bool ActionHandler::TryExecute(RequestInfo * request) {
     if (routeTable[request->MethodType].find(request->Url) != routeTable[request->MethodType].end()) {
-        auto response = routeTable[request->MethodType][request->Url]->Execute(request);
+        auto * action = routeTable[request->MethodType][request->Url]->CreateObject();
+        auto response = action->Execute(request);
+        delete action;
 
         request->Response.Data = response.Data;
         request->Response.Status = response.Status;

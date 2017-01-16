@@ -10,6 +10,7 @@ namespace core {
                 string Url() override;
                 ResponseInfo Execute(RequestInfo *info) override;
                 short MethodInfo() override;
+                BaseAction* CreateObject() override;
                 vector<pair<PRODUCT_TYPE, wstring>> recommend(USER_TYPE userId);
             };
         }

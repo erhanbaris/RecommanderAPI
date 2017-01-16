@@ -19,7 +19,8 @@ namespace core {
                 virtual string Url() = 0;
                 virtual ResponseInfo Execute(RequestInfo *info) = 0;
                 virtual short MethodInfo() = 0;
-                
+                virtual BaseAction* CreateObject() = 0;
+
             protected:
                 std::string EscapeJsonString(const std::string &input);
             };

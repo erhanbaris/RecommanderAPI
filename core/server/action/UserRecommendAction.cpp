@@ -85,6 +85,11 @@ string UserRecommendAction::Url() {
     return "/api/user_recommend";
 }
 
+core::server::action::BaseAction* UserRecommendAction::CreateObject()
+{
+    return new UserRecommendAction();
+}
+
 core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
     if (info->Queries.find("userid") == info->Queries.end()) {
         web::json::value item = web::json::value::object();
