@@ -12,51 +12,52 @@ vector<pair<PRODUCT_TYPE, wstring>> UserRecommendAction::recommend(USER_TYPE use
     CUSTOM_MAP<PRODUCT_TYPE, RATE_TYPE> userRatings;
     INT_INIT_MAP(userRatings);
 
-    auto &userDatas = AppServer::instance().DataSource()->Data()->userMap[userId].Products;
+
+    auto * dataSource = AppServer::instance().DataSource()->Data();
+    auto &userDatas = dataSource->userMap[userId].Products;
     auto endData = userDatas.end();
     for (auto it = userDatas.begin(); it != endData; ++it)
         userRatings[(*it)->ProductId] = (*it)->Rating;
 
-    const auto &results = AppServer::instance().DataSource()->Data()->slopeOne.Predict(userRatings);
+    const auto results = dataSource->slopeOne.Predict(userRatings);
     //const auto& results = mDistance.Recommend(&dataSource->Data()->userRatings, userId);
-    if (results.size() > 0) {
-        auto nearestUser = results.at(0);
+    if (results->size() > 0) {
+        auto nearestUser = results->at(0);
 
-        auto nearestUserRatings = AppServer::instance().DataSource()->Data()->userRatings[nearestUser.first];
-        auto currentUserRatings = AppServer::instance().DataSource()->Data()->userRatings[userId];
+        auto nearestUserRatings = dataSource->userRatings[nearestUser.first];
+        auto currentUserRatings = dataSource->userRatings[userId];
         auto currentUserRatingsEnd = currentUserRatings.end();
 
         float totalDistance = 0.0;
         size_t counter = 0;
-        auto resultsEnd = results.cend();
-        for (auto it = results.cbegin(); it != resultsEnd && counter < KNEAR_SIZE; ++it) {
+        auto resultsEnd = results->cend();
+        for (auto it = results->cbegin(); it != resultsEnd && counter < KNEAR_SIZE; ++it) {
             totalDistance += it->second;
             ++counter;
         }
 
         counter = 0;
-        for (auto nearest = results.cbegin(); nearest != resultsEnd && counter < KNEAR_SIZE; ++nearest) {
+        for (auto nearest = results->cbegin(); nearest != resultsEnd && counter < KNEAR_SIZE; ++nearest) {
             float weight = nearest->second / totalDistance;
-            auto neighborRatings = AppServer::instance().DataSource()->Data()->userRatings[nearest->first];
+            auto neighborRatings = dataSource->userRatings[nearest->first];
 
             auto neighborRatingsEnd = neighborRatings.cend();
             for (auto artist = neighborRatings.cbegin(); artist != neighborRatingsEnd; ++artist) {
-                const auto &artistItem = (*artist);
 
                 bool hasProduct = false;
                 for (auto it = currentUserRatings.begin(); it != currentUserRatingsEnd; ++it) {
-                    if (it->ProductId == artistItem.ProductId) {
+                    if (it->ProductId == artist->ProductId) {
                         hasProduct = true;
                         break;
                     }
                 }
 
                 if (hasProduct) {
-                    auto recommendItem = recommendedProductIds.find(artistItem.ProductId);
+                    auto recommendItem = recommendedProductIds.find(artist->ProductId);
                     if (recommendItem == recommendedProductIds.end())
-                        recommendedProductIds[artistItem.ProductId] = static_cast<float>(artistItem.Rate) * weight;
+                        recommendedProductIds[artist->ProductId] = static_cast<float>(artist->Rate) * weight;
                     else
-                        recommendItem->second = recommendItem->second + (static_cast<float>(artistItem.Rate) * weight);
+                        recommendItem->second = recommendItem->second + (static_cast<float>(artist->Rate) * weight);
                 }
             }
 
@@ -64,6 +65,7 @@ vector<pair<PRODUCT_TYPE, wstring>> UserRecommendAction::recommend(USER_TYPE use
         }
     }
 
+    delete results;
 
     vector<pair<PRODUCT_TYPE, float>> sortIds;
     auto recommendedProductIdsEnd = recommendedProductIds.end();
@@ -76,7 +78,7 @@ vector<pair<PRODUCT_TYPE, wstring>> UserRecommendAction::recommend(USER_TYPE use
               });
 
     for (auto id = sortIds.begin(); id != sortIds.end(); ++id)
-        recommendedProducts.push_back(pair<PRODUCT_TYPE, wstring>(id->first, AppServer::instance().DataSource()->Data()->productInfos[id->first]));
+        recommendedProducts.push_back(pair<PRODUCT_TYPE, wstring>(id->first, dataSource->productInfos[id->first]));
 
     return recommendedProducts;
 }

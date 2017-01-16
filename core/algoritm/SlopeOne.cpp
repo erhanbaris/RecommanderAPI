@@ -2,7 +2,10 @@
 
 namespace {
 #define getHashCode(item1Id, item2Id)\
-     std::hash<double>{}(item1Id < item2Id ? (item1Id * 1000000) + item2Id : (item2Id * 1000000) + item1Id)
+     (item1Id < item2Id ? (item1Id * 1000000) + item2Id : (item2Id * 1000000) + item1Id)
+
+#define isKeyContain(item1Id, item2Id)\
+    (DifffMatrix.find(getHashCode(item1Id, item2Id)) != DifffMatrix.end())
 
     typedef struct pRating {
         pRating() : Value(0), Freq(0) { }
@@ -23,18 +26,6 @@ namespace {
 
     CUSTOM_MAP<size_t, rating *> DifffMatrix;
     CUSTOM_SET<PRODUCT_TYPE> Items;
-
-    bool isKeyContain(PRODUCT_TYPE item1Id, PRODUCT_TYPE item2Id) {
-        return DifffMatrix.find(getHashCode(item1Id, item2Id)) != DifffMatrix.end();
-    }
-
-    rating *getValue(PRODUCT_TYPE item1Id, PRODUCT_TYPE item2Id) {
-        return DifffMatrix[getHashCode(item1Id, item2Id)];
-    }
-
-    void setValue(PRODUCT_TYPE item1Id, PRODUCT_TYPE item2Id, rating *item) {
-        DifffMatrix.insert(std::pair<PRODUCT_TYPE, rating *>(getHashCode(item1Id, item2Id), item));
-    }
 }
 
 core::algoritm::SlopeOne::SlopeOne() {
@@ -72,10 +63,10 @@ void core::algoritm::SlopeOne::AddUserRatings(core::UserInfo &userRatings) {
 
             rating *ratingDiff;
             if (isKeyContain(item1Id, item2Id))
-                ratingDiff = getValue(item1Id, item2Id);
+                ratingDiff = DifffMatrix[getHashCode(item1Id, item2Id)];
             else {
                 ratingDiff = new rating;
-                setValue(item1Id, item2Id, ratingDiff);
+                DifffMatrix.insert(std::pair<PRODUCT_TYPE, rating *>(getHashCode(item1Id, item2Id), ratingDiff));
             }
 
             ratingDiff->Value += item1Rating - item2Rating;
@@ -84,8 +75,8 @@ void core::algoritm::SlopeOne::AddUserRatings(core::UserInfo &userRatings) {
     }
 }
 
-vector<pair<PRODUCT_TYPE, float>> core::algoritm::SlopeOne::Predict(CUSTOM_MAP<PRODUCT_TYPE, RATE_TYPE> &userRatings) {
-    vector<pair<PRODUCT_TYPE, float>> returnValue;
+vector<pair<PRODUCT_TYPE, float>> * core::algoritm::SlopeOne::Predict(CUSTOM_MAP<PRODUCT_TYPE, RATE_TYPE> &userRatings) {
+    vector<pair<PRODUCT_TYPE, float>> * returnValue = new vector<pair<PRODUCT_TYPE, float>>();
     auto DifffMatrixEnd = DifffMatrix.end();
     auto ItemsEnd = Items.end();
     auto userRatingsEnd = userRatings.end();
@@ -105,16 +96,15 @@ vector<pair<PRODUCT_TYPE, float>> core::algoritm::SlopeOne::Predict(CUSTOM_MAP<P
             USER_TYPE inputItemId = userRating->first;
             if (DifffMatrix.find(getHashCode(item, inputItemId)) != DifffMatrixEnd) {
                 auto diff = DifffMatrix[getHashCode(item, inputItemId)];
-                itemRating.Value +=
-                        diff->Freq * (userRating->second + diff->AverageValue() * (item < userRating->first ? 1 : -1));
+                itemRating.Value += diff->Freq * (userRating->second + diff->AverageValue() * (item < userRating->first ? 1 : -1));
                 itemRating.Freq += diff->Freq;
             }
         }
 
-        returnValue.push_back(std::pair<PRODUCT_TYPE, float>(item, itemRating.AverageValue()));
+        returnValue->push_back(std::pair<PRODUCT_TYPE, float>(item, itemRating.AverageValue()));
     }
 
-    std::sort(returnValue.begin(), returnValue.end(),
+    std::sort(returnValue->begin(), returnValue->end(),
               [](pair<PRODUCT_TYPE, float> const &left, pair<PRODUCT_TYPE, float> const &right) {
                   return left.second > right.second;
               });
