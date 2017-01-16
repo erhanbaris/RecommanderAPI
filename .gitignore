@@ -27,7 +27,7 @@
 *.exe
 *.out
 *.app
-.idea/RecommanderAPI.iml
+.idea/RecommenderAPI.iml
 .idea/encodings.xml
 .idea/misc.xml
 .idea/modules.xml

@@ -81,7 +81,7 @@ int main(int argc, char **args) {
     }
 
     getchar();
-    LOG_WRITE("RECOMMANDER EXIT");
+    LOG_WRITE("RECOMMENDER EXIT");
     return 0;
 }
 

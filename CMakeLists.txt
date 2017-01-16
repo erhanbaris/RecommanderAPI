@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(RecommanderAPI)
+project(RecommenderAPI)
 
 find_package( Boost 1.50 COMPONENTS system chrono thread REQUIRED )
 find_package( OpenSSL COMPONENTS crypto REQUIRED )
@@ -62,9 +62,9 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.cpp
 			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.h
 			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.cpp)
-	add_executable(RecommanderAPI ${SOURCE_FILES})
+	add_executable(RecommenderAPI ${SOURCE_FILES})
 
-	target_link_libraries(RecommanderAPI
+	target_link_libraries(RecommenderAPI
 			${Boost_LIBRARIES}
 			${CPPRESTSDK_LIB}
 			${OPENSSL_LIBRARIES})
