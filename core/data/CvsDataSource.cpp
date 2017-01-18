@@ -57,6 +57,7 @@ void core::data::CvsDataSource<T>::LoadData() {
             getline(*in, genres, '\n');
 
             this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), core::getString(title));
+            this->Data()->symspell.CreateDictionaryEntry(title);
         }
         catch (const std::exception &e) {
             ERROR_WRITE(e.what());

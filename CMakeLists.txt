@@ -61,7 +61,14 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.h
 			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.cpp
 			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.h
-			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.cpp)
+			${PROJECT_SOURCE_DIR}/core/server/action/SearchAction.cpp
+			${PROJECT_SOURCE_DIR}/core/server/action/SearchAction.h
+			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.cpp
+			${PROJECT_SOURCE_DIR}/core/server/controller/BaseController.cpp
+			${PROJECT_SOURCE_DIR}/core/server/controller/BaseController.h
+			${PROJECT_SOURCE_DIR}/core/algoritm/SymSpell.h
+			${PROJECT_SOURCE_DIR}/core/algoritm/SymSpell.cpp
+			)
 	add_executable(RecommenderAPI ${SOURCE_FILES})
 
 	target_link_libraries(RecommenderAPI

@@ -23,6 +23,7 @@
 #include <core/algoritm/PearsonCorrelationCoefficien.h>
 #include <core/server/action/BaseAction.h>
 #include <core/server/action/UserRecommendAction.h>
+#include <core/server/action/SearchAction.h>
 
 #pragma execution_character_set("utf-8")
 
@@ -70,6 +71,7 @@ int main(int argc, char **args) {
     try {
         AppServer::instance()
                 .AddAction(new UserRecommendAction())
+                .AddAction(new SearchAction())
                 .SetExecutionPath(currentPath)
                 .SetDataPath(dataPath)
                 .SetHtmlPath("www")

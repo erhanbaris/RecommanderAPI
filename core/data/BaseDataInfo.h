@@ -3,6 +3,7 @@
 #include <config.h>
 #include <core/Utils.h>
 #include <core/algoritm/SlopeOne.h>
+#include <core/algoritm/SymSpell.h>
 #include <model/Rating.h>
 
 #include <iostream>
@@ -23,6 +24,7 @@ namespace core {
 			virtual void Prepare() = 0;
 
 			algoritm::SlopeOne slopeOne;
+			SymSpell symspell;
 
 			CUSTOM_MAP<USER_TYPE, vector<model::Rating>> userRatings;
 
