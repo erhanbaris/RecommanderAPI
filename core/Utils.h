@@ -2,6 +2,8 @@
 
 #include <config.h>
 #include <locale>
+#include <string>
+#include <sstream>
 #include <vector>
 #include <boost/locale/encoding_utf.hpp>
 
@@ -19,6 +21,11 @@ namespace core {
 	string getString(const wstring & data);
 	bool fileExists(string const &filename);
 	size_t indexOf(char *text, char searchChar);
+	void splitString(const std::string &s, char delim, std::vector<std::string> &elems);
+	std::vector<std::string> splitString(const std::string &s, char delim);
+	bool isInteger(const std::string &s);
+	string getNarrow(const std::wstring &s);
+
 
 	typedef struct tIndexItem {
 		PRODUCT_TYPE ProductId;

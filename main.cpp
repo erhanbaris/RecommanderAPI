@@ -1,27 +1,23 @@
 #include <iostream>
 #include <fstream>
-#include <chrono>
-#include <string>
-#include <iostream>
 
 #pragma warning(disable:4503)
 
 #ifdef WINDOWS
-    #include <direct.h>
-    #define GetCurrentDir _getcwd
+#include <direct.h>
+#define GetCurrentDir _getcwd
 #else
-    #include <unistd.h>
-    #define GetCurrentDir getcwd
+
+#include <unistd.h>
+
+#define GetCurrentDir getcwd
 #endif
 
 #include <config.h>
 #include <sstream>
 #include <map>
-#include <memory>
 
 #include <core/server/AppServer.h>
-#include <core/algoritm/PearsonCorrelationCoefficien.h>
-#include <core/server/action/BaseAction.h>
 #include <core/server/action/UserRecommendAction.h>
 #include <core/server/action/SearchAction.h>
 
@@ -52,7 +48,6 @@ ResponseInfo refreshDataSource(RequestInfo *info) {
 
     return returnValue;
 }
-
 
 int main(int argc, char **args) {
     char currentPathChars[FILENAME_MAX];

@@ -1,4 +1,5 @@
 #include <core/algoritm/SymSpell.h>
+#include <core/Utils.h>
 
 #define getHastCode(term) hash<string>()(term)
 
@@ -6,19 +7,26 @@ using namespace std;
 using namespace core::algoritm;
 
 namespace {
+
     struct Xgreater1 {
-        bool operator()(const suggestItem &lx, const suggestItem &rx) const {
-            return lx.count > rx.count;
+        bool operator()(const FindedItem &lx, const FindedItem &rx) const {
+            return lx.distance > rx.distance;
         }
     };
 
     struct Xgreater2 {
-        bool operator()(const suggestItem &lx, const suggestItem &rx) const {
-            auto cmpForLx = 2 * (lx.distance - rx.distance) - (lx.count - rx.count);
-            auto cmpForRx = 2 * (rx.distance - lx.distance) - (rx.count - lx.count);
+        bool operator()(const FindedItem &lx, const FindedItem &rx) const {
+            auto cmpForLx = 2 * (lx.distance - rx.distance);
+            auto cmpForRx = 2 * (rx.distance - lx.distance);
             return cmpForLx > cmpForRx;
         }
     };
+
+    size_t Verbose = 0;
+    size_t MaxDistance = 2;
+    size_t maxlength = 1000;
+    CUSTOM_MAP<size_t, dictionaryItemContainer> dictionary;
+    vector<string> wordlist;
 }
 
 SymSpell::SymSpell() {
@@ -100,7 +108,7 @@ void SymSpell::Load(string filePath)
 
 #endif
 
-bool SymSpell::CreateDictionaryEntry(string key) {
+bool SymSpell::CreateDictionaryEntry(string key, PRODUCT_TYPE id) {
     bool result = false;
     dictionaryItemContainer value;
 
@@ -129,52 +137,53 @@ bool SymSpell::CreateDictionaryEntry(string key) {
         if (key.size() > maxlength)
             maxlength = key.size();
     }
+    
+    value.Id->insert(id);
 
-    if (value.dictValue->count == 1) {
-        wordlist.push_back(key);
-        size_t keyint = wordlist.size() - 1;
+    wordlist.push_back(key);
+    size_t keyint = wordlist.size() - 1;
 
-        result = true;
+    result = true;
 
-        auto deleted = CUSTOM_SET<string>();
+    auto deleted = CUSTOM_SET<string>();
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
-        deleted.set_empty_key("");
+    deleted.set_empty_key("");
 #endif
 
-        Edits(key, deleted);
+    if (core::isInteger(key))
+        return result;
 
-        for (string del : deleted) {
-            auto value2 = dictionary.find(getHastCode(del));
-            if (value2 != dictionaryEnd) {
-                if (value2->second.itemType == ItemType::INTEGER) {
-                    value2->second.itemType = ItemType::DICT;
-                    value2->second.dictValue = std::make_shared<dictionaryItem>();
-                    value2->second.dictValue->suggestions.push_back(value2->second.intValue);
-                    dictionary[getHastCode(del)].dictValue = value2->second.dictValue;
+    Edits(key, deleted);
 
-                    if (std::find(value2->second.dictValue->suggestions.begin(),
-                                  value2->second.dictValue->suggestions.end(), keyint) ==
-                        value2->second.dictValue->suggestions.end())
-                        AddLowestDistance(value2->second.dictValue, key, keyint, del);
-                } else if (std::find(value2->second.dictValue->suggestions.begin(),
-                                     value2->second.dictValue->suggestions.end(), keyint) ==
-                           value2->second.dictValue->suggestions.end())
+    for (string del : deleted) {
+        auto value2 = dictionary.find(getHastCode(del));
+        if (value2 != dictionaryEnd) {
+            if (value2->second.itemType == ItemType::INTEGER) {
+                value2->second.itemType = ItemType::DICT;
+                value2->second.dictValue = std::make_shared<dictionaryItem>();
+                value2->second.dictValue->suggestions.push_back(value2->second.intValue);
+                dictionary[getHastCode(del)].dictValue = value2->second.dictValue;
+
+                if (std::find(value2->second.dictValue->suggestions.begin(), value2->second.dictValue->suggestions.end(), keyint) == value2->second.dictValue->suggestions.end())
                     AddLowestDistance(value2->second.dictValue, key, keyint, del);
-            } else {
-                dictionaryItemContainer tmp;
-                tmp.itemType = ItemType::INTEGER;
-                tmp.intValue = keyint;
+            } else if (std::find(value2->second.dictValue->suggestions.begin(), value2->second.dictValue->suggestions.end(), keyint) == value2->second.dictValue->suggestions.end())
+                AddLowestDistance(value2->second.dictValue, key, keyint, del);
+            value2->second.Id->insert(id);
+        } else {
+            dictionaryItemContainer tmp;
+            tmp.itemType = ItemType::INTEGER;
+            tmp.intValue = keyint;
+            tmp.Id->insert(id);
 
-                dictionary[getHastCode(del)] = tmp;
-                dictionaryEnd = dictionary.end();
-            }
+            dictionary[getHastCode(del)] = tmp;
+            dictionaryEnd = dictionary.end();
         }
     }
     return result;
 }
 
-vector<suggestItem> SymSpell::Correct(string input) {
-    vector<suggestItem> suggestions;
+CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Find(string input) const {
+    CUSTOM_MAP<PRODUCT_TYPE, FindedItem> suggestions;
 
 #ifdef ENABLE_TEST
     using namespace std::chrono;
@@ -192,6 +201,7 @@ vector<suggestItem> SymSpell::Correct(string input) {
     std::cout << "It took me " << time_span.count() << " seconds.";
     std::cout << std::endl;
 #endif
+    //todo: order results
     suggestions = Lookup(input, MaxDistance);
     return suggestions;
 
@@ -262,7 +272,7 @@ void SymSpell::Edits(string word, CUSTOM_SET<string> &deletes) const {
                     // <- For Performance
 
                     if (!deletes.count(del))
-                        deletes.insert(del);
+                        deletes.insert((basic_string<char, char_traits<char>, allocator<char>> &&) del);
 
                     if (tempQueue.find(getHastCode(del)) == tempQueueEnd) {
                         tempQueue[getHastCode(del)] = del;
@@ -271,13 +281,17 @@ void SymSpell::Edits(string word, CUSTOM_SET<string> &deletes) const {
                 }
             }
         }
+
+        for (auto item : queue)
+            delete item.second;
+
         queue = tempQueue;
     }
 }
 
-vector<suggestItem> SymSpell::Lookup(string input, size_t editDistanceMax) {
+CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(string input, size_t editDistanceMax) const {
     if (input.size() - editDistanceMax > maxlength)
-        return vector<suggestItem>();
+        return CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
 
     vector<string> candidates;
     candidates.reserve(2048);
@@ -286,12 +300,15 @@ vector<suggestItem> SymSpell::Lookup(string input, size_t editDistanceMax) {
     hashset1.set_empty_key(0);
 #endif
 
-    vector<suggestItem> suggestions;
+    CUSTOM_MAP<PRODUCT_TYPE, FindedItem> suggestions;
+    INIT_MAP(suggestions, 0, -1);
     CUSTOM_SET<size_t> hashset2;
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     hashset2.set_empty_key(0);
 #endif
 
+
+    bool isInputInteger = core::isInteger(input);
 
     candidates.push_back(input);
     auto dictionaryEnd = dictionary.end();
@@ -303,8 +320,8 @@ vector<suggestItem> SymSpell::Lookup(string input, size_t editDistanceMax) {
         ++candidatesIndexer;
 
         if ((Verbose < 2) && (suggestions.size() > 0) &&
-            (input.size() - candidateSize > suggestions[0].distance))
-            goto sort;
+            (input.size() - candidateSize > suggestions.begin()->second.distance))
+            break;
 
         auto valueo = dictionary.find(getHastCode(candidate));
 
@@ -321,14 +338,20 @@ vector<suggestItem> SymSpell::Lookup(string input, size_t editDistanceMax) {
                 valueo->second.dictValue->count > 0 &&
                 hashset2.insert(getHastCode(candidate)).second) {
                 //add correct dictionary term term to suggestion list
-                suggestItem si;
-                si.term = candidate;
-                si.count = (unsigned short) valueo->second.dictValue->count;
-                si.distance = (unsigned short) (input.size() - candidateSize);
-                suggestions.push_back(si);
+
+                auto idEnd = valueo->second.Id->end();
+                for (auto it = valueo->second.Id->begin(); it != idEnd; ++it) {
+                    //todo: fix this code for duplicate items
+                    FindedItem si;
+                    si.term = candidate;
+                    si.distance = (unsigned short) (input.size() - candidateSize);
+                    si.productId = *it;
+                    suggestions[si.productId] = si;
+                }
+
                 //early termination
                 if ((Verbose < 2) && (input.size() - candidateSize == 0))
-                    goto sort;
+                    break;
             }
 
             for (size_t suggestionint : valueo->second.dictValue->suggestions) {
@@ -362,34 +385,35 @@ vector<suggestItem> SymSpell::Lookup(string input, size_t editDistanceMax) {
                         }
                     }
 
-                    if ((Verbose < 2) && (suggestions.size() > 0) && (suggestions[0].distance > distance))
+                    if ((Verbose < 2) && (suggestions.size() > 0) && (suggestions.begin()->second.distance > distance))
                         suggestions.clear();
 
-                    if ((Verbose < 2) && (suggestions.size() > 0) && (distance > suggestions[0].distance))
+                    if ((Verbose < 2) && (suggestions.size() > 0) && (distance > suggestions.begin()->second.distance))
                         continue;
 
                     if (distance <= editDistanceMax) {
                         auto value2 = dictionary.find(getHastCode(suggestion));
 
                         if (value2 != dictionaryEnd) {
-                            suggestItem si;
-                            si.term = suggestion;
-                            if (value2->second.itemType == ItemType::DICT)
-                                si.count = (unsigned short) value2->second.dictValue->count;
-                            else
-                                si.count = 1;
-                            si.distance = (unsigned short) distance;
-                            suggestions.push_back(si);
+                            auto idEnd = valueo->second.Id->end();
+                            for (auto it = valueo->second.Id->begin(); it != idEnd; ++it) {
+                                FindedItem si;
+                                si.term = candidate;
+                                si.distance = (unsigned short) (input.size() - candidateSize);
+                                si.productId = *it;
+                                suggestions[si.productId] = si;
+                            }
                         }
                     }
                 }
             }
         }
-
+        else if (isInputInteger)
+            return CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
 
         if (input.size() - candidateSize < editDistanceMax) {
             if ((Verbose < 2) && (suggestions.size() > 0) &&
-                (input.size() - candidateSize >= suggestions[0].distance))
+                (input.size() - candidateSize >= suggestions.begin()->second.distance))
                 continue;
 
             for (size_t i = 0; i < candidateSize; ++i) {
@@ -401,17 +425,13 @@ vector<suggestItem> SymSpell::Lookup(string input, size_t editDistanceMax) {
         }
     }//end while
 
-    //sort by ascending edit distance, then by descending word frequency
-    sort:
+    /*sort:
     if (Verbose < 2)
         sort(suggestions.begin(), suggestions.end(), Xgreater1());
     else
-        sort(suggestions.begin(), suggestions.end(), Xgreater2());
+        sort(suggestions.begin(), suggestions.end(), Xgreater2());*/
 
-    if ((Verbose == 0) && (suggestions.size() > 1))
-        return vector<suggestItem>(suggestions.begin(), suggestions.begin() + 1);
-    else
-        return suggestions;
+    return suggestions;
 }
 
 

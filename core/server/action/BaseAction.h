@@ -16,6 +16,7 @@ namespace core {
 
             class BaseAction {
             public:
+                virtual ~BaseAction();
                 virtual string Url() = 0;
                 virtual ResponseInfo Execute(RequestInfo *info) = 0;
                 virtual short MethodInfo() = 0;

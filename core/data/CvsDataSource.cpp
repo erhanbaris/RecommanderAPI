@@ -40,8 +40,8 @@ void core::data::CvsDataSource<T>::LoadData() {
     in->close();
     delete in;
 
-    in = new ifstream(this->productFilePath.c_str());
-    if (!in->is_open())
+    wifstream * win = new wifstream(this->productFilePath.c_str());
+    if (!win->is_open())
     {
         delete in;
         LOG_WRITE("!!!! PRODUCT FILE NOT FOUND !!!!");
@@ -49,23 +49,50 @@ void core::data::CvsDataSource<T>::LoadData() {
         return;
     }
 
-    while (in->good()) {
+    while (win->good()) {
         try {
-            string movieIdStr, title, genres;
-            getline(*in, movieIdStr, ',');
-            getline(*in, title, ',');
-            getline(*in, genres, '\n');
+            wchar_t LineOfChars[512];
+            wchar_t movieIdStr[16], title[512], genres[512];
+            (*win).getline(movieIdStr, 16, ',');
+            (*win).getline(title, 512, ',');
+            (*win).getline(genres, 512, '\r');
 
-            this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), core::getString(title));
-            this->Data()->symspell.CreateDictionaryEntry(title);
+
+            this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), title);
+
+            string tmpTitle = core::getNarrow(title);
+            std::transform(tmpTitle.begin(), tmpTitle.end(), tmpTitle.begin(), ::tolower);
+
+            string::iterator begin = tmpTitle.begin();
+            string::iterator end = tmpTitle.end();
+            for (auto current = tmpTitle.begin(); current != end; ++current) {
+                
+                if (((*current) >= 'A' && (*current) <= 'Z') ||
+                    ((*current) >= 'a' && (*current) <= 'z') ||
+                    ((*current) >= '0' && (*current) <= '9'))
+                    continue;
+                
+                (*current) = ' ';
+            }
+
+            auto parts = core::splitString(tmpTitle, ' ');
+            auto partsEnd = parts.end();
+
+            for (auto part = parts.begin(); part != partsEnd ; ++part) {
+                if (part->size() > 1)
+                    this->Data()->symspell.CreateDictionaryEntry(*part, stoi(movieIdStr));
+            }
+
+            this->Data()->symspell.CreateDictionaryEntry(tmpTitle, stoi(movieIdStr));
+            this->Data()->symspell.CreateDictionaryEntry(core::getString(title), stoi(movieIdStr));
         }
         catch (const std::exception &e) {
             ERROR_WRITE(e.what());
         }
     }
 
-    in->close();
-    delete in;
+    win->close();
+    delete win;
 
     this->Data()->Prepare();
     LOG_WRITE("DATABASE LOADING ENDED");

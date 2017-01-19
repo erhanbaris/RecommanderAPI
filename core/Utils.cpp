@@ -20,3 +20,43 @@ bool core::fileExists(string const &filename) {
 
     return false;
 }
+
+
+void core::splitString(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+}
+
+std::vector<std::string> core::splitString(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    core::splitString(s, delim, elems);
+    return elems;
+}
+
+
+bool core::isInteger(const std::string &s)
+{
+    string::const_iterator end = s.end();
+    for (auto current = s.begin(); current != end; ++current) {
+
+        if (((*current) < '0' || (*current) > '9'))
+            return false;
+    }
+
+    return true;
+}
+
+std::locale loc;
+string core::getNarrow(const std::wstring &s) {
+    std::wstring::size_type length = s.length();
+
+    std::use_facet<std::ctype<wchar_t> >(loc).narrow(s[0], '?');
+
+    char *pc = new char[length + 1];
+    std::use_facet<std::ctype<wchar_t> >(loc).narrow(s.c_str(), s.c_str() + length + 1, '?', pc);
+    return string(pc);
+}

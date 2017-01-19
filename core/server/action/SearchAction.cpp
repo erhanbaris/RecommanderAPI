@@ -28,14 +28,16 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
 
     auto searchTerm = web::uri::decode(info->Queries["term"]);
     auto * dataSource = AppServer::instance().DataSource()->Data();
-    auto searchResults = dataSource->symspell.Correct(searchTerm);
+
+    //todo: use core::getNarrow and split by space to search one by one
+    auto searchResults = dataSource->symspell.Find(searchTerm);
 
     std::stringstream stream;
     stream << "[";
 
-    auto end = searchResults.cend();
-    for (auto it = searchResults.cbegin(); it != end; ++it) {
-        stream << "{\"Id\":" << it->term << ",\"Name\":\"" << this->EscapeJsonString(it->term) << "\"},";
+    auto end = searchResults.end();
+    for (auto it = searchResults.begin(); it != end; ++it) {
+        stream << "{\"Id\":" << it->first << ",\"Name\":\"" << this->EscapeJsonString(core::getString(dataSource->productInfos[it->second.productId])) << "\"},";
     }
 
     stream.seekg(0, ios::end);

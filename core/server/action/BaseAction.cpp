@@ -1,8 +1,11 @@
 #include <core/server/action/BaseAction.h>
 
-std::string core::server::action::BaseAction::EscapeJsonString(const std::string &input) {
+using namespace core::server::action;
+
+std::string BaseAction::EscapeJsonString(const std::string &input) {
     std::ostringstream ss;
-    for (auto iter = input.cbegin(); iter != input.cend(); iter++) {
+    auto inputEnd = input.cend();
+    for (auto iter = input.cbegin(); iter != inputEnd; ++iter) {
         //C++98/03:
         //for (std::string::const_iterator iter = input.begin(); iter != input.end(); iter++) {
         switch (*iter) {
@@ -37,3 +40,6 @@ std::string core::server::action::BaseAction::EscapeJsonString(const std::string
     }
     return ss.str();
 }
+
+
+BaseAction::~BaseAction() {};

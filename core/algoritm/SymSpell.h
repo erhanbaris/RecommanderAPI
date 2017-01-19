@@ -59,8 +59,11 @@ namespace core {
         class dictionaryItemContainer {
         public:
             dictionaryItemContainer() : itemType(NONE), intValue(0) {
+                Id = new CUSTOM_SET<PRODUCT_TYPE>();
+                INIT_SET(*Id, 0, -1);
             }
-
+            
+            CUSTOM_SET<PRODUCT_TYPE> * Id;
             ItemType itemType;
             size_t intValue;
             std::shared_ptr<dictionaryItem> dictValue;
@@ -70,30 +73,15 @@ namespace core {
 #endif
         };
 
-        class suggestItem {
+        class FindedItem {
         public:
             string term;
             unsigned short distance = 0;
-            unsigned short count;
-
-            bool operator==(const suggestItem &item) const {
-                return term.compare(item.term) == 0;
-            }
-
-            size_t HastCode() const {
-                return hash<string>()(term);
-            }
-
-#ifdef IO_OPERATIONS
-            MSGPACK_DEFINE(term, distance, count);
-#endif
+            PRODUCT_TYPE productId;
         };
 
         class SymSpell {
         public:
-            size_t Verbose = 0;
-            size_t MaxDistance = 2;
-
             SymSpell();
 
 #ifdef IO_OPERATIONS
@@ -101,17 +89,14 @@ namespace core {
             void Load(string filePath);
 #endif
 
-            bool CreateDictionaryEntry(string key);
-            vector<suggestItem> Correct(string input);
+            bool CreateDictionaryEntry(string key, PRODUCT_TYPE id);
+            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> Find(string input) const;
 
         private:
-            size_t maxlength = 1000;
-            CUSTOM_MAP<size_t, dictionaryItemContainer> dictionary;
-            vector<string> wordlist;
             vector<string> parseWords(string text) const;
             void AddLowestDistance(shared_ptr<dictionaryItem> const &item, string suggestion, size_t suggestionint, string del);
             void Edits(string word, CUSTOM_SET<string> &deletes) const;
-            vector<suggestItem> Lookup(string input, size_t editDistanceMax);
+            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> Lookup(string input, size_t editDistanceMax) const;
             static size_t DamerauLevenshteinDistance(const std::string &s1, const std::string &s2);
         };
     }
