@@ -5,13 +5,13 @@ using namespace core::server;
 using namespace core::server::handler;
 using namespace core::data;
 
-void AppServer::ExecuteRequest(http_request *request, string const &methodType) {
+void AppServer::ExecuteRequest(http_request *request, STR_TYPE const &methodType) {
 
     auto handlersEnd = handlers.end();
     auto relativeUri = request->relative_uri();
     auto relativePath = relativeUri.path();
     auto queries = relativeUri.split_query(relativeUri.query());
-    string decode = web::http::uri::decode(relativePath);
+    STR_TYPE decode = web::http::uri::decode(relativePath);
     std::transform(decode.begin(), decode.end(), decode.begin(), ::tolower);
     RequestInfo info(queries, decode);
     info.MethodType = methodType;
@@ -31,7 +31,7 @@ AppServer::AppServer() { }
 
 void AppServer::Start() {
     try {
-        dataSource = std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>>(new core::data::CvsDataSource<core::data::GeneralDataInfo>(GetDataPath() + "/cvs/products.csv", GetDataPath() + "/cvs/ratings.csv"));
+        dataSource = std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>>(new core::data::CvsDataSource<core::data::GeneralDataInfo>(GetDataPath() + STR("/cvs/products.csv"), GetDataPath() + STR("/cvs/ratings.csv")));
         dataSource->LoadData();
 
         ActionHandler *actionHandler = new ActionHandler();
@@ -59,15 +59,15 @@ void AppServer::Start() {
         handlers.push_back(new HtmlHandler());
         handlers.push_back(actionHandler);
 
-        LOG_WRITE("Data Load Success");
+        LOG_WRITE(STR("Data Load Success"));
 
         mDistance.SetProductIndex(&dataSource->Data()->productMap);
         mDistance.SetUserIndex(&dataSource->Data()->userMap);
 
 
-        auto address = "http://0.0.0.0:" + std::to_string(HTTP_SERVER_PORT);
+        auto address = STR("http://0.0.0.0:") + std::to_string(HTTP_SERVER_PORT);
         web::uri_builder uri(address);
-        std::string addr = uri.to_uri().to_string();
+        STR_TYPE addr = uri.to_uri().to_string();
         listener = std::shared_ptr<web::http::experimental::listener::http_listener>(
                 new web::http::experimental::listener::http_listener(addr));
 
@@ -89,8 +89,8 @@ void AppServer::Start() {
 
         listener->open()
                 .then([]() {
-                    LOG_WRITE("API Init Finished");
-                    LOG_WRITE("Api Server Listening on http://0.0.0.0:" << HTTP_SERVER_PORT);
+                    LOG_WRITE(STR("API Init Finished"));
+                    LOG_WRITE(STR("Api Server Listening on http://0.0.0.0:") << HTTP_SERVER_PORT);
                 })
                 .wait();
     }
@@ -98,7 +98,7 @@ void AppServer::Start() {
         ERROR_WRITE(e.what());
     }
 
-    std::string lineread;
+    STR_TYPE lineread;
     std::getline(std::cin, lineread);
 
     listener->close().wait();
@@ -113,46 +113,46 @@ AppServer& AppServer::AddAction(core::server::action::BaseAction *action) {
     return *this;
 }
 
-AppServer& AppServer::SetHtmlPath(string path)
+AppServer& AppServer::SetHtmlPath(STR_TYPE path)
 {
     htmlPath = path;
     return *this;
 }
 
-AppServer& AppServer::SetStaticPath(string path)
+AppServer& AppServer::SetStaticPath(STR_TYPE path)
 {
     staticPath = path;
     return *this;
 }
 
-AppServer& AppServer::SetExecutionPath(string path)
+AppServer& AppServer::SetExecutionPath(STR_TYPE path)
 {
     executionPath = path;
     return *this;
 }
 
-AppServer& AppServer::SetDataPath(string path)
+AppServer& AppServer::SetDataPath(STR_TYPE path)
 {
     dataPath = path;
     return *this;
 }
 
-string AppServer::GetHtmlPath()
+STR_TYPE AppServer::GetHtmlPath()
 {
-    return dataPath + "/" + htmlPath;
+    return dataPath + STR("/") + htmlPath;
 }
 
-string AppServer::GetStaticPath()
+STR_TYPE AppServer::GetStaticPath()
 {
-    return dataPath + "/" + staticPath;
+    return dataPath + STR("/") + staticPath;
 }
 
-string AppServer::GetExecutionPath()
+STR_TYPE AppServer::GetExecutionPath()
 {
     return executionPath;
 }
 
-string AppServer::GetDataPath()
+STR_TYPE AppServer::GetDataPath()
 {
     return dataPath;
 }

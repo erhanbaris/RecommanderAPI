@@ -12,7 +12,7 @@
 
 #undef ENABLE_CACHE
 
-#define STR_TYPE utility::string_t
+
 #define CHAR_TYPE utility::char_t
 
 #ifdef _WIN32
@@ -21,6 +21,7 @@
 	#define ucin std::wcin
 	#define ucerr std::wcerr
 	#define STR(x) L ## x
+	#define STR_TYPE std::wstring
 
 	typedef std::wostringstream OSTRSTREAM_TYPE;
 	typedef std::wofstream OFSTREAM_TYPE;
@@ -36,6 +37,7 @@
 	#define ucin std::cin
 	#define ucerr std::cerr
 	#define STR(x) x
+	#define STR_TYPE std::string
 	
 	typedef std::ostringstream OSTRSTREAM_TYPE;
 	typedef std::ofstream OFSTREAM_TYPE;

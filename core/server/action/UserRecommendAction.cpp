@@ -100,8 +100,8 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
 
         ResponseInfo returnValue;
         returnValue.Status = status_codes::BadRequest;
-        returnValue.Data = "";
-        returnValue.ContentType = "application/json";
+        returnValue.Data = STR("");
+        returnValue.ContentType = STR("application/json");
 
         return returnValue;
     }
@@ -110,7 +110,7 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
     vector<pair<PRODUCT_TYPE, STR_TYPE>> results;
 
 #ifdef ENABLE_CACHE
-    auto cacheCheck = dataSource->Data()->recommendCacheForUser.find(stoi(info->Queries["userid"]));
+    auto cacheCheck = dataSource->Data()->recommendCacheForUser.find(stoi(info->Queries[STR("userid")]));
     if (cacheCheck != dataSource->Data()->recommendCacheForUser.end())
         results = cacheCheck->second;
     else {
@@ -121,12 +121,12 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
     }
 #endif
 
-    std::stringstream stream;
+    STRSTREAM_TYPE stream;
     stream << STR("[");
 
     auto end = results.cend();
     for (auto it = results.cbegin(); it != end; ++it) {
-        string tmpName;
+        STR_TYPE tmpName;
         tmpName.assign(it->second.begin(), it->second.end());
 
         stream << STR("{\"Id\":") << it->first << STR(",\"Name\":\"") << this->EscapeJsonString(tmpName) << STR("\"},");
@@ -143,7 +143,7 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
     ResponseInfo returnValue;
     returnValue.Status = status_codes::OK;
     returnValue.Data = stream.str();
-    returnValue.ContentType = "application/json";
+    returnValue.ContentType = STR("application/json");
 
     return returnValue;
 }

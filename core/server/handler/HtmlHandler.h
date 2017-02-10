@@ -13,11 +13,11 @@ namespace core {
                 HtmlHandler();
 
                 bool TryExecute(RequestInfo * request) override;
-                void AddAlias(string alias, string fileName);
+                void AddAlias(STR_TYPE alias, STR_TYPE fileName);
 
             private:
-                CUSTOM_MAP<string, string> fileCache;
-                CUSTOM_MAP<string, string> fileAliases;
+                CUSTOM_MAP<STR_TYPE, STR_TYPE> fileCache;
+                CUSTOM_MAP<STR_TYPE, STR_TYPE> fileAliases;
             };
         }
     }

@@ -26,9 +26,9 @@ bool ActionHandler::TryExecute(RequestInfo * request) {
     }
     else
     {
-        request->Response.Data = "Not Found";
+        request->Response.Data = STR("Not Found");
         request->Response.Status = status_codes::NotFound;
-        request->Response.ContentType = "text/html";
+        request->Response.ContentType = STR("text/html");
     }
 
     return true;

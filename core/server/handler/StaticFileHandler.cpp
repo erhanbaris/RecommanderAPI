@@ -30,16 +30,16 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
             
             STR_TYPE url = request->Url;
             boost::replace_all(url, staticName, "");
-            string fullFilePath = AppServer::instance().GetStaticPath() + STR("/") + url;
+            STR_TYPE fullFilePath = AppServer::instance().GetStaticPath() + STR("/") + url;
 
             if (fileExists(fullFilePath)) {
 
                 try {
                     
                     auto dotLocation = url.find(STR(".")) + 1;
-                    string fileType = url.substr(dotLocation);
+					STR_TYPE fileType = url.substr(dotLocation);
 
-                    std::ifstream ifs(fullFilePath);
+                    IFSTREAM_TYPE ifs(fullFilePath);
                     STR_TYPE str(static_cast<STRSTREAM_TYPE const &>(STRSTREAM_TYPE() << ifs.rdbuf()).str());
                     ifs.close();
 
@@ -49,13 +49,13 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
                 } catch (std::exception &e) {
                     request->Response.Data = STR("Internal Server Error");
                     request->Response.Status = status_codes::InternalError;
-                    request->Response.ContentType = "text/html";
+                    request->Response.ContentType = STR("text/html");
                 }
             }
             else{
                 request->Response.Data = STR("Not Found");
                 request->Response.Status = status_codes::NotFound;
-                request->Response.ContentType = "text/html";
+                request->Response.ContentType = STR("text/html");
             }
         }
     }

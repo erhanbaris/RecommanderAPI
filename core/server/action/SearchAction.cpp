@@ -51,7 +51,7 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
     ResponseInfo returnValue;
     returnValue.Status = status_codes::OK;
     returnValue.Data = stream.str();
-    returnValue.ContentType = "application/json";
+    returnValue.ContentType = STR("application/json");
 
     return returnValue;
 }

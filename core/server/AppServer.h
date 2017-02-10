@@ -31,15 +31,15 @@ namespace core
             std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>> DataSource();
             AppServer& AddAction(BaseAction * action);
 
-            AppServer& SetHtmlPath(string path);
-            AppServer& SetStaticPath(string path);
-            AppServer& SetExecutionPath(string path);
-            AppServer& SetDataPath(string path);
+            AppServer& SetHtmlPath(STR_TYPE path);
+            AppServer& SetStaticPath(STR_TYPE path);
+            AppServer& SetExecutionPath(STR_TYPE path);
+            AppServer& SetDataPath(STR_TYPE path);
 
-            string GetHtmlPath();
-            string GetStaticPath();
-            string GetExecutionPath();
-            string GetDataPath();
+            STR_TYPE GetHtmlPath();
+            STR_TYPE GetStaticPath();
+            STR_TYPE GetExecutionPath();
+            STR_TYPE GetDataPath();
 
             static AppServer& instance()
             {
@@ -49,13 +49,13 @@ namespace core
 
         private:
             PearsonCorrelationCoefficien mDistance;
-            string dataPath;
-            string executionPath;
-            string htmlPath;
-            string staticPath;
+            STR_TYPE dataPath;
+            STR_TYPE executionPath;
+            STR_TYPE htmlPath;
+            STR_TYPE staticPath;
 
             AppServer();
-            void ExecuteRequest(http_request * request, string const &methodType);
+            void ExecuteRequest(http_request * request, STR_TYPE const &methodType);
             std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>> dataSource;
             std::vector<core::server::handler::BaseHandler*> handlers;
             std::vector<core::server::action::BaseAction*> actions;

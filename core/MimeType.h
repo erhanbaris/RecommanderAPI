@@ -13,12 +13,12 @@ namespace core {
     class MimeType {
     public:
         MimeType();
-        string GetMimeType(string const &extension);
-        void AddMimeType(string const &extension, string const &mime);
+        STR_TYPE GetMimeType(STR_TYPE const &extension);
+        void AddMimeType(STR_TYPE const &extension, STR_TYPE const &mime);
 
     private:
-        CUSTOM_MAP<string, string> mimeTypes;
-        CUSTOM_MAP<string, string>::iterator endMimeType;
+        CUSTOM_MAP<STR_TYPE, STR_TYPE> mimeTypes;
+        CUSTOM_MAP<STR_TYPE, STR_TYPE>::iterator endMimeType;
 
         void initMimeTypes();
     };

@@ -8,7 +8,7 @@ template<class T>
 void core::data::CvsDataSource<T>::LoadData() {
     LOG_WRITE(STR("DATABASE LOADING STARTED"));
 
-    ifstream * in = new ifstream(ratingFilePath.c_str());
+    IFSTREAM_TYPE * in = new IFSTREAM_TYPE(ratingFilePath.c_str());
     if (!in->is_open())
     {
         delete in;
@@ -19,11 +19,10 @@ void core::data::CvsDataSource<T>::LoadData() {
 
     while (in->good()) {
         try {
-            string ratingStr, productIdStr, customerIdStr, timeStr;
-            getline(*in, customerIdStr, ',');
-            getline(*in, productIdStr, ',');
-            getline(*in, ratingStr, ',');
-            getline(*in, timeStr, '\n');
+            STR_TYPE ratingStr, productIdStr, customerIdStr, timeStr;
+			in->getline(customerIdStr.c_str(), 16, L',');
+            in->getline(productIdStr, 16, L',');
+            in->getline(ratingStr, 16, L',');
 
             PRODUCT_TYPE productId = stoi(productIdStr);
             size_t customerId = stoi(customerIdStr);
@@ -40,7 +39,7 @@ void core::data::CvsDataSource<T>::LoadData() {
     in->close();
     delete in;
 
-    wifstream * win = new wifstream(this->productFilePath.c_str());
+    IFSTREAM_TYPE * win = new IFSTREAM_TYPE(this->productFilePath.c_str());
     if (!win->is_open())
     {
         delete in;
@@ -53,18 +52,18 @@ void core::data::CvsDataSource<T>::LoadData() {
         try {
             wchar_t LineOfChars[512];
             wchar_t movieIdStr[16], title[512], genres[512];
-            (*win).getline(movieIdStr, 16, ',');
-            (*win).getline(title, 512, ',');
-            (*win).getline(genres, 512, '\r');
+            win->getline(movieIdStr, 16, ',');
+            win->getline(title, 512, ',');
+            win->getline(genres, 512, '\r');
 
 
             this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), title);
 
-            string tmpTitle = core::getNarrow(title);
+			STR_TYPE tmpTitle = core::getNarrow(title);
             std::transform(tmpTitle.begin(), tmpTitle.end(), tmpTitle.begin(), ::tolower);
 
-            string::iterator begin = tmpTitle.begin();
-            string::iterator end = tmpTitle.end();
+            STR_TYPE::iterator begin = tmpTitle.begin();
+			STR_TYPE::iterator end = tmpTitle.end();
             for (auto current = tmpTitle.begin(); current != end; ++current) {
                 
                 if (((*current) >= 'A' && (*current) <= 'Z') ||

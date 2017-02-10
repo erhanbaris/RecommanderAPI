@@ -69,8 +69,8 @@ int main(int argc, char **args) {
                 .AddAction(new SearchAction())
                 .SetExecutionPath(currentPath)
                 .SetDataPath(dataPath)
-                .SetHtmlPath("www")
-                .SetStaticPath("www/static");
+                .SetHtmlPath(STR("www"))
+                .SetStaticPath(STR("www/static"));
         AppServer::instance().Start();
     }
     catch (std::exception &e) {
