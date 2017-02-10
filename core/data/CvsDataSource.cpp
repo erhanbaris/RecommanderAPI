@@ -20,9 +20,9 @@ void core::data::CvsDataSource<T>::LoadData() {
     while (in->good()) {
         try {
             STR_TYPE ratingStr, productIdStr, customerIdStr, timeStr;
-			in->getline(customerIdStr.c_str(), 16, L',');
-            in->getline(productIdStr, 16, L',');
-            in->getline(ratingStr, 16, L',');
+			getline(*in, customerIdStr, STR(','));
+            getline(*in, productIdStr, STR(','));
+            getline(*in, ratingStr, STR(','));
 
             PRODUCT_TYPE productId = stoi(productIdStr);
             size_t customerId = stoi(customerIdStr);
@@ -50,21 +50,18 @@ void core::data::CvsDataSource<T>::LoadData() {
 
     while (win->good()) {
         try {
-            wchar_t LineOfChars[512];
-            wchar_t movieIdStr[16], title[512], genres[512];
-            win->getline(movieIdStr, 16, ',');
-            win->getline(title, 512, ',');
-            win->getline(genres, 512, '\r');
+            STR_TYPE movieIdStr, title, genres;
+            getline(*win, movieIdStr, STR(','));
+            getline(*win, title, STR(','));
+            getline(*win, genres, STR('\r'));
 
 
             this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), title);
 
-			STR_TYPE tmpTitle = core::getNarrow(title);
-            std::transform(tmpTitle.begin(), tmpTitle.end(), tmpTitle.begin(), ::tolower);
+            std::transform(title.begin(), title.end(), title.begin(), ::tolower);
 
-            STR_TYPE::iterator begin = tmpTitle.begin();
-			STR_TYPE::iterator end = tmpTitle.end();
-            for (auto current = tmpTitle.begin(); current != end; ++current) {
+			STR_TYPE::iterator end = title.end();
+            for (auto current = title.begin(); current != end; ++current) {
                 
                 if (((*current) >= 'A' && (*current) <= 'Z') ||
                     ((*current) >= 'a' && (*current) <= 'z') ||
@@ -74,7 +71,7 @@ void core::data::CvsDataSource<T>::LoadData() {
                 (*current) = ' ';
             }
 
-            auto parts = core::splitString(tmpTitle, ' ');
+            auto parts = core::splitString(title, ' ');
             auto partsEnd = parts.end();
 
             for (auto part = parts.begin(); part != partsEnd ; ++part) {
@@ -82,8 +79,8 @@ void core::data::CvsDataSource<T>::LoadData() {
                     this->Data()->symspell.CreateDictionaryEntry(*part, stoi(movieIdStr));
             }
 
-            this->Data()->symspell.CreateDictionaryEntry(tmpTitle, stoi(movieIdStr));
-            this->Data()->symspell.CreateDictionaryEntry(core::getString(title), stoi(movieIdStr));
+            this->Data()->symspell.CreateDictionaryEntry(title, stoi(movieIdStr));
+            this->Data()->symspell.CreateDictionaryEntry(title, stoi(movieIdStr));
         }
         catch (const std::exception &e) {
             ERROR_WRITE(e.what());

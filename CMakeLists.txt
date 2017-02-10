@@ -13,7 +13,7 @@ if(Boost_FOUND)
 	set(Boost_USE_MULTITHREADED      ON)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
 
-	find_path(sparsehash_INCLUDE_DIR PATH_SUFFIXES sparsehash )
+	find_path(sparsehash_INCLUDE_DIR PATH_SUFFIXES sparse_hash_map )
 	include_directories(${Boost_INCLUDE_DIR})
 	link_directories(${Boost_LIBRARY_DIR})
 	

@@ -1,7 +1,7 @@
 #include <core/algoritm/SymSpell.h>
 #include <core/Utils.h>
 
-#define getHastCode(term) hash<string>()(term)
+#define getHastCode(term) hash<STR_TYPE>()(term)
 
 using namespace std;
 using namespace core::algoritm;
@@ -26,7 +26,7 @@ namespace {
     size_t MaxDistance = 2;
     size_t maxlength = 1000;
     CUSTOM_MAP<size_t, dictionaryItemContainer> dictionary;
-    vector<string> wordlist;
+    vector<STR_TYPE> wordlist;
 }
 
 SymSpell::SymSpell() {
@@ -67,11 +67,11 @@ void SymSpell::Save(string filePath)
 
 void SymSpell::Load(string filePath)
 {
-    std::ifstream fileStream(filePath, ios::binary);
+    IFSTREAM_TYPE fileStream(filePath, ios::binary);
 
     if (fileStream.good())
     {
-        std::string str((std::istreambuf_iterator<char>(fileStream)), (std::istreambuf_iterator<char>()));
+        STR_TYPE str((std::istreambuf_iterator<CHAR_TYPE>(fileStream)), (std::istreambuf_iterator<CHAR_TYPE>()));
 
         msgpack::unpacker packer;
 
@@ -108,7 +108,7 @@ void SymSpell::Load(string filePath)
 
 #endif
 
-bool SymSpell::CreateDictionaryEntry(string key, PRODUCT_TYPE id) {
+bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     bool result = false;
     dictionaryItemContainer value;
 
@@ -130,7 +130,7 @@ bool SymSpell::CreateDictionaryEntry(string key, PRODUCT_TYPE id) {
         value.itemType = ItemType::DICT;
         value.dictValue = std::make_shared<dictionaryItem>();
         ++(value.dictValue->count);
-        string mapKey = key;
+        STR_TYPE mapKey = key;
         dictionary[getHastCode(mapKey)] = value;
         dictionaryEnd = dictionary.end(); // for performance
 
@@ -145,9 +145,9 @@ bool SymSpell::CreateDictionaryEntry(string key, PRODUCT_TYPE id) {
 
     result = true;
 
-    auto deleted = CUSTOM_SET<string>();
+    auto deleted = CUSTOM_SET<STR_TYPE>();
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
-    deleted.set_empty_key("");
+    deleted.set_empty_key(STR(""));
 #endif
 
     if (core::isInteger(key))
@@ -155,7 +155,7 @@ bool SymSpell::CreateDictionaryEntry(string key, PRODUCT_TYPE id) {
 
     Edits(key, deleted);
 
-    for (string del : deleted) {
+    for (STR_TYPE del : deleted) {
         auto value2 = dictionary.find(getHastCode(del));
         if (value2 != dictionaryEnd) {
             if (value2->second.itemType == ItemType::INTEGER) {
@@ -182,7 +182,7 @@ bool SymSpell::CreateDictionaryEntry(string key, PRODUCT_TYPE id) {
     return result;
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Find(string input) const {
+CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Find(STR_TYPE input) const {
     CUSTOM_MAP<PRODUCT_TYPE, FindedItem> suggestions;
 
 #ifdef ENABLE_TEST
@@ -207,24 +207,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Find(string input) const {
 
 }
 
-vector<string> SymSpell::parseWords(string text) const {
-    vector<string> returnData;
-
-    std::transform(text.begin(), text.end(), text.begin(), ::tolower);
-    std::regex word_regex("[^\\W\\d_]+");
-    auto words_begin = std::sregex_iterator(text.begin(), text.end(), word_regex);
-    auto words_end = std::sregex_iterator();
-
-    for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-        std::smatch match = *i;
-        returnData.push_back(match.str());
-    }
-
-    return returnData;
-}
-
-void SymSpell::AddLowestDistance(shared_ptr<dictionaryItem> const &item, string suggestion, size_t suggestionint,
-                                 string del) {
+void SymSpell::AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint,
+                                 STR_TYPE del) {
     if ((Verbose < 2) && (item->suggestions.size() > 0) &&
         (wordlist[item->suggestions[0]].size() - del.size() > suggestion.size() - del.size()))
         item->suggestions.clear();
@@ -234,21 +218,21 @@ void SymSpell::AddLowestDistance(shared_ptr<dictionaryItem> const &item, string 
         item->suggestions.push_back(suggestionint);
 }
 
-void SymSpell::Edits(string word, CUSTOM_SET<string> &deletes) const {
-    CUSTOM_MAP<size_t, const char *> queue;
+void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
+    CUSTOM_MAP<size_t, const CHAR_TYPE *> queue;
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     queue.set_empty_key(0);
 #endif
 
     auto wordLength = word.size();
-    char *copyWord = new char[wordLength + 1];
+    CHAR_TYPE *copyWord = new CHAR_TYPE[wordLength + 1];
     strcpy(copyWord, word.c_str());
     copyWord[wordLength] = '\0';
 
     queue[getHastCode(word)] = copyWord;
 
     for (size_t d = 0; d < MaxDistance; ++d) {
-        CUSTOM_MAP<size_t, const char *> tempQueue;
+        CUSTOM_MAP<size_t, const CHAR_TYPE *> tempQueue;
         auto tempQueueEnd = tempQueue.end();
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
         tempQueue.set_empty_key(0);
@@ -260,7 +244,7 @@ void SymSpell::Edits(string word, CUSTOM_SET<string> &deletes) const {
 
                 for (size_t i = 0; i < itemLength; ++i) {
                     // For Performance ->
-                    char *del = new char[itemLength + 1];
+                    CHAR_TYPE *del = new CHAR_TYPE[itemLength + 1];
 
                     strcpy(del, item.second);
                     del[itemLength] = '\0';
@@ -272,7 +256,7 @@ void SymSpell::Edits(string word, CUSTOM_SET<string> &deletes) const {
                     // <- For Performance
 
                     if (!deletes.count(del))
-                        deletes.insert((basic_string<char, char_traits<char>, allocator<char>> &&) del);
+                        deletes.insert((basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, allocator<CHAR_TYPE>> &&) del);
 
                     if (tempQueue.find(getHastCode(del)) == tempQueueEnd) {
                         tempQueue[getHastCode(del)] = del;
@@ -289,11 +273,11 @@ void SymSpell::Edits(string word, CUSTOM_SET<string> &deletes) const {
     }
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(string input, size_t editDistanceMax) const {
+CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {
     if (input.size() - editDistanceMax > maxlength)
         return CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
 
-    vector<string> candidates;
+    vector<STR_TYPE> candidates;
     candidates.reserve(2048);
     CUSTOM_SET<size_t> hashset1;
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
@@ -315,7 +299,7 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(string input, size_t editD
 
     size_t candidatesIndexer = 0; // for performance
     while ((candidates.size() - candidatesIndexer) > 0) {
-        string candidate = candidates[candidatesIndexer];
+        STR_TYPE candidate = candidates[candidatesIndexer];
         size_t candidateSize = candidate.size(); // for performance
         ++candidatesIndexer;
 
@@ -358,7 +342,7 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(string input, size_t editD
                 //save some time
                 //skipping double items early: different deletes of the input term can lead to the same suggestion
                 //index2word
-                string suggestion = wordlist[suggestionint];
+                STR_TYPE suggestion = wordlist[suggestionint];
                 if (hashset2.insert(getHastCode(suggestion)).second) {
                     size_t distance = 0;
                     if (suggestion != input) {
@@ -417,8 +401,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(string input, size_t editD
                 continue;
 
             for (size_t i = 0; i < candidateSize; ++i) {
-                string wordClone = candidate;
-                string &del = wordClone.erase(i, 1);
+                STR_TYPE wordClone = candidate;
+                STR_TYPE &del = wordClone.erase(i, 1);
                 if (hashset1.insert(getHastCode(del)).second)
                     candidates.push_back(del);
             }
@@ -435,7 +419,7 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(string input, size_t editD
 }
 
 
-size_t SymSpell::DamerauLevenshteinDistance(const std::string &s1, const std::string &s2) {
+size_t SymSpell::DamerauLevenshteinDistance(const STR_TYPE &s1, const STR_TYPE &s2) {
     const size_t m(s1.size());
     const size_t n(s2.size());
 
@@ -449,12 +433,12 @@ size_t SymSpell::DamerauLevenshteinDistance(const std::string &s1, const std::st
     size_t i = 0;
     auto s1End = s1.end();
     auto s2End = s2.end();
-    for (std::string::const_iterator it1 = s1.begin(); it1 != s1End; ++it1, ++i) {
+    for (STR_TYPE::const_iterator it1 = s1.begin(); it1 != s1End; ++it1, ++i) {
         costs[0] = i + 1;
         size_t corner = i;
 
         size_t j = 0;
-        for (std::string::const_iterator it2 = s2.begin(); it2 != s2End; ++it2, ++j) {
+        for (STR_TYPE::const_iterator it2 = s2.begin(); it2 != s2End; ++it2, ++j) {
             size_t upper = costs[j + 1];
             if (*it1 == *it2) {
                 costs[j + 1] = corner;

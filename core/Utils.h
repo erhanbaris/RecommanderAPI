@@ -21,9 +21,9 @@ namespace core {
 	string getString(const wstring & data);
 	bool fileExists(string const &filename);
 	size_t indexOf(char *text, char searchChar);
-	void splitString(const std::string &s, char delim, std::vector<std::string> &elems);
-	std::vector<std::string> splitString(const std::string &s, char delim);
-	bool isInteger(const std::string &s);
+	void splitString(const STR_TYPE &s, CHAR_TYPE delim, std::vector<STR_TYPE> &elems);
+	std::vector<STR_TYPE> splitString(const STR_TYPE &s, CHAR_TYPE delim);
+	bool isInteger(const STR_TYPE &s);
 	string getNarrow(const std::wstring &s);
 
 

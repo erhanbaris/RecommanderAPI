@@ -16,7 +16,7 @@ namespace core
 		template<class T>
 		class CvsDataSource : public BaseDataSource<T> {
 		public:
-			CvsDataSource(STR_TYPE pProductFilePath, STR_TYPE pRatingFilePath)
+            CvsDataSource(std::string pProductFilePath, std::string pRatingFilePath)
 			{
 				productFilePath = pProductFilePath;
 				ratingFilePath = pRatingFilePath;
@@ -25,8 +25,8 @@ namespace core
 			virtual void LoadData() override;
 
 		private:
-			STR_TYPE productFilePath;
-			STR_TYPE ratingFilePath;
+            std::string productFilePath;
+            std::string ratingFilePath;
 		};
 	}
 }

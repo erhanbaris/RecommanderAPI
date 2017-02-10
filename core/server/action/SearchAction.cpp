@@ -21,7 +21,7 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
         ResponseInfo returnValue;
         returnValue.Status = status_codes::BadRequest;
         returnValue.Data = STR("");
-        returnValue.ContentType = "application/json";
+        returnValue.ContentType = STR("application/json");
 
         return returnValue;
     }

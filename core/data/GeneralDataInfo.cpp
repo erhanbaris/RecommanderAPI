@@ -49,7 +49,7 @@ void core::data::GeneralDataInfo::AddUserRating(USER_TYPE customerId, PRODUCT_TY
     }
 }
 
-void core::data::GeneralDataInfo::AddProduct(PRODUCT_TYPE movieId, wstring title) {
+void core::data::GeneralDataInfo::AddProduct(PRODUCT_TYPE movieId, STR_TYPE title) {
     productInfos[movieId] = title;
 };
 

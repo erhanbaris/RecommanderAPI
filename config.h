@@ -13,15 +13,16 @@
 #undef ENABLE_CACHE
 
 
-#define CHAR_TYPE utility::char_t
+#define WWW 1
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(WIN32)
 	#define ucout std::wcout
-	#define uend std::endl
+	#define uendl std::endl
 	#define ucin std::wcin
 	#define ucerr std::wcerr
 	#define STR(x) L ## x
 	#define STR_TYPE std::wstring
+    #define CHAR_TYPE wchar_t
 
 	typedef std::wostringstream OSTRSTREAM_TYPE;
 	typedef std::wofstream OFSTREAM_TYPE;
@@ -38,6 +39,7 @@
 	#define ucerr std::cerr
 	#define STR(x) x
 	#define STR_TYPE std::string
+    #define CHAR_TYPE char
 	
 	typedef std::ostringstream OSTRSTREAM_TYPE;
 	typedef std::ofstream OFSTREAM_TYPE;
@@ -88,10 +90,10 @@
 
 
 #if defined(_DEBUG) || defined(DEBUG)
-    #define DEBUG_WRITE(message) ucout << STR("[ DEBUG ] : ") << message << uend;
+    #define DEBUG_WRITE(message) ucout << STR("[ DEBUG ] : ") << message << uendl;
 #else
     #define DEBUG_WRITE(message)
 #endif
 
-#define LOG_WRITE(message) ucout << STR("[ LOG ] : ") << message << uend;
-#define ERROR_WRITE(message) ucout << STR("[ ERROR ] : ") << message << uend;
+#define LOG_WRITE(message) ucout << STR("[ LOG ] : ") << message << uendl;
+#define ERROR_WRITE(message) ucout << STR("[ ERROR ] : ") << message << uendl;
