@@ -1,4 +1,5 @@
 #include <core/algoritm/SymSpell.h>
+#include <core/server/AppServer.h>
 #include <core/Utils.h>
 
 #define getHastCode(term) hash<STR_TYPE>()(term)
@@ -182,28 +183,42 @@ bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     return result;
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Find(STR_TYPE input) const {
-    CUSTOM_MAP<PRODUCT_TYPE, FindedItem> suggestions;
+CUSTOM_MAP<PRODUCT_TYPE, unsigned short> SymSpell::Find(STR_TYPE input) const {
+    CUSTOM_MAP<PRODUCT_TYPE, unsigned short> returnValue;
+    INT_INIT_MAP(returnValue);
+    
+    std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+    auto splitedData = core::splitString(input, ' ');
+    auto splitedDataEnd = splitedData.end();
 
-#ifdef ENABLE_TEST
-    using namespace std::chrono;
+    //auto * dataSource = AppServer::instance().DataSource()->Data();
 
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    try{
+        for (auto item = splitedData.begin(); item != splitedDataEnd; ++item) {
+            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> finded = Lookup(*item, MaxDistance);
 
-    for (size_t i = 0; i < 100000; ++i)
-    {
-        Lookup(input, editDistanceMax);
+            if (finded.size() == 0)
+                continue;
+
+            auto findedEnd = finded.end();
+
+            for (auto findedItem = finded.begin(); findedItem != findedEnd; ++findedItem) {
+                auto returnItem = returnValue.find(findedItem->first);
+
+                if (returnItem == returnValue.end())
+                    returnValue[findedItem->first] = findedItem->second.distance;
+                else
+                    returnItem->second +=findedItem->second.distance;
+            }
+        }
+    }
+    catch (const std::exception &e) {
+        ERROR_WRITE(e.what());
     }
 
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-
-    std::cout << "It took me " << time_span.count() << " seconds.";
-    std::cout << std::endl;
-#endif
     //todo: order results
-    suggestions = Lookup(input, MaxDistance);
-    return suggestions;
+
+    return returnValue;
 
 }
 
@@ -256,7 +271,7 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
                     // <- For Performance
 
                     if (!deletes.count(del))
-                        deletes.insert((basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, allocator<CHAR_TYPE>> &&) del);
+                        deletes.insert(del);
 
                     if (tempQueue.find(getHastCode(del)) == tempQueueEnd) {
                         tempQueue[getHastCode(del)] = del;
@@ -381,6 +396,12 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                         if (value2 != dictionaryEnd) {
                             auto idEnd = valueo->second.Id->end();
                             for (auto it = valueo->second.Id->begin(); it != idEnd; ++it) {
+
+                                /*
+                                if(suggestions.find(*it) != )
+                                {
+
+                                }*/
                                 FindedItem si;
                                 si.term = candidate;
                                 si.distance = (unsigned short) (input.size() - candidateSize);

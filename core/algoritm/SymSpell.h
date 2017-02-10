@@ -90,7 +90,7 @@ namespace core {
 #endif
 
             bool CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id);
-            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> Find(STR_TYPE input) const;
+            CUSTOM_MAP<PRODUCT_TYPE, unsigned short> Find(STR_TYPE input) const;
 
         private:
             vector<STR_TYPE> parseWords(STR_TYPE text) const;

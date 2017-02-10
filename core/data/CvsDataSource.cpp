@@ -42,7 +42,7 @@ void core::data::CvsDataSource<T>::LoadData() {
     IFSTREAM_TYPE * win = new IFSTREAM_TYPE(this->productFilePath.c_str());
     if (!win->is_open())
     {
-        delete in;
+        delete win;
         LOG_WRITE(STR("!!!! PRODUCT FILE NOT FOUND !!!!"));
         LOG_WRITE(STR("DATABASE LOADING ENDED"));
         return;
