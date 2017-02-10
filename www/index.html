@@ -22,7 +22,7 @@
             <div class="input-group">
                 <input type="text" class="form-control" placeholder="Todo for...">
                 <span class="input-group-btn">
-            <button class="btn btn-default" id="AddButton" type="button">Add!</button>
+            <button class="btn btn-default" id="SearchButton" type="button">Search!</button>
           </span>
             </div>
         </div>
@@ -32,15 +32,9 @@
 <!-- Todo item template -->
 <script id="TodoItem" type="text/template">
     <div class="row">
-        <div class="col-md-9 text-center">
-            <span class="show todo"><strong><%= Todo %></strong></span>
-            <input type="text" class="form-control hidden" value="<%= Todo %>">
-        </div>
-        <div class="col-md-3 center-block text-center">
-            <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class=" btn btn-info edit">Edit</button>
-                <button type="button" class="btn btn-danger delete">Delete</button>
-            </div>
+        <div class="col-md-12 text-center">
+            <span class="show todo"><strong><%= Name %></strong></span>
+            <input type="text" class="form-control hidden" value="<%= Id %>">
         </div>
     </div>
 </script>

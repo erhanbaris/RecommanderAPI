@@ -24,14 +24,14 @@ void AppServer::ExecuteRequest(http_request *request, STR_TYPE const &methodType
         }
     }
 
-    request->reply(404, "Not Found");
+    request->reply(404, STR("Not Found"));
 }
 
 AppServer::AppServer() { }
 
 void AppServer::Start() {
     try {
-        dataSource = std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>>(new core::data::CvsDataSource<core::data::GeneralDataInfo>(GetDataPath() + STR("/cvs/products.csv"), GetDataPath() + STR("/cvs/ratings.csv")));
+        dataSource = std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>>(new core::data::CvsDataSource<core::data::GeneralDataInfo>(GetDataPath() + "/cvs/products.csv", GetDataPath() + "/cvs/ratings.csv"));
         dataSource->LoadData();
 
         ActionHandler *actionHandler = new ActionHandler();
@@ -113,46 +113,46 @@ AppServer& AppServer::AddAction(core::server::action::BaseAction *action) {
     return *this;
 }
 
-AppServer& AppServer::SetHtmlPath(STR_TYPE path)
+AppServer& AppServer::SetHtmlPath(string path)
 {
     htmlPath = path;
     return *this;
 }
 
-AppServer& AppServer::SetStaticPath(STR_TYPE path)
+AppServer& AppServer::SetStaticPath(string path)
 {
     staticPath = path;
     return *this;
 }
 
-AppServer& AppServer::SetExecutionPath(STR_TYPE path)
+AppServer& AppServer::SetExecutionPath(string path)
 {
     executionPath = path;
     return *this;
 }
 
-AppServer& AppServer::SetDataPath(STR_TYPE path)
+AppServer& AppServer::SetDataPath(string path)
 {
     dataPath = path;
     return *this;
 }
 
-STR_TYPE AppServer::GetHtmlPath()
+string AppServer::GetHtmlPath()
 {
-    return dataPath + STR("/") + htmlPath;
+    return dataPath + "/" + htmlPath;
 }
 
-STR_TYPE AppServer::GetStaticPath()
+string AppServer::GetStaticPath()
 {
-    return dataPath + STR("/") + staticPath;
+    return dataPath + "/" + staticPath;
 }
 
-STR_TYPE AppServer::GetExecutionPath()
+string AppServer::GetExecutionPath()
 {
     return executionPath;
 }
 
-STR_TYPE AppServer::GetDataPath()
+string AppServer::GetDataPath()
 {
     return dataPath;
 }
