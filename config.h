@@ -53,3 +53,6 @@
 
 #define LOG_WRITE(message) cout << "[ LOG ] : " << message << endl;
 #define ERROR_WRITE(message) cout << "[ ERROR ] : " << message << endl;
+
+#define STR_TYPE utility::string_t
+#define STR(x) _XPLATSTR(x)

@@ -23,9 +23,9 @@ if(Boost_FOUND)
 
 	add_definitions(-DBOOST_ALL_NO_LIB)
 	include_directories(${PROJECT_SOURCE_DIR})
-	include_directories(sparsehash_INCLUDE_DIR)
-	include_directories(CPPRESTSDK_INCLUDE_DIR)
-	include_directories(OPENSSL_INCLUDE_DIR)
+	include_directories(${sparsehash_INCLUDE_DIR})
+	include_directories(${CPPRESTSDK_INCLUDE_DIR})
+	include_directories(${OPENSSL_INCLUDE_DIR})
 
 	set(SOURCE_FILES
 			${PROJECT_SOURCE_DIR}/main.cpp
