@@ -8,6 +8,23 @@
 
 #undef ENABLE_CACHE
 
+#define STR_TYPE utility::string_t
+#define CHAR_TYPE utility::char_t
+#define STR(x) _XPLATSTR(x)
+
+#ifdef _WIN32
+	#define ucout std::wcout
+	#define uend std::wend
+	#define ucin std::wcin
+	#define ucerr std::wcerr
+#else 
+	#define ucout std::cout
+	#define uendl std::endl
+	#define ucin std::cin
+	#define ucerr std::cerr
+#endif
+
+
 #if defined(_WIN32) || defined(WIN32)
     #define RATE_TYPE uint8_t
     #define PRODUCT_TYPE size_t
@@ -45,14 +62,12 @@
 #endif
 
 
+
 #if defined(_DEBUG) || defined(DEBUG)
-    #define DEBUG_WRITE(message) cout << "[ DEBUG ] : " << message << endl;
+    #define DEBUG_WRITE(message) ucout << "[ DEBUG ] : " << message << uend;
 #else
     #define DEBUG_WRITE(message)
 #endif
 
-#define LOG_WRITE(message) cout << "[ LOG ] : " << message << endl;
-#define ERROR_WRITE(message) cout << "[ ERROR ] : " << message << endl;
-
-#define STR_TYPE utility::string_t
-#define STR(x) _XPLATSTR(x)
+#define LOG_WRITE(message) ucout << "[ LOG ] : " << message << uend;
+#define ERROR_WRITE(message) ucout << "[ ERROR ] : " << message << uend;
