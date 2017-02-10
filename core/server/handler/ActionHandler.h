@@ -14,23 +14,23 @@ namespace core {
     namespace server {
         namespace handler {
 
-            typedef CUSTOM_MAP<string, BaseAction*> HttpMethodRoute;
+            typedef CUSTOM_MAP<STR_TYPE, BaseAction*> HttpMethodRoute;
 
             class ActionHandler : public BaseHandler {
             public:
                 ActionHandler();
 
                 bool TryExecute(RequestInfo * request) override;
-                void AddHttpMethod(string method);
+                void AddHttpMethod(STR_TYPE method);
 
-                void SetGetAction(string url, BaseAction* action);
-                void SetPostAction(string url, BaseAction* action);
-                void SetDeleteAction(string url, BaseAction* action);
-                void SetPutAction(string url, BaseAction* action);
-                void SetHeadAction(string url, BaseAction* action);
+                void SetGetAction(STR_TYPE url, BaseAction* action);
+                void SetPostAction(STR_TYPE url, BaseAction* action);
+                void SetDeleteAction(STR_TYPE url, BaseAction* action);
+                void SetPutAction(STR_TYPE url, BaseAction* action);
+                void SetHeadAction(STR_TYPE url, BaseAction* action);
 
             private:
-                CUSTOM_MAP<string, HttpMethodRoute> routeTable;
+                CUSTOM_MAP<STR_TYPE, HttpMethodRoute> routeTable;
             };
         }
     }

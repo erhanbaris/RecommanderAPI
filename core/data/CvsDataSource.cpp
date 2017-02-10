@@ -6,14 +6,14 @@ using namespace core;
 
 template<class T>
 void core::data::CvsDataSource<T>::LoadData() {
-    LOG_WRITE("DATABASE LOADING STARTED");
+    LOG_WRITE(STR("DATABASE LOADING STARTED"));
 
     ifstream * in = new ifstream(ratingFilePath.c_str());
     if (!in->is_open())
     {
         delete in;
-        LOG_WRITE("!!!! RATING FILE NOT FOUND !!!!");
-        LOG_WRITE("DATABASE LOADING ENDED");
+        LOG_WRITE(STR("!!!! RATING FILE NOT FOUND !!!!"));
+        LOG_WRITE(STR("DATABASE LOADING ENDED"));
         return;
     }
 
@@ -44,8 +44,8 @@ void core::data::CvsDataSource<T>::LoadData() {
     if (!win->is_open())
     {
         delete in;
-        LOG_WRITE("!!!! PRODUCT FILE NOT FOUND !!!!");
-        LOG_WRITE("DATABASE LOADING ENDED");
+        LOG_WRITE(STR("!!!! PRODUCT FILE NOT FOUND !!!!"));
+        LOG_WRITE(STR("DATABASE LOADING ENDED"));
         return;
     }
 
@@ -95,7 +95,7 @@ void core::data::CvsDataSource<T>::LoadData() {
     delete win;
 
     this->Data()->Prepare();
-    LOG_WRITE("DATABASE LOADING ENDED");
+    LOG_WRITE(STR("DATABASE LOADING ENDED"));
 };
 
 template class core::data::CvsDataSource<core::data::GeneralDataInfo>;

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
 #define USE_GOOGLE_DENSE_HASH_MAP
 #define RESERVED_SIZE 32768
 #define KNEAR_SIZE 5
@@ -10,18 +14,36 @@
 
 #define STR_TYPE utility::string_t
 #define CHAR_TYPE utility::char_t
-#define STR(x) _XPLATSTR(x)
 
 #ifdef _WIN32
 	#define ucout std::wcout
-	#define uend std::wend
+	#define uend std::endl
 	#define ucin std::wcin
 	#define ucerr std::wcerr
+	#define STR(x) L ## x
+
+	typedef std::wostringstream OSTRSTREAM_TYPE;
+	typedef std::wofstream OFSTREAM_TYPE;
+	typedef std::wostream OSTREAM_TYPE;
+	typedef std::wistream ISTREAM_TYPE;
+	typedef std::wifstream IFSTREAM_TYPE;
+	typedef std::wistringstream ISTRSTREAM_TYPE;
+	typedef std::wstringstream STRSTREAM_TYPE;
+	#include <wchar.h>
 #else 
 	#define ucout std::cout
 	#define uendl std::endl
 	#define ucin std::cin
 	#define ucerr std::cerr
+	#define STR(x) x
+	
+	typedef std::ostringstream OSTRSTREAM_TYPE;
+	typedef std::ofstream OFSTREAM_TYPE;
+	typedef std::ostream OSTREAM_TYPE;
+	typedef std::istream ISTREAM_TYPE;
+	typedef std::ifstream IFSTREAM_TYPE;
+	typedef std::istringstream ISTRSTREAM_TYPE;
+	typedef std::stringstream STRSTREAM_TYPE;
 #endif
 
 
@@ -64,10 +86,10 @@
 
 
 #if defined(_DEBUG) || defined(DEBUG)
-    #define DEBUG_WRITE(message) ucout << "[ DEBUG ] : " << message << uend;
+    #define DEBUG_WRITE(message) ucout << STR("[ DEBUG ] : ") << message << uend;
 #else
     #define DEBUG_WRITE(message)
 #endif
 
-#define LOG_WRITE(message) ucout << "[ LOG ] : " << message << uend;
-#define ERROR_WRITE(message) ucout << "[ ERROR ] : " << message << uend;
+#define LOG_WRITE(message) ucout << STR("[ LOG ] : ") << message << uend;
+#define ERROR_WRITE(message) ucout << STR("[ ERROR ] : ") << message << uend;

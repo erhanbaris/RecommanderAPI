@@ -23,36 +23,37 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
         
         auto isStaticFile = strncmp(request->Url.c_str(), staticName, strlen(staticName)) == 0;
         DEBUG_WRITE(request->Url);
+		
         
         if (isStaticFile) {
             returnValue = true;
             
-            string url = request->Url;
+            STR_TYPE url = request->Url;
             boost::replace_all(url, staticName, "");
-            string fullFilePath = AppServer::instance().GetStaticPath() + "/" + url;
+            string fullFilePath = AppServer::instance().GetStaticPath() + STR("/") + url;
 
             if (fileExists(fullFilePath)) {
 
                 try {
                     
-                    auto dotLocation = url.find(".") + 1;
+                    auto dotLocation = url.find(STR(".")) + 1;
                     string fileType = url.substr(dotLocation);
 
                     std::ifstream ifs(fullFilePath);
-                    string str(static_cast<std::stringstream const &>(std::stringstream() << ifs.rdbuf()).str());
+                    STR_TYPE str(static_cast<STRSTREAM_TYPE const &>(STRSTREAM_TYPE() << ifs.rdbuf()).str());
                     ifs.close();
 
                     request->Response.Data = str;
                     request->Response.Status = status_codes::OK;
                     request->Response.ContentType = mimeType.GetMimeType(fileType);
                 } catch (std::exception &e) {
-                    request->Response.Data = "Internal Server Error";
+                    request->Response.Data = STR("Internal Server Error");
                     request->Response.Status = status_codes::InternalError;
                     request->Response.ContentType = "text/html";
                 }
             }
             else{
-                request->Response.Data = "Not Found";
+                request->Response.Data = STR("Not Found");
                 request->Response.Status = status_codes::NotFound;
                 request->Response.ContentType = "text/html";
             }

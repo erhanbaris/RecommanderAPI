@@ -57,9 +57,9 @@ void core::data::GeneralDataInfo::Prepare() {
     core::AvgProductCount = (core::TotalProductCount / core::TotalUserCount);
     core::AvgRating = core::TotalRating / core::TotalProductCount;
 
-    LOG_WRITE("Slope One Init Started");
+    LOG_WRITE(STR("Slope One Init Started"));
     slopeOne.AddUsers(userMap);
-    LOG_WRITE("Slope One Init Finished");
+    LOG_WRITE(STR("Slope One Init Finished"));
 };
 
 /*

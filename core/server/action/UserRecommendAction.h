@@ -7,11 +7,11 @@ namespace core {
         namespace action {
             class UserRecommendAction: public BaseAction {
             public:
-                string Url() override;
+                STR_TYPE Url() override;
                 ResponseInfo Execute(RequestInfo *info) override;
                 short MethodInfo() override;
                 BaseAction* CreateObject() override;
-                vector<pair<PRODUCT_TYPE, wstring>> recommend(USER_TYPE userId);
+                vector<pair<PRODUCT_TYPE, STR_TYPE>> recommend(USER_TYPE userId);
             };
         }
     }

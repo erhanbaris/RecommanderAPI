@@ -17,13 +17,13 @@ namespace core {
             class BaseAction {
             public:
                 virtual ~BaseAction();
-                virtual string Url() = 0;
+                virtual STR_TYPE Url() = 0;
                 virtual ResponseInfo Execute(RequestInfo *info) = 0;
                 virtual short MethodInfo() = 0;
                 virtual BaseAction* CreateObject() = 0;
 
             protected:
-                std::string EscapeJsonString(const std::string &input);
+                STR_TYPE EscapeJsonString(const STR_TYPE &input);
             };
         }
     }

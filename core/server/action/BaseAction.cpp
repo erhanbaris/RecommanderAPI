@@ -2,36 +2,36 @@
 
 using namespace core::server::action;
 
-std::string BaseAction::EscapeJsonString(const std::string &input) {
-    std::ostringstream ss;
+STR_TYPE BaseAction::EscapeJsonString(const STR_TYPE &input) {
+    OSTRSTREAM_TYPE ss;
     auto inputEnd = input.cend();
     for (auto iter = input.cbegin(); iter != inputEnd; ++iter) {
         //C++98/03:
         //for (std::string::const_iterator iter = input.begin(); iter != input.end(); iter++) {
         switch (*iter) {
             case '\\':
-                ss << "\\\\";
+                ss << STR("\\\\");
                 break;
             case '"':
-                ss << "\\\"";
+                ss << STR("\\\"");
                 break;
             case '/':
-                ss << "\\/";
+                ss << STR("\\/");
                 break;
             case '\b':
-                ss << "\\b";
+                ss << STR("\\b");
                 break;
             case '\f':
-                ss << "\\f";
+                ss << STR("\\f");
                 break;
             case '\n':
-                ss << "\\n";
+                ss << STR("\\n");
                 break;
             case '\r':
-                ss << "\\r";
+                ss << STR("\\r");
                 break;
             case '\t':
-                ss << "\\t";
+                ss << STR("\\t");
                 break;
             default:
                 ss << *iter;
