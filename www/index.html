@@ -1,47 +1,32 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html ng-app="todoApp">
 <head>
-    <title>{{title}}</title>
     <link rel="stylesheet" href="/static/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="/static/stylesheets/bootstrap-theme.min.css">
-    <link rel='stylesheet' href='/static/stylesheets/style.css'/>
-    <script src="/static/javascripts/jquery-3.1.1.min.js"></script>
-    <script src="/static/javascripts/underscore-min.js"></script>
-    <script src="/static/javascripts/bootstrap.min.js"></script>
-    <script src="/static/javascripts/backbone-min.js"></script>
+    <link rel='stylesheet' href="/static/stylesheets/style.css"/>
+
+    <script src="/static/javascripts/angular.min.js"></script>
     <script src="/static/javascripts/server.js"></script>
 </head>
 <body>
+<h2>Todo</h2>
+<div ng-controller="TodoListController as todoList">
+    <form ng-submit="todoList.addTodo()">
+        <input type="text" ng-model="todoList.todoText"  size="30"
+               placeholder="add new todo here">
+        <input class="btn-primary" type="submit" value="add">
+    </form>
 
-<div id="main"></div>
+    <span>{{todoList.remaining()}} of {{todoList.todos.length}} remaining</span>
 
-<!-- Todo creator template -->
-<script id="TodoCreate" type="text/template">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Todo for...">
-                <span class="input-group-btn">
-            <button class="btn btn-default" id="SearchButton" type="button">Search!</button>
-          </span>
-            </div>
-        </div>
-    </div>
-</script>
-
-<!-- Todo item template -->
-<script id="TodoItem" type="text/template">
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <span class="show todo"><strong><%= Name %></strong></span>
-            <input type="text" class="form-control hidden" value="<%= Id %>">
-        </div>
-    </div>
-</script>
-
-
-<!-- Todo list template -->
-<script id="TodoList" type="text/template">
-</script>
+    <ul class="unstyled">
+        <li ng-repeat="todo in todoList.todos">
+            <label class="checkbox">
+                <span class="">{{todo.Name}}</span> -
+                <span class="">{{todo.Distance}}</span>
+            </label>
+        </li>
+    </ul>
+</div>
 </body>
 </html>

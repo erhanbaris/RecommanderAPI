@@ -1,6 +1,7 @@
 #include <core/algoritm/SymSpell.h>
 #include <core/server/AppServer.h>
 #include <core/Utils.h>
+#include <vector>
 
 #define getHastCode(term) hash<STR_TYPE>()(term)
 
@@ -183,13 +184,28 @@ bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     return result;
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, unsigned short> SymSpell::Find(STR_TYPE input) const {
+namespace
+{
+    template <typename T1, typename T2>
+    struct less_second {
+        typedef pair<T1, T2> type;
+        bool operator ()(type const& a, type const& b) const {
+            return a.second < b.second;
+        }
+    };
+}
+
+vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const {
     CUSTOM_MAP<PRODUCT_TYPE, unsigned short> returnValue;
     INT_INIT_MAP(returnValue);
     
     std::transform(input.begin(), input.end(), input.begin(), ::tolower);
     auto splitedData = core::splitString(input, ' ');
     auto splitedDataEnd = splitedData.end();
+
+    size_t totalDistance = 0;
+    for (auto item = splitedData.begin(); item != splitedDataEnd; ++item)
+        totalDistance += item->size();
 
     //auto * dataSource = AppServer::instance().DataSource()->Data();
 
@@ -200,15 +216,16 @@ CUSTOM_MAP<PRODUCT_TYPE, unsigned short> SymSpell::Find(STR_TYPE input) const {
             if (finded.size() == 0)
                 continue;
 
+            auto itemLength = item->size();
             auto findedEnd = finded.end();
 
             for (auto findedItem = finded.begin(); findedItem != findedEnd; ++findedItem) {
                 auto returnItem = returnValue.find(findedItem->first);
 
                 if (returnItem == returnValue.end())
-                    returnValue[findedItem->first] = findedItem->second.distance;
-                else
-                    returnItem->second +=findedItem->second.distance;
+                    returnValue[findedItem->first] = (unsigned short) totalDistance;
+
+                returnValue[findedItem->first] -= (itemLength - findedItem->second.distance);
             }
         }
     }
@@ -218,8 +235,16 @@ CUSTOM_MAP<PRODUCT_TYPE, unsigned short> SymSpell::Find(STR_TYPE input) const {
 
     //todo: order results
 
-    return returnValue;
+    auto totalItems = returnValue.size();
+    vector<pair<PRODUCT_TYPE, unsigned short> > mapcopy;
+    mapcopy.reserve(returnValue.size());
 
+    auto returnValueEnd = returnValue.end();
+    for (auto it = returnValue.begin(); it != returnValueEnd; ++it)
+        mapcopy.push_back(pair<PRODUCT_TYPE, unsigned short>(it->first, it->second));
+
+    sort(mapcopy.begin(), mapcopy.end(), less_second<PRODUCT_TYPE, unsigned short>());
+    return mapcopy;
 }
 
 void SymSpell::AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint,

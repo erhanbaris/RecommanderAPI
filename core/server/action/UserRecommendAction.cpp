@@ -67,7 +67,7 @@ vector<pair<PRODUCT_TYPE, STR_TYPE>> UserRecommendAction::recommend(USER_TYPE us
 
     delete results;
 
-    vector<pair<PRODUCT_TYPE, float>> sortIds;
+    vector<pair<PRODUCT_TYPE, float>> sortIds(recommendedProductIds.size());
     auto recommendedProductIdsEnd = recommendedProductIds.end();
     for (auto it = recommendedProductIds.begin(); it != recommendedProductIdsEnd; ++it)
         sortIds.push_back(pair<PRODUCT_TYPE, float>(it->first, it->second));
