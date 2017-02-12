@@ -32,21 +32,48 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
     //todo: use core::getNarrow and split by space to search one by one
     auto searchResults = dataSource->symspell.Find(searchTerm);
 
-    STRSTREAM_TYPE stream;
-    stream << STR("[");
 
-    auto end = searchResults.end();
-    for (auto it = searchResults.begin(); it != end; ++it) {
-        stream << STR("{\"Id\":") << it->first << STR(",\"Distance\":") << it->second << STR(",\"Name\":\"") << this->EscapeJsonString(dataSource->productInfos[it->first]) << STR("\"},");
+    size_t page = 1;
+    size_t length = 25;
+
+
+    if (info->Queries.find(STR("page")) != info->Queries.end())
+        page = (size_t) stoi(info->Queries[STR("page")]);
+
+    if (info->Queries.find(STR("length")) != info->Queries.end())
+        length = (size_t) stoi(info->Queries[STR("length")]);
+
+    STRSTREAM_TYPE stream;
+
+    stream << STR("{");
+    stream << STR("\"total\":") << searchResults.size() << ",";
+    stream << STR("\"data\": [");
+    auto it = searchResults.begin();
+
+    if (searchResults.size() > (page - 1) * length)
+    {
+        it += (page - 1) * length;
+
+        size_t index = 0;
+        auto end = searchResults.end();
+        for (; it != end; ++it) {
+            if (index > length)
+                break;
+
+            ++index;
+            stream << STR("{\"Id\":") << it->first << STR(",\"Distance\":") << it->second << STR(",\"Name\":\"") << this->EscapeJsonString(dataSource->productInfos[it->first]) << STR("\"},");
+        }
+
+        stream.seekg(0, ios::end);
+        int size = stream.tellg();
+
+        if (size > 1)
+            stream.seekp(-1, stream.cur);
     }
 
-    stream.seekg(0, ios::end);
-    int size = stream.tellg();
-
-    if (size > 1)
-        stream.seekp(-1, stream.cur);
 
     stream << STR("]");
+    stream<< STR("}");
 
     ResponseInfo returnValue;
     returnValue.Status = status_codes::OK;

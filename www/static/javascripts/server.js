@@ -6,7 +6,7 @@ angular.module('todoApp', [])
         todoList.addTodo = function() {
             $http.get("/api/search?term=" + todoList.todoText)
                 .then(function(response) {
-                todoList.todos = response.data;
+                todoList.todos = response.data.data;
             });
 
         };

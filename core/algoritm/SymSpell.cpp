@@ -208,8 +208,6 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
     for (auto item = splitedData.begin(); item != splitedDataEnd; ++item)
         totalDistance += item->size();
 
-    //auto * dataSource = AppServer::instance().DataSource()->Data();
-
     try{
         for (auto item = splitedData.begin(); item != splitedDataEnd; ++item) {
             CUSTOM_MAP<PRODUCT_TYPE, FindedItem> finded = Lookup(*item, MaxDistance);
@@ -234,9 +232,6 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
         ERROR_WRITE(e.what());
     }
 
-    //todo: order results
-
-    auto totalItems = returnValue.size();
     vector<pair<PRODUCT_TYPE, unsigned short> > mapcopy;
     mapcopy.reserve(returnValue.size());
 
