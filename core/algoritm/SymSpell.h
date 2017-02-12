@@ -75,7 +75,6 @@ namespace core {
 
         class FindedItem {
         public:
-            STR_TYPE term;
             unsigned short distance = 0;
             PRODUCT_TYPE productId;
         };

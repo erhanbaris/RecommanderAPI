@@ -1,5 +1,5 @@
 #include <core/data/CvsDataSource.h>
-
+#include <functional>
 
 using namespace std;
 using namespace core;
@@ -48,15 +48,18 @@ void core::data::CvsDataSource<T>::LoadData() {
         return;
     }
 
+    auto hashFunc = std::hash<STR_TYPE>();
+
     while (win->good()) {
         try {
             STR_TYPE movieIdStr, title, genres;
             getline(*win, movieIdStr, STR(','));
             getline(*win, title, STR(','));
-            getline(*win, genres, STR('\r'));
+            getline(*win, genres, STR(','));
+            getline(*win, genres, STR('\n'));
 
-
-            this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), title);
+            auto movieId = hashFunc(movieIdStr);
+            this->Data()->AddProduct((PRODUCT_TYPE) movieId, title);
 
             std::transform(title.begin(), title.end(), title.begin(), ::tolower);
 
@@ -76,11 +79,10 @@ void core::data::CvsDataSource<T>::LoadData() {
 
             for (auto part = parts.begin(); part != partsEnd ; ++part) {
                 if (part->size() > 1)
-                    this->Data()->symspell.CreateDictionaryEntry(*part, stoi(movieIdStr));
+                    this->Data()->symspell.CreateDictionaryEntry(*part, movieId);
             }
 
-            this->Data()->symspell.CreateDictionaryEntry(title, stoi(movieIdStr));
-            this->Data()->symspell.CreateDictionaryEntry(title, stoi(movieIdStr));
+            //this->Data()->symspell.CreateDictionaryEntry(title, movieId);
         }
         catch (const std::exception &e) {
             ERROR_WRITE(e.what());

@@ -3,7 +3,8 @@
 #include <core/Utils.h>
 #include <vector>
 
-#define getHastCode(term) hash<STR_TYPE>()(term)
+auto hashFunction = hash<STR_TYPE>();
+#define getHastCode(term) hashFunction(term)
 
 using namespace std;
 using namespace core::algoritm;
@@ -279,8 +280,8 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
 #endif
 
         for (auto item : queue) {
-            if (strlen(item.second)) {
-                auto itemLength = strlen(item.second);
+            auto itemLength = strlen(item.second);
+            if (itemLength > 2) {
 
                 for (size_t i = 0; i < itemLength; ++i) {
                     // For Performance ->
@@ -367,7 +368,6 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                 for (auto it = valueo->second.Id->begin(); it != idEnd; ++it) {
                     //todo: fix this code for duplicate items
                     FindedItem si;
-                    si.term = candidate;
                     si.distance = (unsigned short) (input.size() - candidateSize);
                     si.productId = *it;
                     suggestions[si.productId] = si;
@@ -428,7 +428,6 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
 
                                 }*/
                                 FindedItem si;
-                                si.term = candidate;
                                 si.distance = (unsigned short) (input.size() - candidateSize);
                                 si.productId = *it;
                                 suggestions[si.productId] = si;
