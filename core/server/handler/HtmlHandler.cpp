@@ -6,19 +6,19 @@ using namespace core;
 using namespace core::server::handler;
 
 HtmlHandler::HtmlHandler() {
-    INIT_MAP(fileCache, STR(""), STR(" "));
-    INIT_MAP(fileAliases, STR(""), STR(" "));
+    INIT_MAP(fileCache, "", " ");
+    INIT_MAP(fileAliases, "", " ");
 
-    fileAliases[STR("/")] = STR("/index.html");
+    fileAliases["/"] = "/index.html";
 }
 
-void HtmlHandler::AddAlias(STR_TYPE alias, STR_TYPE fileName) {
+void HtmlHandler::AddAlias(string alias, string fileName) {
 
-    if (fileName.find(STR("/")) != 0)
-        fileName = STR("/") + fileName;
+    if (fileName.find("/") != 0)
+        fileName = "/" + fileName;
 
-    if (alias.find(STR("/")) != 0)
-        alias = STR("/") + alias;
+    if (alias.find("/") != 0)
+        alias = "/" + alias;
 
     fileAliases[alias] = fileName;
 }
@@ -26,13 +26,13 @@ void HtmlHandler::AddAlias(STR_TYPE alias, STR_TYPE fileName) {
 bool HtmlHandler::TryExecute(RequestInfo * request) {
 
     bool returnValue = false;
-    auto searchUrl = request->Url;
+    auto searchUrl = GET_STRING(request->Url);
 
-    if (fileAliases.find(request->Url) != fileAliases.end())
-        searchUrl = fileAliases.find(request->Url)->second;
+    if (fileAliases.find(searchUrl) != fileAliases.end())
+        searchUrl = fileAliases.find(searchUrl)->second;
 
-    STR_TYPE fullFilePath = AppServer::instance().GetHtmlPath() + searchUrl;
-    DEBUG_WRITE(fullFilePath);
+    string fullFilePath = AppServer::instance().GetHtmlPath() + searchUrl;
+    //DEBUG_WRITE(fullFilePath);
 
     if (fileExists(fullFilePath)) {
         try {
@@ -42,15 +42,16 @@ bool HtmlHandler::TryExecute(RequestInfo * request) {
 
             request->Response.Data = stringStream.str();
             request->Response.Status = status_codes::OK;
-            request->Response.ContentType = STR("text/html");
+            request->Response.ContentType = "text/html";
 
             ifs.close();
 
             returnValue = true;
         } catch (std::exception &e) {
+			ERROR_WRITE(e.what());
             request->Response.Data = STR("Internal Server Error");
             request->Response.Status = status_codes::InternalError;
-            request->Response.ContentType = STR("text/html");
+            request->Response.ContentType = "text/html";
         }
     }
 

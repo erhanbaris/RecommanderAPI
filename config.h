@@ -23,6 +23,11 @@
 	#define STR(x) L ## x
 	#define STR_TYPE std::wstring
     #define CHAR_TYPE wchar_t
+	#define STRCPY wcscpy
+	#define STRLEN wcslen 
+	#define STRNVMP wcsncmp
+	#define GET_STRING(x) core::getString(x)
+	#define GET_WSTRING(x) core::getString(x)
 
 	typedef std::wostringstream OSTRSTREAM_TYPE;
 	typedef std::wofstream OFSTREAM_TYPE;
@@ -40,7 +45,12 @@
 	#define STR(x) x
 	#define STR_TYPE std::string
     #define CHAR_TYPE char
-	
+	#define STRCPY strcpy
+	#define STRLEN strlen
+	#define STRNVMP strncmp
+	#define GET_STRING(x)
+	#define GET_WSTRING(x)
+
 	typedef std::ostringstream OSTRSTREAM_TYPE;
 	typedef std::ofstream OFSTREAM_TYPE;
 	typedef std::ostream OSTREAM_TYPE;

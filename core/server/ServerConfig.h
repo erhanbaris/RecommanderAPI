@@ -29,7 +29,7 @@ namespace core
         typedef struct tResponseInfo {
             int Status;
             STR_TYPE Data;
-			STR_TYPE ContentType = STR("text/plain; charset=utf-8");
+			string ContentType = "text/plain; charset=utf-8";
         } ResponseInfo;
 
         typedef struct tRequestInfo {

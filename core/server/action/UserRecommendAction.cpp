@@ -101,7 +101,7 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
         ResponseInfo returnValue;
         returnValue.Status = status_codes::BadRequest;
         returnValue.Data = STR("");
-        returnValue.ContentType = STR("application/json");
+        returnValue.ContentType = "application/json";
 
         return returnValue;
     }
@@ -143,7 +143,7 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
     ResponseInfo returnValue;
     returnValue.Status = status_codes::OK;
     returnValue.Data = stream.str();
-    returnValue.ContentType = STR("application/json");
+    returnValue.ContentType = "application/json";
 
     return returnValue;
 }

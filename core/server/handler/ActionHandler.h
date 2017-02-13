@@ -5,9 +5,10 @@
 #include <config.h>
 
 #include <core/server/ServerConfig.h>
-#include <core/server/handler/StaticFileHandler.h>
+#include <core/server/handler/BaseHandler.h>
 #include <core/server/action/BaseAction.h>
 
+using namespace core::server;
 using namespace core::server::action;
 
 namespace core {

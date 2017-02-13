@@ -19,7 +19,7 @@ void AppServer::ExecuteRequest(http_request *request, STR_TYPE const &methodType
     for (auto it = handlers.begin(); it != handlersEnd; ++it) {
         bool result = (*it)->TryExecute(&info);
         if (result) {
-            request->reply((status_code) info.Response.Status, info.Response.Data, info.Response.ContentType);
+            request->reply((status_code) info.Response.Status, info.Response.Data, GET_WSTRING(info.Response.ContentType));
             return;
         }
     }
@@ -65,7 +65,7 @@ void AppServer::Start() {
         mDistance.SetUserIndex(&dataSource->Data()->userMap);
 
 
-        auto address = STR("http://0.0.0.0:") + std::to_string(HTTP_SERVER_PORT);
+        auto address = STR("http://0.0.0.0:") + HTTP_SERVER_PORT;
         web::uri_builder uri(address);
         STR_TYPE addr = uri.to_uri().to_string();
         listener = std::shared_ptr<web::http::experimental::listener::http_listener>(
@@ -98,9 +98,7 @@ void AppServer::Start() {
         ERROR_WRITE(e.what());
     }
 
-    STR_TYPE lineread;
-    std::getline(std::cin, lineread);
-
+	cin.get();
     listener->close().wait();
 }
 

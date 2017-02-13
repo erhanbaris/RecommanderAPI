@@ -262,7 +262,7 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
 
     auto wordLength = word.size();
     CHAR_TYPE *copyWord = new CHAR_TYPE[wordLength + 1];
-    strcpy(copyWord, word.c_str());
+	STRCPY(copyWord, word.c_str());
     copyWord[wordLength] = '\0';
 
     queue[getHastCode(word)] = copyWord;
@@ -275,17 +275,17 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
 #endif
 
         for (auto item : queue) {
-            auto itemLength = strlen(item.second);
+        		auto itemLength = STRLEN(item.second);
             if (itemLength > 2) {
 
                 for (size_t i = 0; i < itemLength; ++i) {
                     // For Performance ->
                     CHAR_TYPE *del = new CHAR_TYPE[itemLength + 1];
 
-                    strcpy(del, item.second);
+                    STRCPY(del, item.second);
                     del[itemLength] = '\0';
                     size_t k = i;
-                    size_t len = strlen(item.second);
+                    size_t len = STRLEN(item.second);
                     for (; k < len - 1; k++)
                         del[k] = item.second[k + 1];
                     del[k] = '\0';
