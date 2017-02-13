@@ -13,7 +13,7 @@ namespace core {
     class MimeType {
     public:
         MimeType();
-        string GetMimeType(string const &extension);
+		string GetMimeType(string const &extension);
         void AddMimeType(string const &extension, string const &mime);
 
     private:

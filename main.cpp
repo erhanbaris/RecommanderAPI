@@ -3,7 +3,7 @@
 
 #pragma warning(disable:4503)
 
-#ifdef WINDOWS
+#if defined(WINDOWS) || defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include <direct.h>
 #define GetCurrentDir _getcwd
 #else
@@ -44,7 +44,7 @@ ResponseInfo refreshDataSource(RequestInfo *info) {
 
     ResponseInfo returnValue;
     returnValue.Status = status_codes::OK;
-    returnValue.Data = "Loaded All Data";
+    returnValue.Data = STR("Loaded All Data");
 
     return returnValue;
 }
@@ -75,10 +75,11 @@ int main(int argc, char **args) {
     }
     catch (std::exception &e) {
         ERROR_WRITE(e.what());
+
     }
 
     getchar();
-    LOG_WRITE("RECOMMENDER EXIT");
+    LOG_WRITE(STR("RECOMMENDER EXIT"));
     return 0;
 }
 

@@ -4,8 +4,8 @@
 using namespace core::server::action;
 
 
-vector<pair<PRODUCT_TYPE, wstring>> UserRecommendAction::recommend(USER_TYPE userId) {
-    vector<pair<PRODUCT_TYPE, wstring>> recommendedProducts;
+vector<pair<PRODUCT_TYPE, STR_TYPE>> UserRecommendAction::recommend(USER_TYPE userId) {
+    vector<pair<PRODUCT_TYPE, STR_TYPE>> recommendedProducts;
     CUSTOM_MAP<PRODUCT_TYPE, float> recommendedProductIds;
     INT_INIT_MAP(recommendedProductIds);
 
@@ -78,13 +78,13 @@ vector<pair<PRODUCT_TYPE, wstring>> UserRecommendAction::recommend(USER_TYPE use
               });
 
     for (auto id = sortIds.begin(); id != sortIds.end(); ++id)
-        recommendedProducts.push_back(pair<PRODUCT_TYPE, wstring>(id->first, dataSource->productInfos[id->first]));
+        recommendedProducts.push_back(pair<PRODUCT_TYPE, STR_TYPE>(id->first, dataSource->productInfos[id->first]));
 
     return recommendedProducts;
 }
 
-string UserRecommendAction::Url() {
-    return "/api/user_recommend";
+STR_TYPE UserRecommendAction::Url() {
+    return STR("/api/user_recommend");
 }
 
 core::server::action::BaseAction* UserRecommendAction::CreateObject()
@@ -93,43 +93,43 @@ core::server::action::BaseAction* UserRecommendAction::CreateObject()
 }
 
 core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
-    if (info->Queries.find("userid") == info->Queries.end()) {
+    if (info->Queries.find(STR("userid")) == info->Queries.end()) {
         web::json::value item = web::json::value::object();
         item[U("Status")] = web::json::value::boolean(false);
-        item[U("ErrorMessage")] = web::json::value::string("Please set 'userid' parameter");
+        item[U("ErrorMessage")] = web::json::value::string(STR("Please set 'userid' parameter"));
 
         ResponseInfo returnValue;
         returnValue.Status = status_codes::BadRequest;
-        returnValue.Data = "";
+        returnValue.Data = STR("");
         returnValue.ContentType = "application/json";
 
         return returnValue;
     }
 
 
-    vector<pair<PRODUCT_TYPE, wstring>> results;
+    vector<pair<PRODUCT_TYPE, STR_TYPE>> results;
 
 #ifdef ENABLE_CACHE
-    auto cacheCheck = dataSource->Data()->recommendCacheForUser.find(stoi(info->Queries["userid"]));
+    auto cacheCheck = dataSource->Data()->recommendCacheForUser.find(stoi(info->Queries[STR("userid")]));
     if (cacheCheck != dataSource->Data()->recommendCacheForUser.end())
         results = cacheCheck->second;
     else {
 #endif
-    results = recommend(stoi(info->Queries["userid"]));
+    results = recommend(stoi(info->Queries[STR("userid")]));
     //this->appServer->DataSource()->Data()->recommendCacheForUser[stoi(info->Queries["userid"])] = results;
 #ifdef ENABLE_CACHE
     }
 #endif
 
-    std::stringstream stream;
-    stream << "[";
+    STRSTREAM_TYPE stream;
+    stream << STR("[");
 
     auto end = results.cend();
     for (auto it = results.cbegin(); it != end; ++it) {
-        string tmpName;
+        STR_TYPE tmpName;
         tmpName.assign(it->second.begin(), it->second.end());
 
-        stream << "{\"Id\":" << it->first << ",\"Name\":\"" << this->EscapeJsonString(tmpName) << "\"},";
+        stream << STR("{\"Id\":") << it->first << STR(",\"Name\":\"") << this->EscapeJsonString(tmpName) << STR("\"},");
     }
 
     stream.seekg(0, ios::end);
@@ -138,7 +138,7 @@ core::server::ResponseInfo UserRecommendAction::Execute(RequestInfo *info) {
     if (size > 1)
         stream.seekp(-1, stream.cur);
 
-    stream << "]";
+    stream << STR("]");
 
     ResponseInfo returnValue;
     returnValue.Status = status_codes::OK;

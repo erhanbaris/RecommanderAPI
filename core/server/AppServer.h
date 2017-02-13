@@ -55,7 +55,7 @@ namespace core
             string staticPath;
 
             AppServer();
-            void ExecuteRequest(http_request * request, string const &methodType);
+            void ExecuteRequest(http_request * request, STR_TYPE const &methodType);
             std::shared_ptr<core::data::CvsDataSource<core::data::GeneralDataInfo>> dataSource;
             std::vector<core::server::handler::BaseHandler*> handlers;
             std::vector<core::server::action::BaseAction*> actions;

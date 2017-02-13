@@ -3,8 +3,8 @@
 
 using namespace core::server::action;
 
-string SearchAction::Url() {
-    return "/api/search";
+STR_TYPE SearchAction::Url() {
+    return STR("/api/search");
 }
 
 core::server::action::BaseAction* SearchAction::CreateObject()
@@ -13,31 +13,31 @@ core::server::action::BaseAction* SearchAction::CreateObject()
 }
 
 core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
-    if (info->Queries.find("term") == info->Queries.end()) {
+    if (info->Queries.find(STR("term")) == info->Queries.end()) {
         web::json::value item = web::json::value::object();
         item[U("Status")] = web::json::value::boolean(false);
-        item[U("ErrorMessage")] = web::json::value::string("Please set 'term' parameter");
+        item[U("ErrorMessage")] = web::json::value::string(STR("Please set 'term' parameter"));
 
         ResponseInfo returnValue;
         returnValue.Status = status_codes::BadRequest;
-        returnValue.Data = "";
+        returnValue.Data = STR("");
         returnValue.ContentType = "application/json";
 
         return returnValue;
     }
 
-    auto searchTerm = web::uri::decode(info->Queries["term"]);
+    auto searchTerm = web::uri::decode(info->Queries[STR("term")]);
     auto * dataSource = AppServer::instance().DataSource()->Data();
 
     //todo: use core::getNarrow and split by space to search one by one
     auto searchResults = dataSource->symspell.Find(searchTerm);
 
-    std::stringstream stream;
-    stream << "[";
+    STRSTREAM_TYPE stream;
+    stream << STR("[");
 
     auto end = searchResults.end();
     for (auto it = searchResults.begin(); it != end; ++it) {
-        stream << "{\"Id\":" << it->first << ",\"Name\":\"" << this->EscapeJsonString(core::getString(dataSource->productInfos[it->second.productId])) << "\"},";
+        stream << STR("{\"Id\":") << it->first << STR(",\"Name\":\"") << this->EscapeJsonString(dataSource->productInfos[it->second.productId]) << STR("\"},");
     }
 
     stream.seekg(0, ios::end);
@@ -46,7 +46,7 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
     if (size > 1)
         stream.seekp(-1, stream.cur);
 
-    stream << "]";
+    stream << STR("]");
 
     ResponseInfo returnValue;
     returnValue.Status = status_codes::OK;

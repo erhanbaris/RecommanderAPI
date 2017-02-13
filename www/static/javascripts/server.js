@@ -1,140 +1,57 @@
-/** Todo Application general implementation class.
- *
- * @namespace
- * */
 var TodoApp = {
-    /**
-     * Contains all views
-     * * @namespace
-     */
     Views: {},
-
-    /**
-     * Contains all models
-     * @namespace
-     * */
     Models: {},
-
-    /**
-     * Collections object
-     * @namespace
-     * */
-    Collections: {}
-
-    /**
-     * System routing informations
-     * @namespace
-     * */,
+    Collections: {},
     Router: {}
 };
 
-/**
- * Returnning todo model item. This can be handle CRUD operations itself.
- * @class TodoApp.Models.TodoModel
- * @property {String} idAttribute - Defining Id type
- * @property {String} urlRoot - Http API url
- * @property {Object} defaults - Todo model default parameters configuring
- * */
 TodoApp.Models.TodoModel = Backbone.Model.extend({
-    idAttribute: 'TodoId',
-    urlRoot: '/todos',
+    idAttribute: 'Id',
     defaults: {
-        Todo: ''
+        Name: ''
     },
 
-    /**
-     * Validation executing before save operations.
-     * @method TodoApp.Models.TodoModel#validate
-     * @memberOf TodoApp.Models.TodoModel
-     * @param {object} attrs - TodoModel attributes object for checking.
-     * */
     validate: function (attrs) {
-        if (!attrs.Todo) {
+        if (!attrs.Name) {
             return 'Please fill todo.';
         }
     }
 });
 
-/**
- * Todo collection for storing all todo models.
- * @class TodoApp.Collections.TodoCollection
- * @property {TodoApp.Models.TodoModel} model - Collections items type
- * */
 TodoApp.Collections.TodoCollection = Backbone.Collection.extend({
     model: TodoApp.Models.TodoModel,
 
-    /**
-     * Returning API endpoint url.
-     * @method TodoApp.Collections.TodoCollection#url
-     * @memberOf TodoApp.Collections.TodoCollection
-     * @return {string} - API endpoint url.
-     * */
-    url: function () {
-        return "/todos";
-    },
-
-    /**
-     * Data parse from query response
-     * @method TodoApp.Collections.TodoCollection#parse
-     * @memberOf TodoApp.Collections.TodoCollection
-     * @param {object} response - API request result
-     * @return {object} - Model datas
-     * */
     parse: function (response) {
         if (response.status)
             return response.data;
 
-        alert(response.message);
         return [];
     }
 });
 
-
-/**
- * Combines UI layer and data layer to manage processes.
- * @class TodoApp.Views.TodoCreate
- * @property {TodoApp.Collections.TodoCollection} model - Item collection
- * @property {object} events - UI element event binding properties
- * */
 TodoApp.Views.TodoCreate = Backbone.View.extend({
     model: TodoApp.Collections.TodoCollection,
     events: {
-        'click #AddButton': 'addTodo'
+        'click #SearchButton': 'search'
     },
 
-    /**
-     * Class constructor
-     * @constructor
-     * @method TodoApp.Views.TodoCreate#initialize
-     * @memberOf TodoApp.Views.TodoCreate
-     */
     initialize: function () {
         this.template = _.template($('#TodoCreate').html());
     },
 
-    /** Adding todo model to collection. Also firing UI change after adding item.
-     * @method TodoApp.Views.TodoCreate#addTodo
-     * @memberOf TodoApp.Views.TodoCreate
-     */
-    addTodo: function () {
+    search: function () {
         var todoModel = new TodoApp.Models.TodoModel();
-        todoModel.set('Todo', this.$el.find('input').val());
+        todoModel.set('Name', this.$el.find('input').val());
 
         if (todoModel.isValid()) {
             var self = this;
+            self.model.reset();
 
-            todoModel.save({}, {
-                success: function (data, response) {
-                    if (response.status) {
-                        self.$el.find('input').val("");
-                        todoModel.set("TodoId", response.data.id);
-                        self.model.add(todoModel); // Add to TodoCollection
-                    }
-                    else
-                        alert(response.message);
-                },
-                error: function (data) {
-                    console.log('error');
+            Backbone.ajax({
+                url: "/api/search?term=" + this.$el.find('input').val(),
+                data: "",
+                success: function(val){
+                    self.model.add(val);
                 }
             });
         }
@@ -142,45 +59,22 @@ TodoApp.Views.TodoCreate = Backbone.View.extend({
             alert(todoModel.validationError);
     },
 
-    /** Rendering template and model datas.
-     * @method TodoApp.Views.TodoCreate#render
-     * @memberOf TodoApp.Views.TodoCreate
-     * @return {object} - Render object
-     */
     render: function () {
         this.$el.html(this.template());
         return this;
     }
 });
 
-/**
- * Show all todo models.
- * @class TodoApp.Views.TodoList
- * @property {TodoApp.Collections.TodoCollection} model - Item collection
- * @property {string} tagName - Template top level tag type
- * @property {string} tagName - Template top level element class
- * */
 TodoApp.Views.TodoList = Backbone.View.extend({
     model: TodoApp.Collections.TodoCollection,
     tagName: 'ul',
     className: 'list-group',
 
-    /**
-     * Class constructor
-     * @constructor
-     * @method TodoApp.Views.TodoList#initialize
-     * @memberOf TodoApp.Views.TodoList
-     */
     initialize: function (options) {
         if (options.model)
             this.model = options.model;
     },
 
-    /** Rendering template and model datas.
-     * @method TodoApp.Views.TodoList#render
-     * @memberOf TodoApp.Views.TodoList
-     * @return {object} - Render object
-     */
     render: function () {
         this.$el.html();
 
@@ -195,31 +89,13 @@ TodoApp.Views.TodoList = Backbone.View.extend({
     }
 });
 
-/**
- * Todo create and todo list container.
- * @class TodoApp.Views.TodoView
- * @property {TodoApp.Collections.TodoCollection} model - Item collection
- * @property {object} events - UI element event binding properties
- * */
 TodoApp.Views.TodoView = Backbone.View.extend({
-    /**
-     * Class constructor
-     * @constructor
-     * @method TodoApp.Views.TodoView#initialize
-     * @memberOf TodoApp.Views.TodoView
-     */
+
     initialize: function () {
         this.todoCollection = new TodoApp.Collections.TodoCollection();
-        this.todoCollection.fetch({async: false});
-
         this.todoCollection.on('add', this.addOne, this);
     },
 
-    /** Rendering template and model datas.
-     * @method TodoApp.Views.TodoView#render
-     * @memberOf TodoApp.Views.TodoView
-     * @return {object} - Render object
-     */
     render: function () {
 
         this.$el.html(); // lets render this view
@@ -238,23 +114,12 @@ TodoApp.Views.TodoView = Backbone.View.extend({
         return this;
     },
 
-    /** Todo collection adding callback. Rendering new item and adding to UI.
-     * @method TodoApp.Views.TodoView#render
-     * @memberOf TodoApp.Views.TodoView
-     */
     addOne: function (todo) {
         var todoItemView = new TodoApp.Views.TodoItem({model: todo});
         this.$el.find(".list-group").prepend(todoItemView.render().el);
     }
 });
 
-/**
- * Todo create and todo list container.
- * @class TodoApp.Views.TodoItem
- * @property {TodoApp.Models.TodoItem} model - Item collection
- * @property {string} tagName - Template top level tag type
- * @property {string} tagName - Template top level element class
- * */
 TodoApp.Views.TodoItem = Backbone.View.extend({
     model: TodoApp.Models.TodoModel,
     tagName: "li",
@@ -271,28 +136,15 @@ TodoApp.Views.TodoItem = Backbone.View.extend({
             this.model = options.model;
     },
 
-    /** Rendering template and model datas.
-     * @method TodoApp.Views.TodoItem#render
-     * @memberOf TodoApp.Views.TodoItem
-     * @return {object} - Render object
-     */
     render: function () {
         this.$el.html(this.template(this.model.attributes));
         return this;
     },
 
-    /** Removing from UI.
-     * @method TodoApp.Views.TodoItem#remove
-     * @memberOf TodoApp.Views.TodoItem
-     */
     remove: function () {
         this.$el.remove();
     },
 
-    /** UI element delete method.
-     * @method TodoApp.Views.TodoItem#remove
-     * @memberOf TodoApp.Views.TodoItem
-     */
     delete: function () {
         var self = this;
         if (this.editing)
@@ -312,10 +164,6 @@ TodoApp.Views.TodoItem = Backbone.View.extend({
             });
     },
 
-    /** UI element edit method.
-     * @method TodoApp.Views.TodoItem#edit
-     * @memberOf TodoApp.Views.TodoItem
-     */
     edit: function () {
         var self = this;
         if (this.editing) {
@@ -339,10 +187,6 @@ TodoApp.Views.TodoItem = Backbone.View.extend({
             this.__setEditMode(!this.editing);
     },
 
-    /** Inverse edit mode and preapre UI elements.
-     * @method TodoApp.Views.TodoItem#__setEditMode
-     * @memberOf TodoApp.Views.remove
-     */
     __setEditMode: function (status) {
         if (!this.editing) {
             this.$el.find(".todo").removeClass("show");
@@ -371,15 +215,9 @@ TodoApp.Views.TodoItem = Backbone.View.extend({
     events: {
         'click .edit': 'edit',
         'click .delete': 'delete'
-    },
+    }
 });
 
-/**
- * Todo create and todo list container.
- * @class TodoApp.Router
- * @property {object} routes - Routing roules
- * @property {function} todoview - TodoView execution function
- * */
 TodoApp.Router = Backbone.Router.extend({
 
     routes: {
@@ -392,9 +230,6 @@ TodoApp.Router = Backbone.Router.extend({
     }
 });
 
-/**
- * JQuery auto execute after page load completed
- * */
 $(document).ready(function () {
     TodoApp.Router.Instance = new TodoApp.Router();
     Backbone.history.start();

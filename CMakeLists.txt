@@ -13,7 +13,7 @@ if(Boost_FOUND)
 	set(Boost_USE_MULTITHREADED      ON)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
 
-	find_path(sparsehash_INCLUDE_DIR PATH_SUFFIXES sparsehash )
+	find_path(sparsehash_INCLUDE_DIR PATH_SUFFIXES sparse_hash_map )
 	include_directories(${Boost_INCLUDE_DIR})
 	link_directories(${Boost_LIBRARY_DIR})
 	
@@ -23,9 +23,9 @@ if(Boost_FOUND)
 
 	add_definitions(-DBOOST_ALL_NO_LIB)
 	include_directories(${PROJECT_SOURCE_DIR})
-	include_directories(sparsehash_INCLUDE_DIR)
-	include_directories(CPPRESTSDK_INCLUDE_DIR)
-	include_directories(OPENSSL_INCLUDE_DIR)
+	include_directories(${sparsehash_INCLUDE_DIR})
+	include_directories(${CPPRESTSDK_INCLUDE_DIR})
+	include_directories(${OPENSSL_INCLUDE_DIR})
 
 	set(SOURCE_FILES
 			${PROJECT_SOURCE_DIR}/main.cpp

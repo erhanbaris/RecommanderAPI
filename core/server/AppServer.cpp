@@ -5,13 +5,13 @@ using namespace core::server;
 using namespace core::server::handler;
 using namespace core::data;
 
-void AppServer::ExecuteRequest(http_request *request, string const &methodType) {
+void AppServer::ExecuteRequest(http_request *request, STR_TYPE const &methodType) {
 
     auto handlersEnd = handlers.end();
     auto relativeUri = request->relative_uri();
     auto relativePath = relativeUri.path();
     auto queries = relativeUri.split_query(relativeUri.query());
-    string decode = web::http::uri::decode(relativePath);
+    STR_TYPE decode = web::http::uri::decode(relativePath);
     std::transform(decode.begin(), decode.end(), decode.begin(), ::tolower);
     RequestInfo info(queries, decode);
     info.MethodType = methodType;
@@ -19,12 +19,12 @@ void AppServer::ExecuteRequest(http_request *request, string const &methodType) 
     for (auto it = handlers.begin(); it != handlersEnd; ++it) {
         bool result = (*it)->TryExecute(&info);
         if (result) {
-            request->reply((status_code) info.Response.Status, info.Response.Data, info.Response.ContentType);
+            request->reply((status_code) info.Response.Status, info.Response.Data, GET_WSTRING(info.Response.ContentType));
             return;
         }
     }
 
-    request->reply(404, "Not Found");
+    request->reply(404, STR("Not Found"));
 }
 
 AppServer::AppServer() { }
@@ -59,15 +59,15 @@ void AppServer::Start() {
         handlers.push_back(new HtmlHandler());
         handlers.push_back(actionHandler);
 
-        LOG_WRITE("Data Load Success");
+        LOG_WRITE(STR("Data Load Success"));
 
         mDistance.SetProductIndex(&dataSource->Data()->productMap);
         mDistance.SetUserIndex(&dataSource->Data()->userMap);
 
 
-        auto address = "http://0.0.0.0:" + std::to_string(HTTP_SERVER_PORT);
+        auto address = STR("http://localhost:") + GET_WSTRING(std::to_string(HTTP_SERVER_PORT));
         web::uri_builder uri(address);
-        std::string addr = uri.to_uri().to_string();
+        STR_TYPE addr = uri.to_uri().to_string();
         listener = std::shared_ptr<web::http::experimental::listener::http_listener>(
                 new web::http::experimental::listener::http_listener(addr));
 
@@ -89,8 +89,8 @@ void AppServer::Start() {
 
         listener->open()
                 .then([]() {
-                    LOG_WRITE("API Init Finished");
-                    LOG_WRITE("Api Server Listening on http://0.0.0.0:" << HTTP_SERVER_PORT);
+                    LOG_WRITE(STR("API Init Finished"));
+                    LOG_WRITE(STR("Api Server Listening on http://localhost:") << HTTP_SERVER_PORT);
                 })
                 .wait();
     }
@@ -98,9 +98,7 @@ void AppServer::Start() {
         ERROR_WRITE(e.what());
     }
 
-    std::string lineread;
-    std::getline(std::cin, lineread);
-
+	cin.get();
     listener->close().wait();
 }
 

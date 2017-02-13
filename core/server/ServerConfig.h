@@ -28,17 +28,17 @@ namespace core
     namespace server {
         typedef struct tResponseInfo {
             int Status;
-            string Data;
-            string ContentType = "text/plain; charset=utf-8";
+            STR_TYPE Data;
+			string ContentType = "text/plain; charset=utf-8";
         } ResponseInfo;
 
         typedef struct tRequestInfo {
-            tRequestInfo(std::map<utility::string_t, utility::string_t> pQueries, string &pUrl)
+            tRequestInfo(std::map<STR_TYPE, STR_TYPE> &pQueries, STR_TYPE &pUrl)
                     : Queries(pQueries), Url(pUrl) { }
 
-            string MethodType;
-            std::map<utility::string_t, utility::string_t> Queries;
-            string Url;
+			STR_TYPE MethodType;
+            std::map<STR_TYPE, STR_TYPE> Queries;
+			STR_TYPE Url;
             ResponseInfo Response;
         } RequestInfo;
     }

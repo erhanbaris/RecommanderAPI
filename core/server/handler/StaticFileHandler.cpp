@@ -21,38 +21,40 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
     try {
         const char *staticName = "/static/";
         
-        auto isStaticFile = strncmp(request->Url.c_str(), staticName, strlen(staticName)) == 0;
+        auto isStaticFile = strncmp(GET_STRING(request->Url).c_str(), staticName, strlen(staticName)) == 0;
         DEBUG_WRITE(request->Url);
+		
         
         if (isStaticFile) {
             returnValue = true;
             
-            string url = request->Url;
+            string url = GET_STRING(request->Url);
             boost::replace_all(url, staticName, "");
-            string fullFilePath = AppServer::instance().GetStaticPath() + "/" + url;
+			string fullFilePath = AppServer::instance().GetStaticPath() + "/" + url;
 
             if (fileExists(fullFilePath)) {
 
                 try {
                     
                     auto dotLocation = url.find(".") + 1;
-                    string fileType = url.substr(dotLocation);
+					string fileType = url.substr(dotLocation);
 
-                    std::ifstream ifs(fullFilePath);
-                    string str(static_cast<std::stringstream const &>(std::stringstream() << ifs.rdbuf()).str());
+                    IFSTREAM_TYPE ifs(fullFilePath);
+					STR_TYPE str(static_cast<STRSTREAM_TYPE const &>(STRSTREAM_TYPE() << ifs.rdbuf()).str());
                     ifs.close();
 
                     request->Response.Data = str;
                     request->Response.Status = status_codes::OK;
                     request->Response.ContentType = mimeType.GetMimeType(fileType);
                 } catch (std::exception &e) {
-                    request->Response.Data = "Internal Server Error";
+					ERROR_WRITE(e.what());
+                    request->Response.Data = STR("Internal Server Error");
                     request->Response.Status = status_codes::InternalError;
                     request->Response.ContentType = "text/html";
                 }
             }
             else{
-                request->Response.Data = "Not Found";
+                request->Response.Data = STR("Not Found");
                 request->Response.Status = status_codes::NotFound;
                 request->Response.ContentType = "text/html";
             }

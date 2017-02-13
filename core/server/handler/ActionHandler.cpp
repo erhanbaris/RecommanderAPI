@@ -5,7 +5,7 @@ using namespace core::server::handler;
 
 ActionHandler::ActionHandler()
 {
-    INIT_MAP(routeTable, "", "0");
+    INIT_MAP(routeTable, STR(""), STR("0"));
 
     AddHttpMethod(web::http::methods::GET);
     AddHttpMethod(web::http::methods::PUT);
@@ -26,7 +26,7 @@ bool ActionHandler::TryExecute(RequestInfo * request) {
     }
     else
     {
-        request->Response.Data = "Not Found";
+        request->Response.Data = STR("Not Found");
         request->Response.Status = status_codes::NotFound;
         request->Response.ContentType = "text/html";
     }
@@ -34,33 +34,33 @@ bool ActionHandler::TryExecute(RequestInfo * request) {
     return true;
 };
 
-void ActionHandler::AddHttpMethod(string method) {
+void ActionHandler::AddHttpMethod(STR_TYPE method) {
     HttpMethodRoute route;
-    INIT_MAP(route, "-1", "-2");
+    INIT_MAP(route, STR("-1"), STR("-2"));
     routeTable[method] = route;
 }
 
-void ActionHandler::SetGetAction(string url, BaseAction* action)
+void ActionHandler::SetGetAction(STR_TYPE url, BaseAction* action)
 {
     routeTable[methods::GET].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetPostAction(string url, BaseAction* action)
+void ActionHandler::SetPostAction(STR_TYPE url, BaseAction* action)
 {
     routeTable[methods::POST].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetDeleteAction(string url, BaseAction* action)
+void ActionHandler::SetDeleteAction(STR_TYPE url, BaseAction* action)
 {
     routeTable[methods::DEL].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetPutAction(string url, BaseAction* action)
+void ActionHandler::SetPutAction(STR_TYPE url, BaseAction* action)
 {
     routeTable[methods::PUT].insert(std::make_pair(url, action));
 }
 
-void ActionHandler::SetHeadAction(string url, BaseAction* action)
+void ActionHandler::SetHeadAction(STR_TYPE url, BaseAction* action)
 {
     routeTable[methods::HEAD].insert(std::make_pair(url, action));
 }

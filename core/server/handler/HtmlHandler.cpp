@@ -26,18 +26,18 @@ void HtmlHandler::AddAlias(string alias, string fileName) {
 bool HtmlHandler::TryExecute(RequestInfo * request) {
 
     bool returnValue = false;
-    auto searchUrl = request->Url;
+    auto searchUrl = GET_STRING(request->Url);
 
-    if (fileAliases.find(request->Url) != fileAliases.end())
-        searchUrl = fileAliases.find(request->Url)->second;
+    if (fileAliases.find(searchUrl) != fileAliases.end())
+        searchUrl = fileAliases.find(searchUrl)->second;
 
     string fullFilePath = AppServer::instance().GetHtmlPath() + searchUrl;
     DEBUG_WRITE(fullFilePath);
 
     if (fileExists(fullFilePath)) {
         try {
-            std::ifstream ifs(fullFilePath);
-            std::stringstream stringStream;
+            IFSTREAM_TYPE ifs(fullFilePath);
+            STRSTREAM_TYPE stringStream;
             stringStream << ifs.rdbuf();
 
             request->Response.Data = stringStream.str();
@@ -48,7 +48,8 @@ bool HtmlHandler::TryExecute(RequestInfo * request) {
 
             returnValue = true;
         } catch (std::exception &e) {
-            request->Response.Data = "Internal Server Error";
+			ERROR_WRITE(e.what());
+            request->Response.Data = STR("Internal Server Error");
             request->Response.Status = status_codes::InternalError;
             request->Response.ContentType = "text/html";
         }

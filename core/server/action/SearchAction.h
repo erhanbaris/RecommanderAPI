@@ -7,7 +7,7 @@ namespace core {
         namespace action {
             class SearchAction: public BaseAction {
             public:
-                string Url() override;
+                STR_TYPE Url() override;
                 ResponseInfo Execute(RequestInfo *info) override;
                 short MethodInfo() override;
                 BaseAction* CreateObject() override;

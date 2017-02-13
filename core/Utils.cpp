@@ -22,25 +22,25 @@ bool core::fileExists(string const &filename) {
 }
 
 
-void core::splitString(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss;
+void core::splitString(const STR_TYPE &s, CHAR_TYPE delim, std::vector<STR_TYPE> &elems) {
+    STRSTREAM_TYPE ss;
     ss.str(s);
-    std::string item;
+    STR_TYPE item;
     while (std::getline(ss, item, delim)) {
         elems.push_back(item);
     }
 }
 
-std::vector<std::string> core::splitString(const std::string &s, char delim) {
-    std::vector<std::string> elems;
+std::vector<STR_TYPE> core::splitString(const STR_TYPE &s, CHAR_TYPE delim) {
+    std::vector<STR_TYPE> elems;
     core::splitString(s, delim, elems);
     return elems;
 }
 
 
-bool core::isInteger(const std::string &s)
+bool core::isInteger(const STR_TYPE &s)
 {
-    string::const_iterator end = s.end();
+    STR_TYPE::const_iterator end = s.end();
     for (auto current = s.begin(); current != end; ++current) {
 
         if (((*current) < '0' || (*current) > '9'))
