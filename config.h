@@ -48,8 +48,8 @@
 	#define STRCPY strcpy
 	#define STRLEN strlen
 	#define STRNVMP strncmp
-	#define GET_STRING(x)
-	#define GET_WSTRING(x)
+	#define GET_STRING(x) x
+	#define GET_WSTRING(x) x
 
 	typedef std::ostringstream OSTRSTREAM_TYPE;
 	typedef std::ofstream OFSTREAM_TYPE;
