@@ -199,7 +199,8 @@ namespace
 vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const {
     CUSTOM_MAP<PRODUCT_TYPE, unsigned short> returnValue;
     INT_INIT_MAP(returnValue);
-    
+    size_t maxDistance = ((float)input.size() / 10.0) * 7.0;
+
     std::transform(input.begin(), input.end(), input.begin(), ::tolower);
     auto splitedData = core::splitString(input, ' ');
     auto splitedDataEnd = splitedData.end();
@@ -210,15 +211,15 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
 
     try{
         for (auto item = splitedData.begin(); item != splitedDataEnd; ++item) {
-            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> finded = Lookup(*item, MaxDistance);
+            CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* finded = Lookup(*item, MaxDistance);
 
-            if (finded.size() == 0)
+            if (finded->size() == 0)
                 continue;
 
             auto itemLength = item->size();
-            auto findedEnd = finded.end();
+            auto findedEnd = finded->end();
 
-            for (auto findedItem = finded.begin(); findedItem != findedEnd; ++findedItem) {
+            for (auto findedItem = finded->begin(); findedItem != findedEnd; ++findedItem) {
                 auto returnItem = returnValue.find(findedItem->first);
 
                 if (returnItem == returnValue.end())
@@ -226,6 +227,8 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
 
                 returnValue[findedItem->first] -= (itemLength - findedItem->second.distance);
             }
+
+            delete finded;
         }
     }
     catch (const std::exception &e) {
@@ -237,7 +240,8 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
 
     auto returnValueEnd = returnValue.end();
     for (auto it = returnValue.begin(); it != returnValueEnd; ++it)
-        mapcopy.push_back(pair<PRODUCT_TYPE, unsigned short>(it->first, it->second));
+        if (it->second < maxDistance)
+            mapcopy.push_back(pair<PRODUCT_TYPE, unsigned short>(it->first, it->second));
 
     sort(mapcopy.begin(), mapcopy.end(), less_second<PRODUCT_TYPE, unsigned short>());
     return mapcopy;
@@ -309,9 +313,9 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
     }
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {
+CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {
     if (input.size() - editDistanceMax > maxlength)
-        return CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+        return new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
 
     vector<STR_TYPE> candidates;
     candidates.reserve(2048);
@@ -320,8 +324,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
     hashset1.set_empty_key(0);
 #endif
 
-    CUSTOM_MAP<PRODUCT_TYPE, FindedItem> suggestions;
-    INIT_MAP(suggestions, 0, -1);
+    CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* suggestions = new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+    INIT_MAP(*suggestions, 0, -1);
     CUSTOM_SET<size_t> hashset2;
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     hashset2.set_empty_key(0);
@@ -339,8 +343,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
         size_t candidateSize = candidate.size(); // for performance
         ++candidatesIndexer;
 
-        if ((Verbose < 2) && (suggestions.size() > 0) &&
-            (input.size() - candidateSize > suggestions.begin()->second.distance))
+        if ((Verbose < 2) && (suggestions->size() > 0) &&
+            (input.size() - candidateSize > suggestions->begin()->second.distance))
             break;
 
         auto valueo = dictionary.find(getHastCode(candidate));
@@ -365,7 +369,7 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                     FindedItem si;
                     si.distance = (unsigned short) (input.size() - candidateSize);
                     si.productId = *it;
-                    suggestions[si.productId] = si;
+                    (*suggestions)[si.productId] = si;
                 }
 
                 //early termination
@@ -404,10 +408,10 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                         }
                     }
 
-                    if ((Verbose < 2) && (suggestions.size() > 0) && (suggestions.begin()->second.distance > distance))
-                        suggestions.clear();
+                    if ((Verbose < 2) && (suggestions->size() > 0) && (suggestions->begin()->second.distance > distance))
+                        suggestions->clear();
 
-                    if ((Verbose < 2) && (suggestions.size() > 0) && (distance > suggestions.begin()->second.distance))
+                    if ((Verbose < 2) && (suggestions->size() > 0) && (distance > suggestions->begin()->second.distance))
                         continue;
 
                     if (distance <= editDistanceMax) {
@@ -425,7 +429,7 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                                 FindedItem si;
                                 si.distance = (unsigned short) (input.size() - candidateSize);
                                 si.productId = *it;
-                                suggestions[si.productId] = si;
+                                (*suggestions)[si.productId] = si;
                             }
                         }
                     }
@@ -433,11 +437,11 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
             }
         }
         else if (isInputInteger)
-            return CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+            return new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
 
         if (input.size() - candidateSize < editDistanceMax) {
-            if ((Verbose < 2) && (suggestions.size() > 0) &&
-                (input.size() - candidateSize >= suggestions.begin()->second.distance))
+            if ((Verbose < 2) && (suggestions->size() > 0) &&
+                (input.size() - candidateSize >= suggestions->begin()->second.distance))
                 continue;
 
             for (size_t i = 0; i < candidateSize; ++i) {

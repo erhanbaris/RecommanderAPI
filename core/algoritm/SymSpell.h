@@ -94,7 +94,7 @@ namespace core {
         private:
             void AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint, STR_TYPE del);
             void Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const;
-            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> Lookup(STR_TYPE input, size_t editDistanceMax) const;
+            CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* Lookup(STR_TYPE input, size_t editDistanceMax) const;
             static size_t DamerauLevenshteinDistance(const STR_TYPE &s1, const STR_TYPE &s2);
         };
     }
