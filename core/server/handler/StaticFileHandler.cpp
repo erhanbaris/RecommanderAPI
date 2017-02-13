@@ -22,7 +22,7 @@ bool StaticFileHandler::TryExecute(RequestInfo * request) {
         const char *staticName = "/static/";
         
         auto isStaticFile = strncmp(GET_STRING(request->Url).c_str(), staticName, strlen(staticName)) == 0;
-        //DEBUG_WRITE(request->Url);
+        DEBUG_WRITE(request->Url);
 		
         
         if (isStaticFile) {
