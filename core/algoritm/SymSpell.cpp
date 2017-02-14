@@ -1,4 +1,5 @@
 #include <core/algoritm/SymSpell.h>
+#include <core/server/AppServer.h>
 #include <core/Utils.h>
 #include <vector>
 #include <fstream>
@@ -499,6 +500,12 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
                         if (value2 != dictionaryEnd) {
                             auto idEnd = valueo->second.Id->end();
                             for (auto it = valueo->second.Id->begin(); it != idEnd; ++it) {
+
+                                /*
+                                if(suggestions.find(*it) != )
+                                {
+
+                                }*/
                                 FindedItem si;
                                 si.distance = (unsigned short) (input.size() - candidateSize);
                                 si.productId = *it;
