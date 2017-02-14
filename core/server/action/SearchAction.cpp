@@ -30,6 +30,7 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
     auto * dataSource = AppServer::instance().DataSource()->Data();
 
     //todo: use core::getNarrow and split by space to search one by one
+    core::clearString(searchTerm);
     auto searchResults = dataSource->symspell.Find(searchTerm);
 
     STRSTREAM_TYPE stream;
@@ -37,7 +38,7 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
 
     auto end = searchResults.end();
     for (auto it = searchResults.begin(); it != end; ++it) {
-        stream << STR("{\"Id\":") << it->first << STR(",\"Name\":\"") << this->EscapeJsonString(dataSource->productInfos[it->second.productId]) << STR("\"},");
+        stream << STR("{\"Id\":") << it->first << STR(",\"Distance\":") << it->second << STR(",\"Name\":\"") << this->EscapeJsonString(dataSource->productInfos[it->first]) << STR("\"},");
     }
 
     stream.seekg(0, ios::end);

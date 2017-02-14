@@ -75,7 +75,6 @@ namespace core {
 
         class FindedItem {
         public:
-            STR_TYPE term;
             unsigned short distance = 0;
             PRODUCT_TYPE productId;
         };
@@ -90,13 +89,14 @@ namespace core {
 #endif
 
             bool CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id);
-            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> Find(STR_TYPE input) const;
+            vector<pair<PRODUCT_TYPE, unsigned short> > Find(STR_TYPE input) const;
+            void Info();
+            void SaveIndex(std::string fileName);
 
         private:
-            vector<STR_TYPE> parseWords(STR_TYPE text) const;
             void AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint, STR_TYPE del);
             void Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const;
-            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> Lookup(STR_TYPE input, size_t editDistanceMax) const;
+            CUSTOM_MAP<PRODUCT_TYPE, FindedItem> * Lookup(STR_TYPE input, size_t editDistanceMax) const;
             static size_t DamerauLevenshteinDistance(const STR_TYPE &s1, const STR_TYPE &s2);
         };
     }

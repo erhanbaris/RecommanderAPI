@@ -68,7 +68,8 @@ if(Boost_FOUND)
 			${PROJECT_SOURCE_DIR}/core/server/controller/BaseController.h
 			${PROJECT_SOURCE_DIR}/core/algoritm/SymSpell.h
 			${PROJECT_SOURCE_DIR}/core/algoritm/SymSpell.cpp
-			)
+			${PROJECT_SOURCE_DIR}/core/data/Index.cpp core/data/Index.h
+			${PROJECT_SOURCE_DIR}/core/data/Index.cpp core/data/Index.cpp)
 	add_executable(RecommenderAPI ${SOURCE_FILES})
 
 	target_link_libraries(RecommenderAPI

@@ -60,3 +60,32 @@ string core::getNarrow(const std::wstring &s) {
     std::use_facet<std::ctype<wchar_t> >(loc).narrow(s.c_str(), s.c_str() + length + 1, '?', pc);
     return string(pc);
 }
+
+void core::clearString(STR_TYPE &str) {
+    STR_TYPE::iterator end = str.end();
+    for (auto current = str.begin(); current != end; ++current) {
+
+        if (((*current) >= 'A' && (*current) <= 'Z') ||
+            ((*current) >= 'a' && (*current) <= 'z') ||
+            ((*current) >= '0' && (*current) <= '9'))
+            continue;
+
+        (*current) = ' ';
+    }
+}
+
+
+size_t core::realTextSize(STR_TYPE const & str) {
+
+    size_t returnValue = 0;
+    STR_TYPE::const_iterator end = str.end();
+    for (auto current = str.begin(); current != end; ++current) {
+
+        if (((*current) >= 'A' && (*current) <= 'Z') ||
+            ((*current) >= 'a' && (*current) <= 'z') ||
+            ((*current) >= '0' && (*current) <= '9'))
+            ++returnValue;
+    }
+
+    return returnValue;
+}

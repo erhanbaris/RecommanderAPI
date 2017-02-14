@@ -1,7 +1,12 @@
 #include <core/algoritm/SymSpell.h>
 #include <core/Utils.h>
+#include <vector>
+#include <fstream>
+#include <iostream>
 
-#define getHastCode(term) hash<STR_TYPE>()(term)
+
+auto hashFunction = hash<STR_TYPE>();
+#define getHastCode(term) hashFunction(term)
 
 using namespace std;
 using namespace core::algoritm;
@@ -182,29 +187,68 @@ bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     return result;
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Find(STR_TYPE input) const {
-    CUSTOM_MAP<PRODUCT_TYPE, FindedItem> suggestions;
+namespace
+{
+    template <typename T1, typename T2>
+    struct less_second {
+        typedef pair<T1, T2> type;
+        bool operator ()(type const& a, type const& b) const {
+            return a.second < b.second;
+        }
+    };
+}
 
-#ifdef ENABLE_TEST
-    using namespace std::chrono;
+vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const {
+    CUSTOM_MAP<PRODUCT_TYPE, unsigned short> returnValue;
+    INT_INIT_MAP(returnValue);
 
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    core::clearString(input);
+    size_t maxDistance = (size_t) (((float)core::realTextSize(input) / 10.0) * 7.0);
 
-    for (size_t i = 0; i < 100000; ++i)
-    {
-        Lookup(input, editDistanceMax);
+    std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+    auto splitedData = core::splitString(input, ' ');
+    auto splitedDataEnd = splitedData.end();
+
+    size_t totalDistance = 0;
+    for (auto item = splitedData.begin(); item != splitedDataEnd; ++item)
+        totalDistance += item->size();
+
+    try{
+        for (auto item = splitedData.begin(); item != splitedDataEnd; ++item) {
+            CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* finded = Lookup(*item, MaxDistance);
+
+            if (finded->size() == 0)
+                continue;
+
+            auto itemLength = item->size();
+            auto findedEnd = finded->end();
+
+            for (auto findedItem = finded->begin(); findedItem != findedEnd; ++findedItem) {
+                auto returnItem = returnValue.find(findedItem->first);
+
+                if (returnItem == returnValue.end())
+                    returnValue[findedItem->first] = (unsigned short) totalDistance;
+
+                returnValue[findedItem->first] -= (itemLength - findedItem->second.distance);
+            }
+
+            delete finded;
+        }
+    }
+    catch (const std::exception &e) {
+        ERROR_WRITE(e.what());
     }
 
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+    vector<pair<PRODUCT_TYPE, unsigned short> > mapcopy;
+    mapcopy.reserve(returnValue.size());
 
-    std::cout << "It took me " << time_span.count() << " seconds.";
-    std::cout << std::endl;
-#endif
-    //todo: order results
-    suggestions = Lookup(input, MaxDistance);
-    return suggestions;
+    auto returnValueEnd = returnValue.end();
+    for (auto it = returnValue.begin(); it != returnValueEnd; ++it)
+        if (it->second < maxDistance)
+            mapcopy.push_back(pair<PRODUCT_TYPE, unsigned short>(it->first, it->second));
 
+    sort(mapcopy.begin(), mapcopy.end(), less_second<PRODUCT_TYPE, unsigned short>());
+    return mapcopy;
 }
 
 void SymSpell::AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint,
@@ -239,8 +283,8 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
 #endif
 
         for (auto item : queue) {
-            if (STRLEN(item.second)) {
-                auto itemLength = STRLEN(item.second);
+        		auto itemLength = STRLEN(item.second);
+            if (itemLength > 2) {
 
                 for (size_t i = 0; i < itemLength; ++i) {
                     // For Performance ->
@@ -256,7 +300,7 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
                     // <- For Performance
 
                     if (!deletes.count(del))
-                        deletes.insert((basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, allocator<CHAR_TYPE>> &&) del);
+                        deletes.insert(del);
 
                     if (tempQueue.find(getHastCode(del)) == tempQueueEnd) {
                         tempQueue[getHastCode(del)] = del;
@@ -273,9 +317,87 @@ void SymSpell::Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const {
     }
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {
+void SymSpell::Info()
+{
+    LOG_WRITE("Size : " << dictionary.size() << ", Max Size : " << dictionary.max_size());
+}
+
+
+template <typename IntegerType>
+static IntegerType bitsToInt(unsigned char * bits, bool little_endian = true)
+{
+    IntegerType result = 0;
+
+    if (little_endian)
+        for (int n = sizeof(IntegerType); n >= 0; n--)
+            result = (result << 8) + bits[n];
+    else
+        for (int n = 0; n < sizeof(IntegerType); n++)
+            result = (result << 8) + bits[n];
+
+    return result;
+}
+
+template <typename IntegerType>
+static unsigned char * intToBits(IntegerType value)
+{
+    unsigned char * result = new unsigned char[sizeof(IntegerType)];
+
+    for (int i = 0; i < sizeof(IntegerType); i++)
+        result[i] = 0xFF & (value >> (i * 8));
+
+    return result;
+}
+
+void SymSpell::SaveIndex(std::string fileName)
+{
+    LOG_WRITE(STR("Index File Creating Started"));
+    ofstream outfile;
+    outfile.open(fileName, ios::binary);
+
+    outfile << 'E';
+    outfile << 'D';
+    outfile << 'B';
+    outfile << '1';
+    outfile << '.';
+    outfile << '0';
+    outfile << (0xFF & (sizeof(size_t)));
+    outfile << '\0';
+    outfile.write((char*)intToBits(dictionary.size()), sizeof(dictionary.size()));
+    outfile << '\0';
+    outfile << '\0';
+
+    auto dictEnd = dictionary.end();
+    for (auto it = dictionary.begin(); it != dictEnd; ++it) {
+        unsigned char * byteArray = intToBits(it->first);
+        outfile.write((char*)byteArray, sizeof(size_t));
+    }
+
+    outfile.close();
+
+
+    ifstream infile;
+    infile.open(fileName, ios::binary);
+    infile.seekg(6);
+
+    unsigned char * byteArray = new unsigned char[sizeof(size_t)];
+
+    infile.read((char*)byteArray, sizeof(size_t));
+    unsigned long int anotherLongInt;
+
+    anotherLongInt = bitsToInt<size_t>(byteArray);
+    infile.seekg(8);
+    infile.read((char*)byteArray, sizeof(size_t));
+    anotherLongInt = bitsToInt<size_t>(byteArray);
+
+    infile.close();
+
+    LOG_WRITE(STR("Index File Creating Finished"));
+}
+
+CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {
     if (input.size() - editDistanceMax > maxlength)
-        return CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+        return new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
 
     vector<STR_TYPE> candidates;
     candidates.reserve(2048);
@@ -284,8 +406,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
     hashset1.set_empty_key(0);
 #endif
 
-    CUSTOM_MAP<PRODUCT_TYPE, FindedItem> suggestions;
-    INIT_MAP(suggestions, 0, -1);
+    CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* suggestions = new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+    INIT_MAP(*suggestions, 0, -1);
     CUSTOM_SET<size_t> hashset2;
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     hashset2.set_empty_key(0);
@@ -303,8 +425,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
         size_t candidateSize = candidate.size(); // for performance
         ++candidatesIndexer;
 
-        if ((Verbose < 2) && (suggestions.size() > 0) &&
-            (input.size() - candidateSize > suggestions.begin()->second.distance))
+        if ((Verbose < 2) && (suggestions->size() > 0) &&
+            (input.size() - candidateSize > suggestions->begin()->second.distance))
             break;
 
         auto valueo = dictionary.find(getHastCode(candidate));
@@ -327,10 +449,9 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                 for (auto it = valueo->second.Id->begin(); it != idEnd; ++it) {
                     //todo: fix this code for duplicate items
                     FindedItem si;
-                    si.term = candidate;
                     si.distance = (unsigned short) (input.size() - candidateSize);
                     si.productId = *it;
-                    suggestions[si.productId] = si;
+                    (*suggestions)[si.productId] = si;
                 }
 
                 //early termination
@@ -339,9 +460,6 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
             }
 
             for (size_t suggestionint : valueo->second.dictValue->suggestions) {
-                //save some time
-                //skipping double items early: different deletes of the input term can lead to the same suggestion
-                //index2word
                 STR_TYPE suggestion = wordlist[suggestionint];
                 if (hashset2.insert(getHastCode(suggestion)).second) {
                     size_t distance = 0;
@@ -369,10 +487,10 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                         }
                     }
 
-                    if ((Verbose < 2) && (suggestions.size() > 0) && (suggestions.begin()->second.distance > distance))
-                        suggestions.clear();
+                    if ((Verbose < 2) && (suggestions->size() > 0) && (suggestions->begin()->second.distance > distance))
+                        suggestions->clear();
 
-                    if ((Verbose < 2) && (suggestions.size() > 0) && (distance > suggestions.begin()->second.distance))
+                    if ((Verbose < 2) && (suggestions->size() > 0) && (distance > suggestions->begin()->second.distance))
                         continue;
 
                     if (distance <= editDistanceMax) {
@@ -382,10 +500,9 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
                             auto idEnd = valueo->second.Id->end();
                             for (auto it = valueo->second.Id->begin(); it != idEnd; ++it) {
                                 FindedItem si;
-                                si.term = candidate;
                                 si.distance = (unsigned short) (input.size() - candidateSize);
                                 si.productId = *it;
-                                suggestions[si.productId] = si;
+                                (*suggestions)[si.productId] = si;
                             }
                         }
                     }
@@ -393,11 +510,11 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem> SymSpell::Lookup(STR_TYPE input, size_t edi
             }
         }
         else if (isInputInteger)
-            return CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+            return new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
 
         if (input.size() - candidateSize < editDistanceMax) {
-            if ((Verbose < 2) && (suggestions.size() > 0) &&
-                (input.size() - candidateSize >= suggestions.begin()->second.distance))
+            if ((Verbose < 2) && (suggestions->size() > 0) &&
+                (input.size() - candidateSize >= suggestions->begin()->second.distance))
                 continue;
 
             for (size_t i = 0; i < candidateSize; ++i) {

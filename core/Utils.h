@@ -25,6 +25,8 @@ namespace core {
 	std::vector<STR_TYPE> splitString(const STR_TYPE &s, CHAR_TYPE delim);
 	bool isInteger(const STR_TYPE &s);
 	string getNarrow(const std::wstring &s);
+	void clearString(STR_TYPE & str);
+	size_t realTextSize(STR_TYPE const & str);
 
 
 	typedef struct tIndexItem {
