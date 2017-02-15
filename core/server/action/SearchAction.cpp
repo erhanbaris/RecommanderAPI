@@ -1,5 +1,9 @@
 #include <core/server/action/SearchAction.h>
 #include <core/server/AppServer.h>
+#include <chrono>
+
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::duration<float> fsec;
 
 using namespace core::server::action;
 
@@ -26,6 +30,7 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
         return returnValue;
     }
 
+	auto t0 = Time::now();
     auto searchTerm = web::uri::decode(info->Queries[STR("term")]);
     auto * dataSource = AppServer::instance().DataSource()->Data();
 
@@ -72,8 +77,11 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
             stream.seekp(-1, stream.cur);
     }
 
+	auto t1 = Time::now();
+	fsec fs = t1 - t0;
 
-    stream << STR("]");
+    stream << STR("],");
+	stream << STR("\"time\":") << fs.count();
     stream<< STR("}");
 
     ResponseInfo returnValue;
