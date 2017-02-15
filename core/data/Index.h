@@ -7,6 +7,7 @@
 #include <model/Rating.h>
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 using namespace std;
@@ -18,12 +19,18 @@ namespace core {
         class Index {
         public:
             Index();
+			virtual ~Index();
             void SetFileName(string fileName);
+			void SetDictionary(CUSTOM_MAP<size_t, dictionaryItemContainer> * dict);
             bool Open();
+			bool Close();
             bool Create();
+			bool IsOpen();
 
         private:
             string fileName;
+			fstream* file;
+			CUSTOM_MAP<size_t, dictionaryItemContainer>* dictionary;
         };
     }
 }

@@ -89,3 +89,27 @@ size_t core::realTextSize(STR_TYPE const & str) {
 
     return returnValue;
 }
+
+unsigned char * core::intToBits(size_t value)
+{
+	unsigned char * result = new unsigned char[sizeof(size_t)];
+
+	for (int i = 0; i < sizeof(size_t); i++)
+		result[i] = 0xFF & (value >> (i * 8));
+
+	return result;
+}
+
+size_t core::bitsToInt(unsigned char * bits)
+{
+	size_t result = 0;
+
+	//if (little_endian)
+		for (int n = sizeof(size_t); n >= 0; n--)
+			result = (result << 8) + bits[n];
+	//else
+	//	for (int n = 0; n < sizeof(IntegerType); n++)
+	//		result = (result << 8) + bits[n];
+
+	return result;
+}

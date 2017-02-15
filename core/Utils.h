@@ -20,14 +20,14 @@ namespace core {
 	wstring getString(const string & data);
 	string getString(const wstring & data);
 	bool fileExists(string const &filename);
-	size_t indexOf(char *text, char searchChar);
 	void splitString(const STR_TYPE &s, CHAR_TYPE delim, std::vector<STR_TYPE> &elems);
 	std::vector<STR_TYPE> splitString(const STR_TYPE &s, CHAR_TYPE delim);
 	bool isInteger(const STR_TYPE &s);
 	string getNarrow(const std::wstring &s);
 	void clearString(STR_TYPE & str);
 	size_t realTextSize(STR_TYPE const & str);
-
+	size_t bitsToInt(unsigned char * bits);
+	unsigned char * intToBits(size_t value);
 
 	typedef struct tIndexItem {
 		PRODUCT_TYPE ProductId;

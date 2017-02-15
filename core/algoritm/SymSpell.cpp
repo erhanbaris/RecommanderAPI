@@ -42,78 +42,6 @@ SymSpell::SymSpell() {
 #endif
 }
 
-#ifdef IO_OPERATIONS
-
-void SymSpell::Save(string filePath)
-{
-    std::ofstream fileStream(filePath, ios::binary);
-
-    if (fileStream.good())
-    {
-#ifdef USE_GOOGLE_DENSE_HASH_MAP
-        std::unordered_map<size_t, dictionaryItemContainer> tmpDict(dictionary.begin(), dictionary.end()); // should be undered_map
-#endif
-
-        msgpack::packer<std::ofstream> packer(&fileStream);
-
-        packer.pack(this->verbose);
-        packer.pack(this->editDistanceMax);
-        packer.pack(this->maxlength);
-
-#ifdef USE_GOOGLE_DENSE_HASH_MAP
-        packer.pack(tmpDict);
-#else
-        packer.pack(dictionary);
-#endif
-        packer.pack(this->wordlist);
-    }
-
-    fileStream.close();
-}
-
-void SymSpell::Load(string filePath)
-{
-    IFSTREAM_TYPE fileStream(filePath, ios::binary);
-
-    if (fileStream.good())
-    {
-        STR_TYPE str((std::istreambuf_iterator<CHAR_TYPE>(fileStream)), (std::istreambuf_iterator<CHAR_TYPE>()));
-
-        msgpack::unpacker packer;
-
-        packer.reserve_buffer(str.length());
-        memcpy(packer.buffer(), str.data(), str.length());
-        packer.buffer_consumed(str.length());
-
-        msgpack::object_handle handler;
-        packer.next(handler);
-
-        handler.get().convert(this->verbose);
-        packer.next(handler);
-
-        handler.get().convert(this->editDistanceMax);
-        packer.next(handler);
-
-        handler.get().convert(this->maxlength);
-        packer.next(handler);
-
-#ifdef USE_GOOGLE_DENSE_HASH_MAP
-        std::unordered_map<size_t, dictionaryItemContainer> tmpDict;
-        handler.get().convert(tmpDict);
-        this->dictionary.insert(tmpDict.begin(), tmpDict.end());
-#else
-        handler.get().convert(this->dictionary);
-#endif
-        packer.next(handler);
-        handler.get().convert(this->wordlist);
-
-    }
-
-    fileStream.close();
-}
-
-#endif
-
 bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     bool result = false;
     dictionaryItemContainer value;
@@ -323,33 +251,6 @@ void SymSpell::Info()
     LOG_WRITE("Size : " << dictionary.size() << ", Max Size : " << dictionary.max_size());
 }
 
-
-template <typename IntegerType>
-static IntegerType bitsToInt(unsigned char * bits, bool little_endian = true)
-{
-    IntegerType result = 0;
-
-    if (little_endian)
-        for (int n = sizeof(IntegerType); n >= 0; n--)
-            result = (result << 8) + bits[n];
-    else
-        for (int n = 0; n < sizeof(IntegerType); n++)
-            result = (result << 8) + bits[n];
-
-    return result;
-}
-
-template <typename IntegerType>
-static unsigned char * intToBits(IntegerType value)
-{
-    unsigned char * result = new unsigned char[sizeof(IntegerType)];
-
-    for (int i = 0; i < sizeof(IntegerType); i++)
-        result[i] = 0xFF & (value >> (i * 8));
-
-    return result;
-}
-
 void SymSpell::SaveIndex(std::string fileName)
 {
     LOG_WRITE(STR("Index File Creating Started"));
@@ -386,10 +287,10 @@ void SymSpell::SaveIndex(std::string fileName)
     infile.read((char*)byteArray, sizeof(size_t));
     unsigned long int anotherLongInt;
 
-    anotherLongInt = bitsToInt<size_t>(byteArray);
+    anotherLongInt = core::bitsToInt(byteArray);
     infile.seekg(8);
     infile.read((char*)byteArray, sizeof(size_t));
-    anotherLongInt = bitsToInt<size_t>(byteArray);
+    anotherLongInt = core::bitsToInt(byteArray);
 
     infile.close();
 
