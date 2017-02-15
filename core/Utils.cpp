@@ -23,12 +23,17 @@ bool core::fileExists(string const &filename) {
 
 
 void core::splitString(const STR_TYPE &s, CHAR_TYPE delim, std::vector<STR_TYPE> &elems) {
+    CUSTOM_SET<STR_TYPE> set;
+    INIT_SET(set, STR(" "), STR("."));
     STRSTREAM_TYPE ss;
     ss.str(s);
     STR_TYPE item;
     while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
+        set.insert(item);
     }
+
+    elems.resize(set.size());
+    std::copy(set.begin(), set.end(), elems.begin());
 }
 
 std::vector<STR_TYPE> core::splitString(const STR_TYPE &s, CHAR_TYPE delim) {

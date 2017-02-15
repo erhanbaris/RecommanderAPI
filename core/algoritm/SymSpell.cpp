@@ -33,7 +33,7 @@ namespace {
     size_t maxlength = 1000;
     CUSTOM_MAP<size_t, dictionaryItemContainer> dictionary;
     vector<STR_TYPE> wordlist;
-	core::data::Index index;
+	core::data::Index dbIndex;
 }
 
 SymSpell::SymSpell() {
@@ -72,7 +72,7 @@ bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
         if (key.size() > maxlength)
             maxlength = key.size();
     }
-    
+
     value.Id->insert(id);
 
     wordlist.push_back(key);
@@ -145,7 +145,7 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
 
     try{
         for (auto item = splitedData.begin(); item != splitedDataEnd; ++item) {
-            CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* finded = Lookup(*item, MaxDistance);
+            auto* finded = Lookup(*item, MaxDistance);
 
             if (finded->size() == 0)
                 continue;
@@ -254,15 +254,15 @@ void SymSpell::Info()
 
 void SymSpell::SaveIndex()
 {
-	index.SetFileName("file.idx");
-	index.SetDictionary(&dictionary);
-	index.Open();
-	index.Create();
+    dbIndex.SetFileName("file.idx");
+    dbIndex.SetDictionary(&dictionary);
+    dbIndex.Open();
+    dbIndex.Create();
 }
 
-CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {
+vector<pair<PRODUCT_TYPE, FindedItem> >* SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {
     if (input.size() - editDistanceMax > maxlength)
-        return new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+        return new vector<pair<PRODUCT_TYPE, FindedItem> >();
 
     vector<STR_TYPE> candidates;
     candidates.reserve(2048);
@@ -271,13 +271,12 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
     hashset1.set_empty_key(0);
 #endif
 
-    CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* suggestions = new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
-    INIT_MAP(*suggestions, 0, -1);
     CUSTOM_SET<size_t> hashset2;
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     hashset2.set_empty_key(0);
 #endif
-
+    
+    vector<pair<PRODUCT_TYPE, FindedItem> > * items = new vector<pair<PRODUCT_TYPE, FindedItem> >();
 
     bool isInputInteger = core::isInteger(input);
 
@@ -290,8 +289,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
         size_t candidateSize = candidate.size(); // for performance
         ++candidatesIndexer;
 
-        if ((Verbose < 2) && (suggestions->size() > 0) &&
-            (input.size() - candidateSize > suggestions->begin()->second.distance))
+        if ((Verbose < 2) && (items->size() > 0) &&
+            (input.size() - candidateSize > items->begin()->second.distance))
             break;
 
         auto valueo = dictionary.find(getHastCode(candidate));
@@ -316,7 +315,7 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
                     FindedItem si;
                     si.distance = (unsigned short) (input.size() - candidateSize);
                     si.productId = *it;
-                    (*suggestions)[si.productId] = si;
+                    items->push_back(std::pair<PRODUCT_TYPE, FindedItem>(si.productId, si));
                 }
 
                 //early termination
@@ -352,10 +351,10 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
                         }
                     }
 
-                    if ((Verbose < 2) && (suggestions->size() > 0) && (suggestions->begin()->second.distance > distance))
-                        suggestions->clear();
+                    if ((Verbose < 2) && (items->size() > 0) && (items->begin()->second.distance > distance))
+                        items->clear();
 
-                    if ((Verbose < 2) && (suggestions->size() > 0) && (distance > suggestions->begin()->second.distance))
+                    if ((Verbose < 2) && (items->size() > 0) && (distance > items->begin()->second.distance))
                         continue;
 
                     if (distance <= editDistanceMax) {
@@ -373,7 +372,8 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
                                 FindedItem si;
                                 si.distance = (unsigned short) (input.size() - candidateSize);
                                 si.productId = *it;
-                                (*suggestions)[si.productId] = si;
+                                
+                                items->push_back(pair<PRODUCT_TYPE, FindedItem>(si.productId, si));
                             }
                         }
                     }
@@ -381,11 +381,11 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
             }
         }
         else if (isInputInteger)
-            return new CUSTOM_MAP<PRODUCT_TYPE, FindedItem>();
+            return new vector<pair<PRODUCT_TYPE, FindedItem> >();
 
         if (input.size() - candidateSize < editDistanceMax) {
-            if ((Verbose < 2) && (suggestions->size() > 0) &&
-                (input.size() - candidateSize >= suggestions->begin()->second.distance))
+            if ((Verbose < 2) && (items->size() > 0) &&
+                (input.size() - candidateSize >= items->begin()->second.distance))
                 continue;
 
             for (size_t i = 0; i < candidateSize; ++i) {
@@ -403,7 +403,7 @@ CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t ed
     else
         sort(suggestions.begin(), suggestions.end(), Xgreater2());*/
 
-    return suggestions;
+    return items;
 }
 
 

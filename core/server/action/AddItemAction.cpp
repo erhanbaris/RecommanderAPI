@@ -21,7 +21,7 @@ core::server::ResponseInfo AddItemAction::Execute(RequestInfo *info) {
 
         ResponseInfo returnValue;
         returnValue.Status = status_codes::BadRequest;
-		returnValue.Data = item.to_string();
+		returnValue.Data = item.as_string();
         returnValue.ContentType = "application/json";
 
         return returnValue;
