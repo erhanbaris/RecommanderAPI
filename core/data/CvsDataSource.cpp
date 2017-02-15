@@ -80,7 +80,7 @@ void core::data::CvsDataSource<T>::LoadData() {
     }
 
     this->Data()->symspell.Info();
-    this->Data()->symspell.SaveIndex("/Users/erhanbaris/ClionProjects/RecommenderAPI/cmake-build-release/SymSpellIndex.dat");
+    this->Data()->symspell.SaveIndex();
 
     win->close();
     delete win;

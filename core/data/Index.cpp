@@ -1,4 +1,5 @@
 #include "Index.h"
+#include <core/server/AppServer.h>
 
 using namespace core;
 using namespace core::data;
@@ -27,8 +28,8 @@ void Index::SetDictionary(CUSTOM_MAP<size_t, dictionaryItemContainer> * dict)
 
 bool Index::Open() {
 	try {
-		this->file = new fstream();
-		this->file->open(fileName, ios::binary);
+		this->file = new std::fstream();
+		this->file->open(core::server::AppServer::instance().GetDataPath() + "/" + fileName, ios::binary);
 	}
 	catch (std::exception &e)
 	{

@@ -1,10 +1,10 @@
 #include <core/algoritm/SymSpell.h>
+#include <core/data/Index.h>
 #include <core/server/AppServer.h>
 #include <core/Utils.h>
 #include <vector>
 #include <fstream>
 #include <iostream>
-
 
 auto hashFunction = hash<STR_TYPE>();
 #define getHastCode(term) hashFunction(term)
@@ -33,6 +33,7 @@ namespace {
     size_t maxlength = 1000;
     CUSTOM_MAP<size_t, dictionaryItemContainer> dictionary;
     vector<STR_TYPE> wordlist;
+	core::data::Index index;
 }
 
 SymSpell::SymSpell() {
@@ -251,50 +252,12 @@ void SymSpell::Info()
     LOG_WRITE("Size : " << dictionary.size() << ", Max Size : " << dictionary.max_size());
 }
 
-void SymSpell::SaveIndex(std::string fileName)
+void SymSpell::SaveIndex()
 {
-    LOG_WRITE(STR("Index File Creating Started"));
-    ofstream outfile;
-    outfile.open(fileName, ios::binary);
-
-    outfile << 'E';
-    outfile << 'D';
-    outfile << 'B';
-    outfile << '1';
-    outfile << '.';
-    outfile << '0';
-    outfile << (0xFF & (sizeof(size_t)));
-    outfile << '\0';
-    outfile.write((char*)intToBits(dictionary.size()), sizeof(dictionary.size()));
-    outfile << '\0';
-    outfile << '\0';
-
-    auto dictEnd = dictionary.end();
-    for (auto it = dictionary.begin(); it != dictEnd; ++it) {
-        unsigned char * byteArray = intToBits(it->first);
-        outfile.write((char*)byteArray, sizeof(size_t));
-    }
-
-    outfile.close();
-
-
-    ifstream infile;
-    infile.open(fileName, ios::binary);
-    infile.seekg(6);
-
-    unsigned char * byteArray = new unsigned char[sizeof(size_t)];
-
-    infile.read((char*)byteArray, sizeof(size_t));
-    unsigned long int anotherLongInt;
-
-    anotherLongInt = core::bitsToInt(byteArray);
-    infile.seekg(8);
-    infile.read((char*)byteArray, sizeof(size_t));
-    anotherLongInt = core::bitsToInt(byteArray);
-
-    infile.close();
-
-    LOG_WRITE(STR("Index File Creating Finished"));
+	index.SetFileName("file.idx");
+	index.SetDictionary(&dictionary);
+	index.Open();
+	index.Create();
 }
 
 CUSTOM_MAP<PRODUCT_TYPE, FindedItem>* SymSpell::Lookup(STR_TYPE input, size_t editDistanceMax) const {

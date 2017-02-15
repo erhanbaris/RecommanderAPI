@@ -20,6 +20,7 @@
 #include <core/server/AppServer.h>
 #include <core/server/action/UserRecommendAction.h>
 #include <core/server/action/SearchAction.h>
+#include <core/server/action/AddItemAction.h>
 
 #pragma execution_character_set("utf-8")
 
@@ -67,6 +68,7 @@ int main(int argc, char **args) {
         AppServer::instance()
                 .AddAction(new UserRecommendAction())
                 .AddAction(new SearchAction())
+				.AddAction(new AddItemAction())
                 .SetExecutionPath(currentPath)
                 .SetDataPath(dataPath)
                 .SetHtmlPath("www")

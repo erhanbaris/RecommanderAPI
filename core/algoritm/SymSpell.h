@@ -1,7 +1,6 @@
 #pragma once
 
 #define ENABLE_TEST
-#define IO_OPERATIONS
 
 #undef ENABLE_TEST
 
@@ -16,11 +15,6 @@
 #include <list>
 #include <config.h>
 #include <core/Utils.h>
-
-#undef IO_OPERATIONS
-#ifdef IO_OPERATIONS
-#include <msgpack.hpp>
-#endif
 
 using namespace std;
 
@@ -43,18 +37,11 @@ namespace core {
                 suggestions.clear();
             }
 
-#ifdef IO_OPERATIONS
-            MSGPACK_DEFINE(suggestions, count);
-#endif
         };
 
         enum ItemType {
             NONE, DICT, INTEGER
         };
-
-#ifdef IO_OPERATIONS
-        MSGPACK_ADD_ENUM(ItemType);
-#endif
 
         class dictionaryItemContainer {
         public:
@@ -68,9 +55,6 @@ namespace core {
             size_t intValue;
             std::shared_ptr<dictionaryItem> dictValue;
 
-#ifdef IO_OPERATIONS
-            MSGPACK_DEFINE(itemType, intValue, dictValue);
-#endif
         };
 
         class FindedItem {
@@ -83,15 +67,10 @@ namespace core {
         public:
             SymSpell();
 
-#ifdef IO_OPERATIONS
-            void Save(string filePath);
-            void Load(string filePath);
-#endif
-
             bool CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id);
             vector<pair<PRODUCT_TYPE, unsigned short> > Find(STR_TYPE input) const;
             void Info();
-            void SaveIndex(std::string fileName);
+            void SaveIndex();
 
         private:
             void AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint, STR_TYPE del);

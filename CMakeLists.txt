@@ -63,6 +63,8 @@ if(Boost_FOUND)
 			core/server/action/UserRecommendAction.h
 			core/server/action/SearchAction.cpp
 			core/server/action/SearchAction.h
+			core/server/action/AddItemAction.cpp
+			core/server/action/AddItemAction.h
 			core/server/action/BaseAction.cpp
 			core/server/controller/BaseController.cpp
 			core/server/controller/BaseController.h

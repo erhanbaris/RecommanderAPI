@@ -29,7 +29,7 @@ namespace core {
 
         private:
             string fileName;
-			fstream* file;
+			std::fstream* file;
 			CUSTOM_MAP<size_t, dictionaryItemContainer>* dictionary;
         };
     }
