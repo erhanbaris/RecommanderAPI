@@ -1,5 +1,5 @@
 #include <core/data/CvsDataSource.h>
-
+#include <functional>
 
 using namespace std;
 using namespace core;
@@ -42,50 +42,50 @@ void core::data::CvsDataSource<T>::LoadData() {
     IFSTREAM_TYPE * win = new IFSTREAM_TYPE(this->productFilePath.c_str());
     if (!win->is_open())
     {
-        delete in;
+        delete win;
         LOG_WRITE(STR("!!!! PRODUCT FILE NOT FOUND !!!!"));
         LOG_WRITE(STR("DATABASE LOADING ENDED"));
         return;
     }
+
+    auto t0 = Time::now();
 
     while (win->good()) {
         try {
             STR_TYPE movieIdStr, title, genres;
             getline(*win, movieIdStr, STR(','));
             getline(*win, title, STR(','));
-            getline(*win, genres, STR('\r'));
+            getline(*win, genres, STR(','));
+            getline(*win, genres, STR('\n'));
 
-
-            this->Data()->AddProduct((PRODUCT_TYPE) stoi(movieIdStr), title);
+            auto movieId = MurmurHash2(movieIdStr.c_str(), movieIdStr.size(), 42);
+            this->Data()->AddProduct((PRODUCT_TYPE) movieId, movieIdStr, title);
 
             std::transform(title.begin(), title.end(), title.begin(), ::tolower);
 
-			STR_TYPE::iterator end = title.end();
-            for (auto current = title.begin(); current != end; ++current) {
-                
-                if (((*current) >= 'A' && (*current) <= 'Z') ||
-                    ((*current) >= 'a' && (*current) <= 'z') ||
-                    ((*current) >= '0' && (*current) <= '9'))
-                    continue;
-                
-                (*current) = ' ';
-            }
+
+            clearString(title);
 
             auto parts = core::splitString(title, ' ');
             auto partsEnd = parts.end();
 
             for (auto part = parts.begin(); part != partsEnd ; ++part) {
                 if (part->size() > 1)
-                    this->Data()->symspell.CreateDictionaryEntry(*part, stoi(movieIdStr));
+                    this->Data()->symspell.CreateDictionaryEntry(*part, movieId);
             }
-
-            this->Data()->symspell.CreateDictionaryEntry(title, stoi(movieIdStr));
-            this->Data()->symspell.CreateDictionaryEntry(title, stoi(movieIdStr));
         }
         catch (const std::exception &e) {
             ERROR_WRITE(e.what());
         }
     }
+
+    auto t1 = Time::now();
+    fsec fs = t1 - t0;
+
+    LOG_WRITE(STR("CVS Read Time : ") << fs.count());
+
+    this->Data()->symspell.Info();
+    this->Data()->symspell.SaveIndex();
 
     win->close();
     delete win;

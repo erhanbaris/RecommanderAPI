@@ -49,8 +49,8 @@ void core::data::GeneralDataInfo::AddUserRating(USER_TYPE customerId, PRODUCT_TY
     }
 }
 
-void core::data::GeneralDataInfo::AddProduct(PRODUCT_TYPE movieId, STR_TYPE title) {
-    productInfos[movieId] = title;
+void core::data::GeneralDataInfo::AddProduct(PRODUCT_TYPE productIdHash, STR_TYPE & productId, STR_TYPE title) {
+    productInfos[productIdHash] = title;
 };
 
 void core::data::GeneralDataInfo::Prepare() {

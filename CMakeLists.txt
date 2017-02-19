@@ -28,47 +28,61 @@ if(Boost_FOUND)
 	include_directories(${OPENSSL_INCLUDE_DIR})
 
 	set(SOURCE_FILES
-			${PROJECT_SOURCE_DIR}/main.cpp
-			${PROJECT_SOURCE_DIR}/model/Product.h
-			${PROJECT_SOURCE_DIR}/model/Rating.h
-			${PROJECT_SOURCE_DIR}/core/algoritm/SlopeOne.h
-			${PROJECT_SOURCE_DIR}/core/algoritm/SlopeOne.cpp
-			${PROJECT_SOURCE_DIR}/core/algoritm/PearsonCorrelationCoefficien.h
-			${PROJECT_SOURCE_DIR}/core/algoritm/PearsonCorrelationCoefficien.cpp
-			${PROJECT_SOURCE_DIR}/core/data/MongoDbDataSource.h
-			${PROJECT_SOURCE_DIR}/core/data/BaseDataInfo.h
-			${PROJECT_SOURCE_DIR}/core/data/BaseDataInfo.cpp
-			${PROJECT_SOURCE_DIR}/core/data/GeneralDataInfo.h
-			${PROJECT_SOURCE_DIR}/core/data/GeneralDataInfo.cpp
-			${PROJECT_SOURCE_DIR}/core/data/BaseDataSource.h
-			${PROJECT_SOURCE_DIR}/core/data/CvsDataSource.h
-			${PROJECT_SOURCE_DIR}/core/data/CvsDataSource.cpp
-			${PROJECT_SOURCE_DIR}/core/MimeType.h
-			${PROJECT_SOURCE_DIR}/core/MimeType.cpp
-			${PROJECT_SOURCE_DIR}/core/Utils.h
-			${PROJECT_SOURCE_DIR}/core/Utils.cpp
-			${PROJECT_SOURCE_DIR}/core/server/handler/BaseHandler.h
-			${PROJECT_SOURCE_DIR}/core/server/ServerConfig.h
-			${PROJECT_SOURCE_DIR}/core/server/handler/StaticFileHandler.cpp
-			${PROJECT_SOURCE_DIR}/core/server/handler/StaticFileHandler.h
-			${PROJECT_SOURCE_DIR}/config.h
-			${PROJECT_SOURCE_DIR}/core/server/handler/HtmlHandler.cpp
-			${PROJECT_SOURCE_DIR}/core/server/handler/HtmlHandler.h
-			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.cpp
-			${PROJECT_SOURCE_DIR}/core/server/handler/ActionHandler.h
-			${PROJECT_SOURCE_DIR}/core/server/AppServer.cpp
-			${PROJECT_SOURCE_DIR}/core/server/AppServer.h
-			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.h
-			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.cpp
-			${PROJECT_SOURCE_DIR}/core/server/action/UserRecommendAction.h
-			${PROJECT_SOURCE_DIR}/core/server/action/SearchAction.cpp
-			${PROJECT_SOURCE_DIR}/core/server/action/SearchAction.h
-			${PROJECT_SOURCE_DIR}/core/server/action/BaseAction.cpp
-			${PROJECT_SOURCE_DIR}/core/server/controller/BaseController.cpp
-			${PROJECT_SOURCE_DIR}/core/server/controller/BaseController.h
-			${PROJECT_SOURCE_DIR}/core/algoritm/SymSpell.h
-			${PROJECT_SOURCE_DIR}/core/algoritm/SymSpell.cpp
-			)
+			main.cpp
+			model/Product.h
+			model/Rating.h
+			core/algoritm/SlopeOne.h
+			core/algoritm/SlopeOne.cpp
+			core/algoritm/PearsonCorrelationCoefficien.h
+			core/algoritm/PearsonCorrelationCoefficien.cpp
+			core/data/MongoDbDataSource.h
+			core/data/BaseDataInfo.h
+			core/data/BaseDataInfo.cpp
+			core/data/GeneralDataInfo.h
+			core/data/GeneralDataInfo.cpp
+			core/data/BaseDataSource.h
+			core/data/CvsDataSource.h
+			core/data/CvsDataSource.cpp
+			core/MimeType.h
+			core/MimeType.cpp
+			core/Utils.h
+			core/Utils.cpp
+			core/server/handler/BaseHandler.h
+			core/server/ServerConfig.h
+			core/server/handler/StaticFileHandler.cpp
+			core/server/handler/StaticFileHandler.h
+			config.h
+			core/server/handler/HtmlHandler.cpp
+			core/server/handler/HtmlHandler.h
+			core/server/handler/ActionHandler.cpp
+			core/server/handler/ActionHandler.h
+			core/server/AppServer.cpp
+			core/server/AppServer.h
+			core/server/action/BaseAction.h
+			core/server/action/UserRecommendAction.cpp
+			core/server/action/UserRecommendAction.h
+			core/server/action/SearchAction.cpp
+			core/server/action/SearchAction.h
+			core/server/action/AddItemAction.cpp
+			core/server/action/AddItemAction.h
+			core/server/action/BaseAction.cpp
+			core/server/controller/BaseController.cpp
+			core/server/controller/BaseController.h
+			core/algoritm/SymSpell.h
+			core/algoritm/SymSpell.cpp
+			core/data/Index.h
+			core/data/Index.cpp
+			core/data/impl/Block.cpp
+			core/data/impl/Block.h
+			core/data/impl/BlockStorage.cpp
+			core/data/impl/BlockStorage.h)
+			
+			foreach(source IN LISTS SOURCE_FILES)
+				get_filename_component(source_path "${source}" PATH)
+				string(REPLACE "/" "\\" source_path_msvc "${source_path}")
+				source_group("${source_path_msvc}" FILES "${source}")
+			endforeach()
+
 	add_executable(RecommenderAPI ${SOURCE_FILES})
 
 	target_link_libraries(RecommenderAPI
