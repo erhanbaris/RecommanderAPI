@@ -48,7 +48,6 @@ void core::data::CvsDataSource<T>::LoadData() {
         return;
     }
 
-    auto hashFunc = std::hash<STR_TYPE>();
     auto t0 = Time::now();
 
     while (win->good()) {

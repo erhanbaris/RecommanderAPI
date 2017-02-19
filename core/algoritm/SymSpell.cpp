@@ -52,19 +52,11 @@ bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     if (valueo != dictionaryEnd) {
         value = valueo->second;
 
-        if (valueo->second.itemType == ItemType::INTEGER) {
-            value.itemType = ItemType::DICT;
-            value.dictValue = std::make_shared<dictionaryItem>();
-            value.dictValue->suggestions.push_back(valueo->second.intValue);
-        } else
-            value = valueo->second;
-
-        if (value.dictValue->count < INT_MAX)
-            ++(value.dictValue->count);
+        if (value.count < INT_MAX)
+            ++(value.count);
+        
     } else if (wordlist.size() < INT_MAX) {
-        value.itemType = ItemType::DICT;
-        value.dictValue = std::make_shared<dictionaryItem>();
-        ++(value.dictValue->count);
+        ++(value.count);
         STR_TYPE mapKey = key;
         dictionary[getHastCode(mapKey)] = value;
         dictionaryEnd = dictionary.end(); // for performance
@@ -96,21 +88,12 @@ bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     for (STR_TYPE del : deleted) {
         auto value2 = dictionary.find(getHastCode(del));
         if (value2 != dictionaryEnd) {
-            if (value2->second.itemType == ItemType::INTEGER) {
-                value2->second.itemType = ItemType::DICT;
-                value2->second.dictValue = std::make_shared<dictionaryItem>();
-                value2->second.dictValue->suggestions.push_back(value2->second.intValue);
-                dictionary[getHastCode(del)].dictValue = value2->second.dictValue;
-
-                if (std::find(value2->second.dictValue->suggestions.begin(), value2->second.dictValue->suggestions.end(), keyint) == value2->second.dictValue->suggestions.end())
-                    AddLowestDistance(value2->second.dictValue, key, keyint, del);
-            } else if (std::find(value2->second.dictValue->suggestions.begin(), value2->second.dictValue->suggestions.end(), keyint) == value2->second.dictValue->suggestions.end())
-                AddLowestDistance(value2->second.dictValue, key, keyint, del);
+            if (std::find(value2->second.suggestions.begin(), value2->second.suggestions.end(), keyint) == value2->second.suggestions.end())
+                AddLowestDistance(&value2->second, key, keyint, del);
             value2->second.Id->insert(id);
         } else {
             dictionaryItemContainer tmp;
-            tmp.itemType = ItemType::INTEGER;
-            tmp.intValue = keyint;
+            tmp.suggestions.push_back(keyint);
             tmp.Id->insert(id);
 
             dictionary[getHastCode(del)] = tmp;
@@ -184,8 +167,7 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
     return mapcopy;
 }
 
-void SymSpell::AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint,
-                                 STR_TYPE del) {
+void SymSpell::AddLowestDistance(dictionaryItemContainer * item, STR_TYPE suggestion, size_t suggestionint, STR_TYPE del) {
     if ((Verbose < 2) && (item->suggestions.size() > 0) &&
         (wordlist[item->suggestions[0]].size() - del.size() > suggestion.size() - del.size()))
         item->suggestions.clear();
@@ -303,16 +285,8 @@ vector<pair<PRODUCT_TYPE, FindedItem> >* SymSpell::Lookup(STR_TYPE input, size_t
 
         //read candidate entry from dictionary
         if (valueo != dictionaryEnd) {
-            if (valueo->second.itemType == ItemType::INTEGER) {
-                valueo->second.itemType = ItemType::DICT;
-                valueo->second.dictValue = std::make_shared<dictionaryItem>();
-                valueo->second.dictValue->suggestions.push_back(valueo->second.intValue);
-            }
-
-
-            if (valueo->second.itemType == ItemType::DICT &&
-                valueo->second.dictValue->count > 0 &&
-                hashset2.insert(getHastCode(candidate)).second) {
+            
+            if (valueo->second.count > 0 && hashset2.insert(getHastCode(candidate)).second) {
                 //add correct dictionary term term to suggestion list
 
                 auto idEnd = valueo->second.Id->end();
@@ -329,7 +303,7 @@ vector<pair<PRODUCT_TYPE, FindedItem> >* SymSpell::Lookup(STR_TYPE input, size_t
                     break;
             }
 
-            for (size_t suggestionint : valueo->second.dictValue->suggestions) {
+            for (size_t suggestionint : valueo->second.suggestions) {
                 STR_TYPE suggestion = wordlist[suggestionint];
                 if (hashset2.insert(getHastCode(suggestion)).second) {
                     size_t distance = 0;

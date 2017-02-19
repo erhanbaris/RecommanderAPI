@@ -20,41 +20,18 @@ using namespace std;
 
 namespace core {
     namespace algoritm {
-        class dictionaryItem {
-        public:
-            vector<size_t> suggestions;
-            size_t count = 0;
-
-            dictionaryItem(size_t c) {
-                count = c;
-            }
-
-            dictionaryItem() {
-                count = 0;
-            }
-
-            ~dictionaryItem() {
-                suggestions.clear();
-            }
-
-        };
-
-        enum ItemType {
-            NONE, DICT, INTEGER
-        };
-
+    
         class dictionaryItemContainer {
         public:
-            dictionaryItemContainer() : itemType(NONE), intValue(0) {
+            dictionaryItemContainer() {
                 Id = new CUSTOM_SET<PRODUCT_TYPE>();
+                Id->resize(64);
                 INIT_SET(*Id, 0, -1);
             }
 
             CUSTOM_SET<PRODUCT_TYPE> * Id;
-            ItemType itemType;
-            size_t intValue;
-            std::shared_ptr<dictionaryItem> dictValue;
-
+            vector<size_t> suggestions;
+            size_t count = 0;
         };
 
         class FindedItem {
@@ -73,7 +50,7 @@ namespace core {
             void SaveIndex();
 
         private:
-            void AddLowestDistance(shared_ptr<dictionaryItem> const &item, STR_TYPE suggestion, size_t suggestionint, STR_TYPE del);
+            void AddLowestDistance(dictionaryItemContainer * item, STR_TYPE suggestion, size_t suggestionint, STR_TYPE del);
             void Edits(STR_TYPE word, CUSTOM_SET<STR_TYPE> &deletes) const;
             vector<pair<PRODUCT_TYPE, FindedItem> >* Lookup(STR_TYPE input, size_t editDistanceMax) const;
             static size_t DamerauLevenshteinDistance(const STR_TYPE &s1, const STR_TYPE &s2);
