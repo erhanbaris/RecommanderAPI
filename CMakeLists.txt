@@ -71,7 +71,11 @@ if(Boost_FOUND)
 			core/algoritm/SymSpell.h
 			core/algoritm/SymSpell.cpp
 			core/data/Index.h
-			core/data/Index.cpp)
+			core/data/Index.cpp
+			core/data/impl/Block.cpp
+			core/data/impl/Block.h
+			core/data/impl/BlockStorage.cpp
+			core/data/impl/BlockStorage.h)
 			
 			foreach(source IN LISTS SOURCE_FILES)
 				get_filename_component(source_path "${source}" PATH)
