@@ -93,7 +93,11 @@ Block *BlockStorage::Create() {
 
     pImpl->stream->flush ();
 
-    auto * block = new Block (*this, blockId, pImpl->diskSectorSize, pImpl->stream);
+    auto * block = new Block (this, blockId, pImpl->diskSectorSize, pImpl->stream);
     pImpl->blocks[block->Id()] = block;
     return block;
+};
+
+void BlockStorage::Delete(size_t id) {
+    pImpl->blocks.erase(id);
 };

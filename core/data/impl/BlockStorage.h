@@ -25,6 +25,7 @@ namespace core {
                 BlockStorage(std::string const & path, size_t blockSize = 4096, size_t blockHeaderSize = 48);
                 ~BlockStorage();
                 Block * Find(size_t id);
+                void Delete(size_t id);
                 Block * Create();
 
             private:
