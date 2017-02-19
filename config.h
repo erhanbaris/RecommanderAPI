@@ -12,10 +12,24 @@
 
 #undef ENABLE_CACHE
 
+#if _WIN32 || _WIN64
+#if _WIN64
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
 
-#define WWW 1
+// Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
 
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
 	#define ucout std::wcout
 	#define uendl std::endl
 	#define ucin std::wcin
@@ -67,7 +81,7 @@
     #define USER_TYPE size_t
 #else
     #define RATE_TYPE unsigned char
-    #define PRODUCT_TYPE unsigned long
+    #define PRODUCT_TYPE unsigned int
     #define USER_TYPE unsigned long
 #endif
 

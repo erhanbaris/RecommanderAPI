@@ -14,13 +14,19 @@ using namespace core;
 using namespace core::algoritm;
 
 namespace core {
+
+	typedef struct pProductInfo {
+		PRODUCT_TYPE ProductHash;
+		STR_TYPE ProductId, ProductName;
+	} ProductInfo;
+
 	namespace data {
 		class BaseDataInfo {
 		public:
 			BaseDataInfo();
 
 			virtual void AddUserRating(USER_TYPE customerId, PRODUCT_TYPE productId, RATE_TYPE ratingChar) = 0;
-			virtual void AddProduct(PRODUCT_TYPE movieId, STR_TYPE title) = 0;
+			virtual void AddProduct(PRODUCT_TYPE productIdHash, STR_TYPE & productId, STR_TYPE title) = 0;
 			virtual void Prepare() = 0;
 
 			algoritm::SlopeOne slopeOne;

@@ -6,8 +6,33 @@
 #include <sstream>
 #include <vector>
 #include <boost/locale/encoding_utf.hpp>
+#include <chrono>
+
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::duration<float> fsec;
 
 using namespace std;
+
+#define isInteger(s, r) \
+{\
+    r = true;\
+	STR_TYPE::const_iterator end = s.end();\
+	for (auto current = s.begin(); current != end; ++current) {\
+	if (((*current) < '0' || (*current) > '9'))\
+	{ r = false; break; }\
+}\
+}\
+
+#define clearString(str) { \
+    STR_TYPE::iterator end = str.end();\
+    for (auto current = str.begin(); current != end; ++current) {\
+        if (((*current) >= 'A' && (*current) <= 'Z') ||\
+            ((*current) >= 'a' && (*current) <= 'z') ||\
+            ((*current) >= '0' && (*current) <= '9'))\
+            continue;\
+        (*current) = ' ';\
+    }\
+}
 
 namespace core {
 	static double AvgRating = 0.0;
@@ -17,17 +42,25 @@ namespace core {
 	static size_t TotalProductCount = 0;
 	static size_t TotalUserCount = 0;
 
-	wstring getString(const string & data);
-	string getString(const wstring & data);
+	wstring getString(const string &data);
+
+	string getString(const wstring &data);
+
 	bool fileExists(string const &filename);
+
 	void splitString(const STR_TYPE &s, CHAR_TYPE delim, std::vector<STR_TYPE> &elems);
+
 	std::vector<STR_TYPE> splitString(const STR_TYPE &s, CHAR_TYPE delim);
-	bool isInteger(const STR_TYPE &s);
+
 	string getNarrow(const std::wstring &s);
-	void clearString(STR_TYPE & str);
-	size_t realTextSize(STR_TYPE const & str);
-	size_t bitsToInt(unsigned char * bits);
-	unsigned char * intToBits(size_t value);
+
+	size_t realTextSize(STR_TYPE const &str);
+
+	size_t bitsToInt(unsigned char *bits);
+
+	unsigned char *intToBits(size_t value);
+
+	unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed );
 
 	typedef struct tIndexItem {
 		PRODUCT_TYPE ProductId;
@@ -37,12 +70,13 @@ namespace core {
 
 
 	typedef struct tUserInfo {
-		tUserInfo() : TotalProduct(0), TotalRating(0.0), AvgRating(0.0), Products(vector<IndexItem*>()) {  }
+		tUserInfo() : TotalProduct(0), TotalRating(0.0), AvgRating(0.0), Products(vector<IndexItem *>()) {}
+
 		PRODUCT_TYPE Id;
 		int TotalProduct;
 		float TotalRating;
 		float AvgRating;
 
-		std::vector<IndexItem*> Products;
+		std::vector<IndexItem *> Products;
 	} UserInfo;
 }

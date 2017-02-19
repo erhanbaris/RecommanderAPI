@@ -1,9 +1,5 @@
 #include <core/server/action/SearchAction.h>
 #include <core/server/AppServer.h>
-#include <chrono>
-
-typedef std::chrono::high_resolution_clock Time;
-typedef std::chrono::duration<float> fsec;
 
 using namespace core::server::action;
 
@@ -35,7 +31,7 @@ core::server::ResponseInfo SearchAction::Execute(RequestInfo *info) {
     auto * dataSource = AppServer::instance().DataSource()->Data();
 
     //todo: use core::getNarrow and split by space to search one by one
-    core::clearString(searchTerm);
+    clearString(searchTerm);
     auto searchResults = dataSource->symspell.Find(searchTerm);
 
 

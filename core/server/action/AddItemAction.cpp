@@ -35,7 +35,7 @@ core::server::ResponseInfo AddItemAction::Execute(RequestInfo *info) {
 	auto hashFunc = std::hash<STR_TYPE>();
 	PRODUCT_TYPE productIdHash = hashFunc(productId);
 	auto searchResults = dataSource->symspell.CreateDictionaryEntry(productName, productIdHash);
-	dataSource->AddProduct(productIdHash, productName);
+	dataSource->AddProduct(productIdHash, productId, productName);
 
     STRSTREAM_TYPE stream;
 

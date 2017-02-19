@@ -85,7 +85,10 @@ bool SymSpell::CreateDictionaryEntry(STR_TYPE key, PRODUCT_TYPE id) {
     deleted.set_empty_key(STR(""));
 #endif
 
-    if (core::isInteger(key))
+    bool isIntegerCheck = false;
+    isInteger(key, isIntegerCheck);
+
+    if (isIntegerCheck)
         return result;
 
     Edits(key, deleted);
@@ -132,7 +135,7 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
     CUSTOM_MAP<PRODUCT_TYPE, unsigned short> returnValue;
     INT_INIT_MAP(returnValue);
 
-    core::clearString(input);
+    clearString(input);
     size_t maxDistance = (size_t) (((float)core::realTextSize(input) / 10.0) * 7.0);
 
     std::transform(input.begin(), input.end(), input.begin(), ::tolower);
@@ -157,9 +160,9 @@ vector<pair<PRODUCT_TYPE, unsigned short> > SymSpell::Find(STR_TYPE input) const
                 auto returnItem = returnValue.find(findedItem->first);
 
                 if (returnItem == returnValue.end())
-                    returnValue[findedItem->first] = (unsigned short) totalDistance;
-
-                returnValue[findedItem->first] -= (itemLength - findedItem->second.distance);
+                    returnValue[findedItem->first] = (unsigned short) (((unsigned short) totalDistance) - (itemLength - findedItem->second.distance));
+                else
+                    returnItem->second -= (itemLength - findedItem->second.distance);
             }
 
             delete finded;
@@ -267,18 +270,21 @@ vector<pair<PRODUCT_TYPE, FindedItem> >* SymSpell::Lookup(STR_TYPE input, size_t
     vector<STR_TYPE> candidates;
     candidates.reserve(2048);
     CUSTOM_SET<size_t> hashset1;
+    hashset1.resize(1024);
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     hashset1.set_empty_key(0);
 #endif
 
     CUSTOM_SET<size_t> hashset2;
+    hashset2.resize(1024);
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
     hashset2.set_empty_key(0);
 #endif
-    
+
     vector<pair<PRODUCT_TYPE, FindedItem> > * items = new vector<pair<PRODUCT_TYPE, FindedItem> >();
 
-    bool isInputInteger = core::isInteger(input);
+    bool isInputInteger = false;
+    isInteger(input, isInputInteger);
 
     candidates.push_back(input);
     auto dictionaryEnd = dictionary.end();
@@ -372,7 +378,7 @@ vector<pair<PRODUCT_TYPE, FindedItem> >* SymSpell::Lookup(STR_TYPE input, size_t
                                 FindedItem si;
                                 si.distance = (unsigned short) (input.size() - candidateSize);
                                 si.productId = *it;
-                                
+
                                 items->push_back(pair<PRODUCT_TYPE, FindedItem>(si.productId, si));
                             }
                         }

@@ -19,7 +19,7 @@ namespace core {
         public:
             GeneralDataInfo();
             void AddUserRating(USER_TYPE customerId, PRODUCT_TYPE productId, RATE_TYPE rating) override;
-            void AddProduct(PRODUCT_TYPE movieId, STR_TYPE title) override;
+            void AddProduct(PRODUCT_TYPE productIdHash, STR_TYPE & productId, STR_TYPE title) override;
             void Prepare() override;
 
         protected:
