@@ -2,19 +2,18 @@
 
 #include <config.h>
 #include <core/Utils.h>
-#include <core/data/impl/Block.h>
 
 #include <iostream>
 #include <vector>
 
 using namespace std;
 using namespace core;
-using namespace core::data::impl;
 
 namespace core {
 
     namespace data {
         namespace impl {
+            class Block;
             class BlockStorage
             {
             public:
@@ -23,8 +22,9 @@ namespace core {
                 size_t BlockSize() const;
                 size_t DiskSectorSize() const;
 
-                BlockStorage(std::string const & path, size_t blockSize = 40960, size_t blockHeaderSize = 48);
-                Block * Find(PRODUCT_TYPE id);
+                BlockStorage(std::string const & path, size_t blockSize = 4096, size_t blockHeaderSize = 48);
+                ~BlockStorage();
+                Block * Find(size_t id);
                 Block * Create();
 
             private:
