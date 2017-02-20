@@ -21,6 +21,8 @@
 #include <core/server/action/UserRecommendAction.h>
 #include <core/server/action/SearchAction.h>
 #include <core/server/action/AddItemAction.h>
+#include <core/data/impl/BlockStorage.h>
+#include <core/data/impl/Block.h>
 
 #pragma execution_character_set("utf-8")
 
@@ -64,11 +66,17 @@ int main(int argc, char **args) {
     else
         dataPath = currentPath;
 
+	core::data::impl::BlockStorage storage(currentPath + "/" + "data.edb");
+	auto * block = storage.Create();
+	size_t id = block->Id();
+	auto headerItem = block->GetHeader(1);
+	block->Write("hello world\0", 12, 0, 0, 12);
+	block->Flush();
+
     try {
         AppServer::instance()
                 .AddAction(new UserRecommendAction())
                 .AddAction(new SearchAction())
-				.AddAction(new AddItemAction())
                 .SetExecutionPath(currentPath)
                 .SetDataPath(dataPath)
                 .SetHtmlPath("www")
