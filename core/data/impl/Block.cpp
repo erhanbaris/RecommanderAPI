@@ -54,10 +54,6 @@ size_t Block::Id() const {
 };
 
 size_t Block::GetHeader(size_t field) {
-	if (field < 0) {
-		ERROR_WRITE(STR("Index out of range. (Block::GetHeader)"));
-		return 0;
-	}
 
 	if (field >= (pImpl->storage->BlockHeaderSize() / 8)) {
 		ERROR_WRITE(STR("Invalid field : ") << field);
@@ -68,7 +64,7 @@ size_t Block::GetHeader(size_t field) {
 	{
 		if (pImpl->cachedHeaderValue[field] == NULL)
 		{
-			unsigned char buffer[8] = { 0 };
+			char buffer[8] = { '\0' };
 			memcpy(buffer, pImpl->firstSector, field * 8);
 			pImpl->cachedHeaderValue[field] = bitsToInt(buffer);
 		}
@@ -77,7 +73,7 @@ size_t Block::GetHeader(size_t field) {
 	}
 	else
 	{
-		unsigned char buffer[8] = {0};
+		char buffer[8] = {0};
 		memcpy(buffer, pImpl->firstSector, field * 8);
 		pImpl->cachedHeaderValue[field] = bitsToInt(buffer);
 
@@ -86,16 +82,11 @@ size_t Block::GetHeader(size_t field) {
 };
 
 void Block::SetHeader(size_t field, size_t value){
-	if (field < 0)
-	{
-		ERROR_WRITE(STR("Index out of range. (Block::SetHeader)"));
-		return;
-	}
 
 	if (field < pImpl->cachedHeaderSize)
 		pImpl->cachedHeaderValue[field] = value;
 
-	unsigned char * buffer = intToBits(value); // Fixit : intToBits return sizeof(size_t) but field 8 byte
+	char * buffer = intToBits(value); // Fixit : intToBits return sizeof(size_t) but field 8 byte
 
 	memcpy(buffer, pImpl->firstSector, field * 8);
 
@@ -103,14 +94,13 @@ void Block::SetHeader(size_t field, size_t value){
 	pImpl->isFirstSectorDirty = true;
 };
 
-void Block::Write(char * src, size_t srcLen, size_t dstOffset, size_t srcOffset, size_t count){
-	if (false == ((dstOffset >= 0) && ((dstOffset + count) <= pImpl->storage->BlockContentSize()))) {
-
+void Block::Write(char const * src, size_t srcLen, size_t dstOffset, size_t srcOffset, size_t count){
+	if (dstOffset + count > pImpl->storage->BlockContentSize()) {
 		ERROR_WRITE(STR("Count argument is outside of dest bounds: Count=" << count));
 		return;
 	}
 
-	if (false == ((srcOffset >= 0) && ((srcOffset + count) <= srcLen))) {
+	if (srcOffset + count > srcLen) {
 		ERROR_WRITE(STR("Count argument is outside of src bounds: Count=" << count));
 		return;
 	}
@@ -118,13 +108,13 @@ void Block::Write(char * src, size_t srcLen, size_t dstOffset, size_t srcOffset,
 	if ((pImpl->storage->BlockHeaderSize() + dstOffset) < pImpl->storage->DiskSectorSize()) {
 		auto writeSize = std::min(count, pImpl->storage->DiskSectorSize() - pImpl->storage->BlockHeaderSize() - dstOffset);
 
-		memcpy(pImpl->firstSector + srcOffset, src + pImpl->storage->BlockHeaderSize() + dstOffset, writeSize);
+		memcpy(pImpl->firstSector + srcOffset + pImpl->storage->BlockHeaderSize() + dstOffset, src, writeSize);
 		pImpl->isFirstSectorDirty = true;
 	}
 
 	if ((pImpl->storage->BlockHeaderSize() + dstOffset + count) > pImpl->storage->DiskSectorSize())
 	{
-		pImpl->stream->seekg((pImpl->id * pImpl->storage->BlockSize()) + std::max(pImpl->storage->DiskSectorSize(), pImpl->storage->BlockHeaderSize() + dstOffset), ios::beg);
+		pImpl->stream->seekg((long long int) ((pImpl->id * pImpl->storage->BlockSize()) + std::max(pImpl->storage->DiskSectorSize(), pImpl->storage->BlockHeaderSize() + dstOffset)), ios::beg);
 
 		auto d = pImpl->storage->DiskSectorSize() - (pImpl->storage->BlockHeaderSize() + dstOffset);
 		if (d > 0) {
@@ -137,7 +127,7 @@ void Block::Write(char * src, size_t srcLen, size_t dstOffset, size_t srcOffset,
 		while (written < count)
 		{
 			auto bytesToWrite = std::min((size_t)4096, count - written);
-			pImpl->stream->seekg(srcOffset + written, ios::cur);
+			pImpl->stream->seekg((long long int) (srcOffset + written), ios::cur);
 			pImpl->stream->write((char*)src, bytesToWrite);
 			pImpl->stream->flush();
 			written += bytesToWrite;
@@ -149,7 +139,7 @@ void Block::Flush()
 {
 	if (pImpl->isFirstSectorDirty && pImpl->firstSector != NULL)
 	{
-		pImpl->stream->seekg(pImpl->id * pImpl->storage->BlockSize(), ios::beg);
+		pImpl->stream->seekg((long long int) (pImpl->id * pImpl->storage->BlockSize()), ios::beg);
 		pImpl->stream->write(pImpl->firstSector, 4096L);
 		pImpl->stream->flush();
 

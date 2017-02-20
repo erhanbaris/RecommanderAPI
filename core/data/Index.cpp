@@ -79,7 +79,7 @@ bool Index::Create()
 
 		auto dictEnd = dictionary->end();
 		for (auto it = dictionary->begin(); it != dictEnd; ++it) {
-			unsigned char * byteArray = core::intToBits(it->first);
+			char * byteArray = core::intToBits(it->first);
 			outfile.write((char*)byteArray, sizeof(size_t));
 		}
 
@@ -90,7 +90,7 @@ bool Index::Create()
 		infile.open(fileName, ios::binary);
 		infile.seekg(6);
 
-		unsigned char * byteArray = new unsigned char[sizeof(size_t)];
+		char * byteArray = new char[sizeof(size_t)];
 
 		infile.read((char*)byteArray, sizeof(size_t));
 		unsigned long int anotherLongInt;

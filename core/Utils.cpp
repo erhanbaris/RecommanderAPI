@@ -69,9 +69,9 @@ size_t core::realTextSize(STR_TYPE const & str) {
     return returnValue;
 }
 
-unsigned char * core::intToBits(size_t value)
+char * core::intToBits(size_t value)
 {
-	unsigned char * result = new unsigned char[sizeof(size_t)];
+	char * result = new char[sizeof(size_t)];
 
 	for (int i = 0; i < sizeof(size_t); i++)
 		result[i] = 0xFF & (value >> (i * 8));
@@ -79,7 +79,7 @@ unsigned char * core::intToBits(size_t value)
 	return result;
 }
 
-size_t core::bitsToInt(unsigned char * bits)
+size_t core::bitsToInt(char * bits)
 {
 	size_t result = 0;
 

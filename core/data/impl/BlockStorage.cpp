@@ -41,7 +41,7 @@ struct BlockStorage::BlockStorageImpl
 		std::ios::pos_type begin = this->stream->tellg();
 		this->stream->seekg(0, std::ios::end);
 		std::ios::pos_type end = this->stream->tellg();
-		return end - begin;
+		return (size_t) (end - begin);
 	}
 };
 
@@ -53,7 +53,7 @@ BlockStorage::BlockStorage(std::string const &path, size_t blockSize, size_t blo
     pImpl->blockContentSize = blockSize - blockHeaderSize;
 
     pImpl->stream = new fstream();
-    pImpl->stream->open(path, std::fstream::in | std::fstream::out | std::fstream::app | std::fstream::binary);
+    pImpl->stream->open(pImpl->filePath, ios::in | ios::out | ios::binary);
     pImpl->stream->flush();
 }
 
@@ -116,7 +116,7 @@ Block * BlockStorage::Find(size_t id)
 		return NULL;
 
 	auto * firstSector = new char[pImpl->blockSize];
-	pImpl->stream->seekg(id * pImpl->blockSize, ios::beg);
+	pImpl->stream->seekg((long long int) (id * pImpl->blockSize), ios::beg);
 	pImpl->stream->read((char *)firstSector, pImpl->diskSectorSize);
 
 	auto * block = new Block(this, id, firstSector, pImpl->diskSectorSize, pImpl->stream);
