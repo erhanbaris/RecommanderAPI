@@ -28,6 +28,9 @@ struct BlockStorage::BlockStorageImpl
 
     ~BlockStorageImpl()
     {
+		for (auto it = blocks.begin(); it != blocksEnd; ++it)
+			delete it->second;
+
         if (stream != NULL)
         {
             stream->close();
@@ -53,8 +56,23 @@ BlockStorage::BlockStorage(std::string const &path, size_t blockSize, size_t blo
     pImpl->blockContentSize = blockSize - blockHeaderSize;
 
     pImpl->stream = new fstream();
-    pImpl->stream->open(pImpl->filePath, ios::in | ios::out | ios::binary);
-    pImpl->stream->flush();
+    pImpl->stream->open(pImpl->filePath, fstream::in | fstream::out | fstream::binary);
+	pImpl->stream->flush();
+
+	if (!pImpl->stream->is_open())
+	{
+		pImpl->stream->close();
+		pImpl->stream->open(pImpl->filePath, fstream::out);
+		pImpl->stream->flush();
+
+		pImpl->stream->close();
+		pImpl->stream->open(pImpl->filePath, fstream::in | fstream::out | fstream::binary);
+		pImpl->stream->flush();
+
+		DEBUG_WRITE(STR("NEW DATA FILE CREATED (") << GET_WSTRING(path) << STR(")"));
+	}
+	
+	DEBUG_WRITE(STR("DATA FILE OPENED (") << GET_WSTRING(path) << STR(")"));
 }
 
 BlockStorage::~BlockStorage()
@@ -98,7 +116,7 @@ Block *BlockStorage::Create() {
 
     pImpl->stream->flush ();
 
-	auto * diskSector = new char[pImpl->diskSectorSize];
+	auto * diskSector = new char[pImpl->diskSectorSize] {'\0'};
     auto * block = new Block (this, blockId, diskSector, pImpl->diskSectorSize, pImpl->stream);
     pImpl->blocks[block->Id()] = block;
 	pImpl->blocksEnd = pImpl->blocks.end();

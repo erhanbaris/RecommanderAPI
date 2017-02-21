@@ -126,7 +126,7 @@ void Block::Write(char const * src, size_t srcLen, size_t dstOffset, size_t srcO
 		size_t written = 0L;
 		while (written < count)
 		{
-			auto bytesToWrite = std::min((size_t)4096, count - written);
+			auto bytesToWrite = std::min((size_t)pImpl->storage->BlockSize(), count - written);
 			pImpl->stream->seekg((long long int) (srcOffset + written), ios::cur);
 			pImpl->stream->write((char*)src, bytesToWrite);
 			pImpl->stream->flush();
@@ -140,7 +140,7 @@ void Block::Flush()
 	if (pImpl->isFirstSectorDirty && pImpl->firstSector != NULL)
 	{
 		pImpl->stream->seekg((long long int) (pImpl->id * pImpl->storage->BlockSize()), ios::beg);
-		pImpl->stream->write(pImpl->firstSector, 4096L);
+		pImpl->stream->write(pImpl->firstSector, pImpl->storage->BlockSize());
 		pImpl->stream->flush();
 
 		pImpl->isFirstSectorDirty = false;
