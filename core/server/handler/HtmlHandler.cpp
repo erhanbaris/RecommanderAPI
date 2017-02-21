@@ -32,7 +32,7 @@ bool HtmlHandler::TryExecute(RequestInfo * request) {
         searchUrl = fileAliases.find(searchUrl)->second;
 
     string fullFilePath = AppServer::instance().GetHtmlPath() + searchUrl;
-    DEBUG_WRITE(fullFilePath);
+    DEBUG_WRITE(GET_WSTRING(fullFilePath));
 
     if (fileExists(fullFilePath)) {
         try {

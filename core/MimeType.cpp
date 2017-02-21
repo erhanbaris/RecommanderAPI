@@ -1,5 +1,3 @@
-#pragma one
-
 #include <iostream>
 #include <fstream>
 #include <chrono>
