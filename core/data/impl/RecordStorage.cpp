@@ -8,6 +8,7 @@ using namespace core::data::impl;
 
 struct RecordStorage::impl
 {
+    BlockStorage * storage;
 
     impl()
     {
@@ -17,3 +18,8 @@ struct RecordStorage::impl
     {
     }
 };
+
+RecordStorage::RecordStorage(BlockStorage * blockStorage) : pImpl(new RecordStorage::impl())
+{
+    pImpl->storage = blockStorage;
+}

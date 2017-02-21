@@ -48,7 +48,7 @@ struct BlockStorage::impl
 	}
 };
 
-BlockStorage::BlockStorage(std::string const &path, size_t blockSize, size_t blockHeaderSize) : pImpl(new impl())  {
+BlockStorage::BlockStorage(std::string const &path, size_t blockSize, size_t blockHeaderSize) : pImpl(new BlockStorage::impl())  {
     pImpl->filePath = path;
     pImpl->blockSize = blockSize;
     pImpl->blockHeaderSize = blockHeaderSize;

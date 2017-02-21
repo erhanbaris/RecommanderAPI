@@ -5,6 +5,8 @@
 
 #include <iostream>
 #include <vector>
+#include <core/data/impl/BlockStorage.h>
+#include <core/data/impl/Block.h>
 
 using namespace std;
 using namespace core;
@@ -16,6 +18,8 @@ namespace core {
             class RecordStorage
             {
             public:
+
+                RecordStorage(BlockStorage * blockStorage);
                 void Update (size_t recordId, char* data, size_t dataLen);
                 std::tuple<size_t, char*> Find (size_t recordId);
                 uint Create ();

@@ -35,7 +35,7 @@ struct  Block::impl
 	}
 };
 
-Block::Block(BlockStorage * storage, size_t id, char * firstSector, size_t sectorSize, fstream * stream) : pImpl(new impl())
+Block::Block(BlockStorage * storage, size_t id, char * firstSector, size_t sectorSize, fstream * stream) : pImpl(new Block::impl())
 {
     pImpl->id = id;
 	pImpl->storage = storage;
