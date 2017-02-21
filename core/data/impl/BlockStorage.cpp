@@ -7,7 +7,7 @@ using namespace std;
 using namespace core::data::impl;
 
 
-struct BlockStorage::BlockStorageImpl
+struct BlockStorage::impl
 {
     fstream * stream;
     size_t diskSectorSize;
@@ -18,7 +18,7 @@ struct BlockStorage::BlockStorageImpl
     CUSTOM_MAP<size_t, Block * > blocks;
 	CUSTOM_MAP<size_t, Block * >::iterator blocksEnd;
 
-    BlockStorageImpl()
+    impl()
     {
 #ifdef USE_GOOGLE_DENSE_HASH_MAP
 		INIT_MAP(blocks, -2, -1);
@@ -26,7 +26,7 @@ struct BlockStorage::BlockStorageImpl
 		blocksEnd = blocks.end();
     }
 
-    ~BlockStorageImpl()
+    ~impl()
     {
 		for (auto it = blocks.begin(); it != blocksEnd; ++it)
 			delete it->second;
@@ -48,7 +48,7 @@ struct BlockStorage::BlockStorageImpl
 	}
 };
 
-BlockStorage::BlockStorage(std::string const &path, size_t blockSize, size_t blockHeaderSize) : pImpl(new BlockStorageImpl())  {
+BlockStorage::BlockStorage(std::string const &path, size_t blockSize, size_t blockHeaderSize) : pImpl(new impl())  {
     pImpl->filePath = path;
     pImpl->blockSize = blockSize;
     pImpl->blockHeaderSize = blockHeaderSize;

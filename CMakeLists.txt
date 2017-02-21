@@ -75,7 +75,9 @@ if(Boost_FOUND)
 			core/data/impl/Block.cpp
 			core/data/impl/Block.h
 			core/data/impl/BlockStorage.cpp
-			core/data/impl/BlockStorage.h)
+			core/data/impl/BlockStorage.h
+			core/data/impl/RecordStorage.cpp
+			core/data/impl/RecordStorage.h)
 			
 			foreach(source IN LISTS SOURCE_FILES)
 				get_filename_component(source_path "${source}" PATH)

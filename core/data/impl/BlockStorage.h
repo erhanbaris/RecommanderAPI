@@ -30,8 +30,8 @@ namespace core {
                 bool HasBlock(size_t id);
 
             private:
-                struct BlockStorageImpl;
-                unique_ptr<BlockStorageImpl> pImpl;
+                struct impl;
+                unique_ptr<impl> pImpl;
             };
         }
     }

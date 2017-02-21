@@ -6,7 +6,7 @@
 using namespace std;
 using namespace core::data::impl;
 
-struct  Block::BlockImpl
+struct  Block::impl
 {
 	const size_t cachedHeaderSize = 5;
 
@@ -18,14 +18,14 @@ struct  Block::BlockImpl
 	size_t cachedHeaderValue[5] = { 0 };
 	bool isFirstSectorDirty;
 
-	BlockImpl()
+    impl()
 	{
 		firstSector = NULL;
 		storage = NULL;
 		isFirstSectorDirty = false;
 	}
 
-	~BlockImpl()
+	~impl()
 	{
 		if (firstSector != NULL)
 			delete firstSector;
@@ -35,7 +35,7 @@ struct  Block::BlockImpl
 	}
 };
 
-Block::Block(BlockStorage * storage, size_t id, char * firstSector, size_t sectorSize, fstream * stream) : pImpl(new BlockImpl())
+Block::Block(BlockStorage * storage, size_t id, char * firstSector, size_t sectorSize, fstream * stream) : pImpl(new impl())
 {
     pImpl->id = id;
 	pImpl->storage = storage;

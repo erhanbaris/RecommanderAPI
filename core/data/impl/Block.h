@@ -26,8 +26,8 @@ namespace core {
 				void SetHeader(size_t field, size_t value);
 
             private:
-                struct BlockImpl;
-                unique_ptr<BlockImpl> pImpl;
+                struct impl;
+                unique_ptr<impl> pImpl;
             };
         }
     }
