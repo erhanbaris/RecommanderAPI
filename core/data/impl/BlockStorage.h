@@ -27,6 +27,7 @@ namespace core {
                 Block * Find(size_t id);
                 void Delete(size_t id);
                 Block * Create();
+                bool HasBlock(size_t id);
 
             private:
                 struct BlockStorageImpl;

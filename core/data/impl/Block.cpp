@@ -49,7 +49,7 @@ Block::~Block (){
     pImpl->storage->Delete(this->Id());
 };
 
-size_t Block::Id() const {
+inline size_t Block::Id() const {
     return pImpl->id;
 };
 
@@ -62,7 +62,7 @@ size_t Block::GetHeader(size_t field) {
 
 	if (field < pImpl->cachedHeaderSize)
 	{
-		if (pImpl->cachedHeaderValue[field] == NULL)
+		if (pImpl->cachedHeaderValue[field] == 0)
 		{
 			char buffer[8] = { '\0' };
 			memcpy(buffer, pImpl->firstSector, field * 8);
@@ -108,7 +108,7 @@ void Block::Write(char const * src, size_t srcLen, size_t dstOffset, size_t srcO
 	if ((pImpl->storage->BlockHeaderSize() + dstOffset) < pImpl->storage->DiskSectorSize()) {
 		auto writeSize = std::min(count, pImpl->storage->DiskSectorSize() - pImpl->storage->BlockHeaderSize() - dstOffset);
 
-		memcpy(pImpl->firstSector + srcOffset + pImpl->storage->BlockHeaderSize() + dstOffset, src, writeSize);
+		memcpy(pImpl->firstSector + pImpl->storage->BlockHeaderSize() + dstOffset, src + srcOffset, writeSize);
 		pImpl->isFirstSectorDirty = true;
 	}
 
@@ -134,6 +134,35 @@ void Block::Write(char const * src, size_t srcLen, size_t dstOffset, size_t srcO
 		}
 	}
 };
+
+void Block::Read(char * dst, size_t dstLen, size_t dstOffset, size_t srcOffset, size_t count){
+    if (dstOffset + count > pImpl->storage->BlockContentSize() || count <= 0) {
+        ERROR_WRITE(STR("Count argument is outside of dest bounds: Count=" << count));
+        return;
+    }
+
+    if (dstOffset + count > dstLen) {
+        ERROR_WRITE(STR("Count argument is outside of src bounds: Count=" << count));
+        return;
+    }
+
+    auto dataCopied = 0;
+    auto copyFromFirstSector = (pImpl->storage->BlockHeaderSize() + srcOffset) < pImpl->storage->DiskSectorSize();
+    if (copyFromFirstSector)
+    {
+        auto copyWidth = std::min(pImpl->storage->DiskSectorSize() - pImpl->storage->BlockHeaderSize() - srcOffset, count);
+        memcpy(dst + srcOffset, pImpl->firstSector + pImpl->storage->BlockHeaderSize() + dstOffset, copyWidth);
+        dataCopied += copyWidth;
+    }
+
+    if (dataCopied < count) {
+        if (copyFromFirstSector) {
+            pImpl->stream->seekg((long long int) ((this->Id() * pImpl->storage->BlockSize()) + pImpl->storage->DiskSectorSize()), ios::beg);
+        } else {
+            pImpl->stream->seekg((long long int) ((this->Id() * pImpl->storage->BlockSize()) + pImpl->storage->BlockHeaderSize() + srcOffset), ios::beg);
+        }
+    }
+}
 
 void Block::Flush()
 {

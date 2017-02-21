@@ -80,10 +80,6 @@ BlockStorage::~BlockStorage()
     delete this->pImpl.release();
 }
 
-Block * Find(size_t id){
-    return NULL;
-};
-
 size_t BlockStorage::BlockContentSize() const {
     return pImpl->blockContentSize;
 };
@@ -140,6 +136,17 @@ Block * BlockStorage::Find(size_t id)
 	auto * block = new Block(this, id, firstSector, pImpl->diskSectorSize, pImpl->stream);
 	return block;
 };
+
+bool BlockStorage::HasBlock(size_t id){
+    if (pImpl->blocksEnd != pImpl->blocks.find(id))
+        return true;
+
+    auto blockPosition = id * pImpl->blockSize;
+    if ((blockPosition + pImpl->blockSize) > pImpl->getFileSize())
+        return false;
+
+    return true;
+}
 
 void BlockStorage::Delete(size_t id) {
     pImpl->blocks.erase(id);
