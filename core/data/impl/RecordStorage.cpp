@@ -122,7 +122,7 @@ vector<Block *> RecordStorage::FindBlocks (size_t recordId) {
     } catch (std::exception & e)
     { }
 
-    if (false == success) {
+    if (!success) {
         auto blocksEnd = blocks.end();
         for (auto it = blocks.begin(); it != blocksEnd; ++it) {
             delete (*it);
@@ -157,15 +157,17 @@ void RecordStorage::GetSpaceTrackingBlock (Block *& lastBlock, Block *& secondLa
     }
 };
 
+
 void RecordStorage::AppendUInt32ToContent (Block * block, size_t value)
 {
     auto contentLength = block->GetHeader (pImpl->kBlockContentLength);
 
     if ((contentLength % 4) != 0) {
         ERROR_WRITE(STR("Block content length not %4: ") << contentLength);
+        return;
     }
 
-    //block->Write(src: LittleEndianByteOrder.GetBytes(value), srcOffset: 0, dstOffset: (int)contentLength, count: 4);
+    block->Write(intToBits(value), sizeof(size_t), 0, contentLength, 4);
 };
 
 void RecordStorage::MarkAsFree (size_t blockId) {

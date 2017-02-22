@@ -69,26 +69,39 @@ size_t core::realTextSize(STR_TYPE const & str) {
     return returnValue;
 }
 
-char * core::intToBits(size_t value)
+int is_big_endian()
 {
-	char * result = new char[sizeof(size_t)];
+    union {
+        uint32_t i;
+        char c[4];
+    } bint = {0x01020304};
 
-	for (int i = 0; i < sizeof(size_t); i++)
+    return bint.c[0] == 1;
+}
+
+template <typename T>
+char * core::intToBits(T value)
+{
+	char * result = new char[sizeof(T)];
+
+	for (int i = 0; i < sizeof(T); i++)
 		result[i] = 0xFF & (value >> (i * 8));
 
 	return result;
 }
 
-size_t core::bitsToInt(char * bits)
-{
-	size_t result = 0;
 
-	//if (little_endian)
-		for (int n = sizeof(size_t); n >= 0; n--)
+template <typename T>
+T core::bitsToInt(char const * bits)
+{
+	T result = 0;
+
+	if (!is_big_endian())
+		for (int n = sizeof(T); n >= 0; n--)
 			result = (result << 8) + bits[n];
-	//else
-	//	for (int n = 0; n < sizeof(IntegerType); n++)
-	//		result = (result << 8) + bits[n];
+	else
+		for (int n = 0; n < sizeof(T); n++)
+			result = (result << 8) + bits[n];
 
 	return result;
 }
@@ -143,3 +156,16 @@ unsigned int core::MurmurHash2 ( const void * key, int len, unsigned int seed )
 
     return h;
 }
+
+template char * core::intToBits(short);
+template short core::bitsToInt(char const *);
+
+template char * core::intToBits(unsigned long);
+template unsigned long core::bitsToInt(char const *);
+
+template char * core::intToBits(int);
+template int core::bitsToInt(char const *);
+
+template char * core::intToBits(long int);
+template long int core::bitsToInt(char const *);
+

@@ -22,6 +22,7 @@
 #include <core/server/action/SearchAction.h>
 #include <core/server/action/AddItemAction.h>
 #include <core/data/impl/BlockStorage.h>
+#include <core/data/impl/RecordStorage.h>
 #include <core/data/impl/Block.h>
 
 #pragma execution_character_set("utf-8")
@@ -66,22 +67,26 @@ int main(int argc, char **args) {
     else
         dataPath = currentPath;
 
-	core::data::impl::BlockStorage storage(currentPath + "/" + "data.edb");
+	core::data::impl::BlockStorage * storage = new core::data::impl::BlockStorage(currentPath + "/" + "data.edb");
     core::data::impl::Block * block = NULL;
 
-    if (storage.HasBlock(0))
-        block = storage.Find(0);
+    if (storage->HasBlock(0))
+        block = storage->Find(0);
     else
-        block = storage.Create();
+        block = storage->Create();
 
+    auto headerItem = block->GetHeader(1);
     size_t id = block->Id();
-	auto headerItem = block->GetHeader(1);
+    block->SetHeader(1, 19239392);
+	headerItem = block->GetHeader(1);
     auto * text = "hello world";
 	block->Write(text, strlen(text), 0, 0, strlen(text));
 	block->Flush();
 
 	char * data = new char[12]{ 0 };
     block->Read(data, 12, 0, 0, 12);
+
+    core::data::impl::RecordStorage recordStorage(storage);
 
     try {
         AppServer::instance()

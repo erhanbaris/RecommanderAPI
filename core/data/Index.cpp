@@ -95,10 +95,10 @@ bool Index::Create()
 		infile.read((char*)byteArray, sizeof(size_t));
 		unsigned long int anotherLongInt;
 
-		anotherLongInt = core::bitsToInt(byteArray);
+		anotherLongInt = core::bitsToInt<unsigned long int>(byteArray);
 		infile.seekg(8);
 		infile.read((char*)byteArray, sizeof(size_t));
-		anotherLongInt = core::bitsToInt(byteArray);
+		anotherLongInt = core::bitsToInt<unsigned long int>(byteArray);
 
 		infile.close();
 

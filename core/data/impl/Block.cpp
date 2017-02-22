@@ -15,7 +15,7 @@ struct  Block::impl
     BlockStorage * storage;
 	char * firstSector;
 	std::fstream * stream;
-	size_t cachedHeaderValue[5] = { 0 };
+    long int cachedHeaderValue[5] = { 0 };
 	bool isFirstSectorDirty;
 
     impl()
@@ -49,11 +49,11 @@ Block::~Block (){
     pImpl->storage->Delete(this->Id());
 };
 
-inline size_t Block::Id() const {
+size_t Block::Id() const {
     return pImpl->id;
 };
 
-size_t Block::GetHeader(size_t field) {
+long int Block::GetHeader(short field) {
 
 	if (field >= (pImpl->storage->BlockHeaderSize() / 8)) {
 		ERROR_WRITE(STR("Invalid field : ") << field);
@@ -65,32 +65,30 @@ size_t Block::GetHeader(size_t field) {
 		if (pImpl->cachedHeaderValue[field] == 0)
 		{
 			char buffer[8] = { '\0' };
-			memcpy(buffer, pImpl->firstSector, field * 8);
-			pImpl->cachedHeaderValue[field] = bitsToInt(buffer);
+			memcpy(buffer, pImpl->firstSector + (size_t) (field * 8), sizeof(long int));
+			pImpl->cachedHeaderValue[field] = bitsToInt<long int>(buffer);
 		}
 
-		return (long)pImpl->cachedHeaderValue[field];
+		return pImpl->cachedHeaderValue[field];
 	}
 	else
 	{
 		char buffer[8] = {0};
-		memcpy(buffer, pImpl->firstSector, field * 8);
-		pImpl->cachedHeaderValue[field] = bitsToInt(buffer);
+		memcpy(buffer, pImpl->firstSector + (size_t) (field * 8), sizeof(long int));
+		pImpl->cachedHeaderValue[field] = bitsToInt<long int>(buffer);
 
-		return bitsToInt(buffer);
+		return bitsToInt<long int>(buffer);
 	}
 };
 
-void Block::SetHeader(size_t field, size_t value){
+void Block::SetHeader(short field, long int value){
 
 	if (field < pImpl->cachedHeaderSize)
 		pImpl->cachedHeaderValue[field] = value;
 
-	char * buffer = intToBits(value); // Fixit : intToBits return sizeof(size_t) but field 8 byte
+	char * buffer = intToBits(value);
 
-	memcpy(buffer, pImpl->firstSector, field * 8);
-
-	memcpy(pImpl->firstSector, buffer, field * 8);
+	memcpy(pImpl->firstSector + (size_t) (field * 8), buffer, sizeof(long int));
 	pImpl->isFirstSectorDirty = true;
 };
 
