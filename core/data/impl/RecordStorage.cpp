@@ -37,20 +37,44 @@ tRecordInfo RecordStorage::Find(size_t recordId) {
 		if (block->GetHeader(pImpl->kPreviousBlockId) != 0)
 			return returnValue;
 
-		auto totalRecordSize = block->GetHeader(pImpl->kRecordLength);
+		returnValue.Length = block->GetHeader(pImpl->kRecordLength);
 
-		if (totalRecordSize > pImpl->MaxRecordSize)
+		if (returnValue.Length > pImpl->MaxRecordSize)
 		{
-			ERROR_WRITE(STR("Unexpected record length: ") << totalRecordSize);
+			ERROR_WRITE(STR("Unexpected record length: ") << returnValue.Length);
+			returnValue.Length = 0;
 			return returnValue;
 		}
 
-		auto * data = new char[totalRecordSize];
+		returnValue.Data = new char[returnValue.Length];
+		returnValue.Length = returnValue.Length;
+
 		auto bytesRead = 0L;
 		Block * currentBlock = block;
 		while (true)
 		{
 			size_t nextBlockId;
+
+			auto currentBlockContentSize = currentBlock->GetHeader(pImpl->kBlockContentLength);
+			if (currentBlockContentSize > pImpl->storage->BlockContentSize())
+			{
+				ERROR_WRITE(STR("Unexpected block content length: ") << currentBlockContentSize);
+				return returnValue;
+			}
+
+			currentBlock->Read(returnValue.Data, returnValue.Length, bytesRead, 0, currentBlockContentSize);
+			bytesRead += currentBlockContentSize;
+
+			nextBlockId = currentBlock->GetHeader(pImpl->kNextBlockId);
+			if (nextBlockId == 0)
+				return returnValue;
+
+			currentBlock = pImpl->storage->Find(nextBlockId);
+			if (currentBlock == NULL)
+			{
+				ERROR_WRITE(STR("Block not found by id: ") << nextBlockId);
+				break;
+			}
 		}
 	}
 
