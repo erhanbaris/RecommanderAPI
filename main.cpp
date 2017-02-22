@@ -80,8 +80,8 @@ int main(int argc, char **args) {
 	block->Write(text, strlen(text), 0, 0, strlen(text));
 	block->Flush();
 
-    char * data = new char[11];
-    block->Read(data, 11, 0, 0, 11);
+	char * data = new char[12]{ 0 };
+    block->Read(data, 12, 0, 0, 12);
 
     try {
         AppServer::instance()
