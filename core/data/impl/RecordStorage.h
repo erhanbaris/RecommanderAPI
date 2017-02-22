@@ -26,11 +26,19 @@ namespace core {
             public:
 
                 RecordStorage(BlockStorage * blockStorage);
+                ~RecordStorage();
                 void Update (size_t recordId, char* data, size_t dataLen);
 				tRecordInfo Find (size_t recordId);
 				size_t Create ();
 				size_t Create (char* data, size_t dataLen);
                 void Delete (size_t recordId);
+                void GetSpaceTrackingBlock (Block *& lastBlock, Block *& secondLastBlock);
+                void MarkAsFree (size_t blockId);
+                size_t ReadUInt32FromTrailingContent (Block * block);
+                void AppendUInt32ToContent (Block * block, size_t value);
+                bool TryFindFreeBlock (size_t & blockId);
+                Block * AllocateBlock ();
+                vector<Block *> FindBlocks (size_t recordId);
 
             private:
                 struct impl;
