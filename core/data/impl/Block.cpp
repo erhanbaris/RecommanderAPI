@@ -66,7 +66,7 @@ long int Block::GetHeader(short field) {
 		{
 			char buffer[8] = { '\0' };
 			memcpy(buffer, pImpl->firstSector + (size_t) (field * 8), sizeof(long int));
-			pImpl->cachedHeaderValue[field] = bitsToInt<long int>(buffer);
+			pImpl->cachedHeaderValue[field] = bytesToInt<long int>(buffer, 8);
 		}
 
 		return pImpl->cachedHeaderValue[field];
@@ -75,9 +75,9 @@ long int Block::GetHeader(short field) {
 	{
 		char buffer[8] = {0};
 		memcpy(buffer, pImpl->firstSector + (size_t) (field * 8), sizeof(long int));
-		pImpl->cachedHeaderValue[field] = bitsToInt<long int>(buffer);
+		pImpl->cachedHeaderValue[field] = bytesToInt<long int>(buffer, 8);
 
-		return bitsToInt<long int>(buffer);
+		return bytesToInt<long int>(buffer, 8);
 	}
 };
 
@@ -86,7 +86,9 @@ void Block::SetHeader(short field, long int value){
 	if (field < pImpl->cachedHeaderSize)
 		pImpl->cachedHeaderValue[field] = value;
 
-	char * buffer = intToBits(value);
+	char * buffer = new char[8];
+	int bufferLen;
+	core::intToBytes(value, buffer, bufferLen);
 
 	memcpy(pImpl->firstSector + (size_t) (field * 8), buffer, sizeof(long int));
 	pImpl->isFirstSectorDirty = true;

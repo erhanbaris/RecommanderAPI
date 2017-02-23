@@ -167,7 +167,11 @@ void RecordStorage::AppendUInt32ToContent (Block * block, size_t value)
         return;
     }
 
-    block->Write(intToBits(value), sizeof(size_t), 0, contentLength, 4);
+    char * data = NULL;
+    int dataLen;
+    core::intToBytes(value, data, dataLen);
+
+    block->Write(data, sizeof(size_t), 0, contentLength, 4);
 };
 
 void RecordStorage::MarkAsFree (size_t blockId) {

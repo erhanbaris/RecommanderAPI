@@ -56,11 +56,11 @@ namespace core {
 
 	size_t realTextSize(STR_TYPE const &str);
 
-    template <typename T>
-    T bitsToInt(char const * bits);
+	template<typename T>
+	void intToBytes(T f, char *& result, int & size);
 
-    template <typename T>
-    char *intToBits(T value);
+	template<typename T>
+	T bytesToInt(char * result, int size);
 
 	unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed );
 

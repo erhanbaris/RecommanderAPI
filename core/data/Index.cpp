@@ -73,14 +73,14 @@ bool Index::Create()
 		outfile << '0';
 		outfile << (0xFF & (sizeof(size_t)));
 		outfile << '\0';
-		outfile.write((char*)core::intToBits(dictionary->size()), sizeof(dictionary->size()));
+		//outfile.write((char*)core::intToBits(dictionary->size()), sizeof(dictionary->size()));
 		outfile << '\0';
 		outfile << '\0';
 
 		auto dictEnd = dictionary->end();
 		for (auto it = dictionary->begin(); it != dictEnd; ++it) {
-			char * byteArray = core::intToBits(it->first);
-			outfile.write((char*)byteArray, sizeof(size_t));
+			//char * byteArray = core::intToBits(it->first);
+			//outfile.write((char*)byteArray, sizeof(size_t));
 		}
 
 		outfile.close();
@@ -95,10 +95,10 @@ bool Index::Create()
 		infile.read((char*)byteArray, sizeof(size_t));
 		unsigned long int anotherLongInt;
 
-		anotherLongInt = core::bitsToInt<unsigned long int>(byteArray);
+//		anotherLongInt = core::bitsToInt<unsigned long int>(byteArray);
 		infile.seekg(8);
-		infile.read((char*)byteArray, sizeof(size_t));
-		anotherLongInt = core::bitsToInt<unsigned long int>(byteArray);
+//		infile.read((char*)byteArray, sizeof(size_t));
+//		anotherLongInt = core::bitsToInt<unsigned long int>(byteArray);
 
 		infile.close();
 

@@ -53,35 +53,6 @@ ResponseInfo refreshDataSource(RequestInfo *info) {
     return returnValue;
 }
 
-
-
-template<typename T>
-void float_to_bytes(T f, unsigned char *& result, int & size) {
-
-	result = new unsigned char[sizeof(T)];
-	size = sizeof(T);
-
-	typedef unsigned char float_byte_array[sizeof(T)];
-	union {
-		T x;
-		float_byte_array res;
-	} u;
-	u.x = f;
-	std::copy(u.res, u.res + sizeof(T), result);
-}
-
-template<typename T>
-void bytes_to_int(T & f, unsigned char * result, int size) {
-	typedef unsigned char float_byte_array[sizeof(T)];
-	union {
-		int x;
-		float_byte_array res;
-	} u;
-
-	std::copy(result, result + sizeof(T), u.res);
-	f = u.x;
-}
-
 int main(int argc, char **args) {
     char currentPathChars[FILENAME_MAX];
     if (!GetCurrentDir(currentPathChars, sizeof(currentPathChars)))
@@ -103,20 +74,6 @@ int main(int argc, char **args) {
         block = storage->Find(0);
     else
         block = storage->Create();
-
-
-	size_t number = 19239392;
-	size_t number2 = 0;
-	unsigned char * items = new unsigned char[sizeof(size_t)]{ 0 };
-	int itemsLen = 0;
-	float_to_bytes(number, items, itemsLen);
-
-	bytes_to_int(number2, items, itemsLen);
-
-	char data2[sizeof(int)];
-	*reinterpret_cast<int*>(data2) = 19239392;
-
-	size_t asdasd;
 
     auto headerItem = block->GetHeader(1);
     size_t id = block->Id();
