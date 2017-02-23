@@ -53,24 +53,32 @@ ResponseInfo refreshDataSource(RequestInfo *info) {
     return returnValue;
 }
 
-typedef unsigned char float_byte_array[sizeof(int)];
 
-void float_to_bytes(int f, float_byte_array result) {
+
+template<typename T>
+void float_to_bytes(T f, unsigned char *& result, int & size) {
+
+	result = new unsigned char[sizeof(T)];
+	size = sizeof(T);
+
+	typedef unsigned char float_byte_array[sizeof(T)];
 	union {
-		int x;
+		T x;
 		float_byte_array res;
 	} u;
 	u.x = f;
-	std::copy(u.res, u.res + sizeof(int), result);
+	std::copy(u.res, u.res + sizeof(T), result);
 }
 
-void bytes_to_int(int & f, float_byte_array result) {
+template<typename T>
+void bytes_to_int(T & f, unsigned char * result, int size) {
+	typedef unsigned char float_byte_array[sizeof(T)];
 	union {
 		int x;
 		float_byte_array res;
 	} u;
 
-	std::copy(result, result + sizeof(int), u.res);
+	std::copy(result, result + sizeof(T), u.res);
 	f = u.x;
 }
 
@@ -97,15 +105,13 @@ int main(int argc, char **args) {
         block = storage->Create();
 
 
-	float_byte_array res;
-	float_to_bytes(19239392, res);
+	size_t number = 19239392;
+	size_t number2 = 0;
+	unsigned char * items = new unsigned char[sizeof(size_t)]{ 0 };
+	int itemsLen = 0;
+	float_to_bytes(number, items, itemsLen);
 
-	int dad = 0;
-	bytes_to_int(dad, res);
-
-	for (unsigned i = 0; i < sizeof(int); ++i) {
-		std::cout << std::hex << (unsigned)res[i] << " ";
-	}
+	bytes_to_int(number2, items, itemsLen);
 
 	char data2[sizeof(int)];
 	*reinterpret_cast<int*>(data2) = 19239392;
