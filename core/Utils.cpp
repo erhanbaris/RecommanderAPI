@@ -169,3 +169,5 @@ template int core::bitsToInt(char const *);
 template char * core::intToBits(long int);
 template long int core::bitsToInt(char const *);
 
+template char * core::intToBits(unsigned int);
+template unsigned int core::bitsToInt(char const *);

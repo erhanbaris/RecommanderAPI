@@ -53,6 +53,27 @@ ResponseInfo refreshDataSource(RequestInfo *info) {
     return returnValue;
 }
 
+typedef unsigned char float_byte_array[sizeof(int)];
+
+void float_to_bytes(int f, float_byte_array result) {
+	union {
+		int x;
+		float_byte_array res;
+	} u;
+	u.x = f;
+	std::copy(u.res, u.res + sizeof(int), result);
+}
+
+void bytes_to_int(int & f, float_byte_array result) {
+	union {
+		int x;
+		float_byte_array res;
+	} u;
+
+	std::copy(result, result + sizeof(int), u.res);
+	f = u.x;
+}
+
 int main(int argc, char **args) {
     char currentPathChars[FILENAME_MAX];
     if (!GetCurrentDir(currentPathChars, sizeof(currentPathChars)))
@@ -74,6 +95,22 @@ int main(int argc, char **args) {
         block = storage->Find(0);
     else
         block = storage->Create();
+
+
+	float_byte_array res;
+	float_to_bytes(19239392, res);
+
+	int dad = 0;
+	bytes_to_int(dad, res);
+
+	for (unsigned i = 0; i < sizeof(int); ++i) {
+		std::cout << std::hex << (unsigned)res[i] << " ";
+	}
+
+	char data2[sizeof(int)];
+	*reinterpret_cast<int*>(data2) = 19239392;
+
+	size_t asdasd;
 
     auto headerItem = block->GetHeader(1);
     size_t id = block->Id();
